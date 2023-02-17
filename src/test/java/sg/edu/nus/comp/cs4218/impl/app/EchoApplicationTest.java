@@ -6,6 +6,8 @@ import sg.edu.nus.comp.cs4218.exception.EchoException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
+
 public class EchoApplicationTest {
     EchoApplication echoApplication;
 
@@ -27,5 +29,12 @@ public class EchoApplicationTest {
         String[] array = {"A*B*C"};
         String result = echoApplication.constructResult(array);
         assertEquals("A*B*C", result);
+    }
+
+    @Test
+    void echo_NoArgs_ShouldEchoCorrectly() throws EchoException {
+        String[] array = {};
+        String result = echoApplication.constructResult(array);
+        assertEquals(STRING_NEWLINE, result);
     }
 }
