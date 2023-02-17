@@ -21,4 +21,11 @@ public class EchoApplicationTest {
 
         assertEquals("A B C", result);
     }
+
+    @Test
+    void echo_WithQuotes_ShouldEchoCorrectly() throws EchoException {
+        String[] array = {"A*B*C"};
+        String result = echoApplication.constructResult(array);
+        assertEquals("A*B*C", result);
+    }
 }
