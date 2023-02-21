@@ -234,4 +234,43 @@ public class CommandBuilderTest {
 
         }
     }
+
+    @Test
+    void parseCommand_CallArgsWithSubstitution_ReturnsCallCommandWithCorrectArgTokens() {
+        String args = "echo `echo hello world`";
+        List<String> expectedTokens = Arrays.asList("echo", "`echo hello world`");
+        try {
+            Command command = CommandBuilder.parseCommand(args, applicationRunner);
+            List<String> argTokens = ((CallCommand) command).getArgsList();
+            assertEquals(expectedTokens, argTokens);
+        } catch (ShellException ignored) {
+
+        }
+    }
+
+    @Test
+    void parseCommand_CallArgsWithSubstitutionAndQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+        String args = "echo `echo \"‘quote is not interpreted as special character’\"`";
+        List<String> expectedTokens = Arrays.asList("echo", "`echo \"‘quote is not interpreted as special character’\"`");
+        try {
+            Command command = CommandBuilder.parseCommand(args, applicationRunner);
+            List<String> argTokens = ((CallCommand) command).getArgsList();
+            assertEquals(expectedTokens, argTokens);
+        } catch (ShellException ignored) {
+
+        }
+    }
+
+    @Test
+    void parseCommand_CallArgsWithSubstitutionAndRedirection_ReturnsCallCommandWithCorrectArgTokens() {
+        String args = "paste `ls x*` > all.txt";
+        List<String> expectedTokens = Arrays.asList("paste", "`ls x*`", ">", "all.txt");
+        try {
+            Command command = CommandBuilder.parseCommand(args, applicationRunner);
+            List<String> argTokens = ((CallCommand) command).getArgsList();
+            assertEquals(expectedTokens, argTokens);
+        } catch (ShellException ignored) {
+
+        }
+    }
 }
