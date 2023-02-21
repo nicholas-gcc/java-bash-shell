@@ -47,7 +47,7 @@ public class CallCommand implements Command {
 
         // Handle quoting + globing + command substitution
         List<String> parsedArgsList = argumentResolver.parseArguments(noRedirArgsList);
-        if (parsedArgsList.isEmpty()) {
+        if (!parsedArgsList.isEmpty()) {
             String app = parsedArgsList.remove(0);
             appRunner.runApp(app, parsedArgsList.toArray(new String[0]), inputStream, outputStream);
         }
