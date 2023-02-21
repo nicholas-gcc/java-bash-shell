@@ -12,8 +12,7 @@ import sg.edu.nus.comp.cs4218.impl.cmd.SequenceCommand;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class CommandBuilderTest {
@@ -26,6 +25,17 @@ public class CommandBuilderTest {
 
     @Test
     void parseCommand_SimpleCallArgs_ReturnsCallCommand() {
+        String args = "echo hello";
+        try {
+            Command command = CommandBuilder.parseCommand(args, applicationRunner);
+            assertEquals(command.getClass(), CallCommand.class);
+        } catch (ShellException ignored) {
+
+        }
+    }
+
+    @Test
+    void parseCommand_ComplexCallArgs_ReturnsCallCommand() {
         String args = "grep “Interesting String” < text1.txt > result.txt";
         try {
             Command command = CommandBuilder.parseCommand(args, applicationRunner);
@@ -55,6 +65,41 @@ public class CommandBuilderTest {
         } catch (ShellException ignored) {
 
         }
+    }
+
+    @Test
+    void parseCommand_EmptyArgs_ThrowsShellException() {
+        assertThrows(ShellException.class, () -> {
+            CommandBuilder.parseCommand("   ", applicationRunner);
+        });
+    }
+
+    @Test
+    void parseCommand_ArgsContainNewLine_ThrowsShellException() {
+        assertThrows(ShellException.class, () -> {
+            CommandBuilder.parseCommand("echo hello" + System.lineSeparator(), applicationRunner);
+        });
+    }
+
+    @Test
+    void parseCommand_EmptyPipeArgs_ThrowsShellException() {
+        assertThrows(ShellException.class, () -> {
+            CommandBuilder.parseCommand("   |grep", applicationRunner);
+        });
+    }
+
+    @Test
+    void parseCommand_EmptySequenceArgs_ThrowsShellException() {
+        assertThrows(ShellException.class, () -> {
+            CommandBuilder.parseCommand("   ;grep", applicationRunner);
+        });
+    }
+
+    @Test
+    void parseCommand_MismatchQuotesArgs_ThrowsShellException() {
+        assertThrows(ShellException.class, () -> {
+            CommandBuilder.parseCommand("echo \"hello word'", applicationRunner);
+        });
     }
 
     @Test
