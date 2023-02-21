@@ -1,10 +1,11 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
-import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.CdException;
+
+import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,5 +48,15 @@ public class CdApplicationTest {
         String string = "README.md";
         Exception exception = assertThrows(Exception.class, () -> cdApplication.changeToDirectory(string));
         assertEquals("cd: " + ERR_IS_NOT_DIR, exception.getMessage());
+    }
+
+    @Test
+    void cd_PathParentDirectory_ShouldCdCorrectly() throws CdException {
+        String string = "..";
+        String directory = Environment.currentDirectory;
+        String parentDirectory = new File(directory).getParent();
+        cdApplication.changeToDirectory(string);
+        assertEquals(parentDirectory, Environment.currentDirectory);
+        Environment.currentDirectory = directory;
     }
 }
