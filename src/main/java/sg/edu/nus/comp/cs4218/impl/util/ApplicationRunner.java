@@ -50,13 +50,16 @@ public class ApplicationRunner {
                 break;
             case APP_EXIT:
                 application = new ExitApplication();
+                break;
             case APP_GREP:
                 application = new GrepApplication();
+                break;
             case APP_CD:
                 application = new CdApplication();
                 break;
             case APP_CAT:
                 application = new CatApplication();
+                break;
             default:
                 throw new ShellException(app + ": " + ERR_INVALID_APP);
         }

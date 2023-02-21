@@ -48,17 +48,7 @@ public final class StringUtils {
      * 3. string contains only whitespace
      */
     public static boolean isBlank(String str) {
-        if (str == null || str.isEmpty()) {
-            return true;
-        }
-
-        for (int i = 0; i < str.length(); ) {
-            if (Character.isWhitespace(str.charAt(i))) {
-                return false;
-            }
-        }
-
-        return true;
+        return str == null || str.isBlank();
     }
 
     /**
