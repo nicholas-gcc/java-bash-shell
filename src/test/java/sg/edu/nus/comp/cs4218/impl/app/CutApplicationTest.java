@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
 
 public class CutApplicationTest {
-    private static final String cutExceptionPrefix = "cut: ";
+    private static final String CUT_EXCEPTION_PREFIX = "cut: ";
     private final CutApplication cutApp = new CutApplication();
 
     @Test
-    void testCutFirstByteFromStdin() {
+    void testCut_FirstByteFromStdin_ReturnsCorrectOutput() {
         String input = "baz";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
         String expected = "b";
@@ -27,7 +27,7 @@ public class CutApplicationTest {
     }
 
     @Test
-    void testCutSecondByteFromStdin() {
+    void testCut_SecondByteFromStdin_ReturnsCorrectOutput() {
         String input = "baz";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
         String expected = "a";
@@ -39,7 +39,7 @@ public class CutApplicationTest {
     }
 
     @Test
-    void testCutFirstByteAndEighthByteFromStdin() {
+    void testCut_FirstByteAndEighthByteFromStdin_ReturnsCorrectOutput() {
         String input = "Today is Tuesday";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
         String expected = "Ts";
@@ -51,7 +51,7 @@ public class CutApplicationTest {
     }
 
     @Test
-    void testCutRangeFirstByteToEigthByteFromStdin() {
+    void testCut_RangeFirstByteToEigthByteFromStdin_ReturnsCorrectOutput() {
         String input = "Today is Tuesday";
         InputStream inputStream = new ByteArrayInputStream(input.getBytes());
         String expected = "Today is";
@@ -62,11 +62,11 @@ public class CutApplicationTest {
         });
     }
     @Test
-    void testCutFromNullStream() {
+    void testCut_FromNullStream_ReturnsException() {
         List<int[]> ranges = List.of(new int[]{1, 1});
         Throwable thrown = assertThrows(CutException.class, () -> {
             cutApp.cutFromStdin(false, true, ranges, null);
         });
-        assertEquals(cutExceptionPrefix + ERR_NULL_STREAMS, thrown.getMessage());
+        assertEquals(CUT_EXCEPTION_PREFIX + ERR_NULL_STREAMS, thrown.getMessage());
     }
 }

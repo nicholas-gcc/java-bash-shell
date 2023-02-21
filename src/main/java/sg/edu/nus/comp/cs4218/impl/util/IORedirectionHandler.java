@@ -35,6 +35,7 @@ public class IORedirectionHandler {
     }
 
     public void extractRedirOptions() throws AbstractApplicationException, ShellException, FileNotFoundException {
+        // TODO: Fix this?
         if (argsList == null && argsList.isEmpty()) {
             throw new ShellException(ERR_SYNTAX);
         }

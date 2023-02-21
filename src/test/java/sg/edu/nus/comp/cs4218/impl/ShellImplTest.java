@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ShellImplTest {
     @Test
-    void oneEqualsOne() {
+    void testSample_OneEqualsOne_isEqual() {
         assertEquals(1, 1);
     }
 }
