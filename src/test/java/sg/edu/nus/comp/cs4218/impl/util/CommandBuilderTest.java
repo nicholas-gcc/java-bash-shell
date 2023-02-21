@@ -12,8 +12,8 @@ import sg.edu.nus.comp.cs4218.impl.cmd.SequenceCommand;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CommandBuilderTest {
     ApplicationRunner applicationRunner;
@@ -37,6 +37,17 @@ public class CommandBuilderTest {
     @Test
     void parseCommand_ComplexCallArgs_ReturnsCallCommand() {
         String args = "grep “Interesting String” < text1.txt > result.txt";
+        try {
+            Command command = CommandBuilder.parseCommand(args, applicationRunner);
+            assertEquals(command.getClass(), CallCommand.class);
+        } catch (ShellException ignored) {
+
+        }
+    }
+
+    @Test
+    void parseCommand_ComplexSymbolArgs_ReturnsCallCommand() {
+        String args = "echo ‡…™©~Œ{}[]\\^_':,+*&%$#=";
         try {
             Command command = CommandBuilder.parseCommand(args, applicationRunner);
             assertEquals(command.getClass(), CallCommand.class);
@@ -70,7 +81,13 @@ public class CommandBuilderTest {
     @Test
     void parseCommand_EmptyArgs_ThrowsShellException() {
         assertThrows(ShellException.class, () -> {
-            CommandBuilder.parseCommand("   ", applicationRunner);
+            CommandBuilder.parseCommand("", applicationRunner);
+        });
+    }
+    @Test
+    void parseCommand_BlankArgs_ThrowsShellException() {
+        assertThrows(ShellException.class, () -> {
+            CommandBuilder.parseCommand("                       ", applicationRunner);
         });
     }
 
