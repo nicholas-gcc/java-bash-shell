@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
+import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
@@ -34,8 +35,17 @@ public class CdApplicationTest {
     @Test
     void cd_PathExist_ShouldCdCorrectly() throws CdException {
         String string = "src/test";
-        String initialDirectory = Environment.currentDirectory;
+        String directory = Environment.currentDirectory;
         cdApplication.changeToDirectory(string);
-        assertEquals(initialDirectory + "/src/test", Environment.currentDirectory);
+        assertEquals(directory + "/src/test", Environment.currentDirectory);
+        Environment.currentDirectory = directory;
+
+    }
+
+    @Test
+    void cd_PathNotDirectory_ShouldCdCorrectly() throws CdException {
+        String string = "README.md";
+        Exception exception = assertThrows(Exception.class, () -> cdApplication.changeToDirectory(string));
+        assertEquals("cd: " + ERR_IS_NOT_DIR, exception.getMessage());
     }
 }
