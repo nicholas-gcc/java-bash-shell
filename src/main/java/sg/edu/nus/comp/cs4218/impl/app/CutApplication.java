@@ -39,12 +39,11 @@ public class CutApplication implements CutInterface {
                     //  If a FILE is ‘-’, read standard input instead of file
                     if (fileName.equals("-")) {
                         result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
-                        result.append(STRING_NEWLINE);
                     } else {
                         result.append(cutFromFiles(cutArgs.isCharPo(), cutArgs.isBytePo(),
                                 cutArgs.getRanges(), fileName));
-                        result.append(STRING_NEWLINE);
                     }
+                    result.append(STRING_NEWLINE);
                 }
             }
         } catch (Exception e) {

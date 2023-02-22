@@ -4,12 +4,15 @@ import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.exception.CutException;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class CutApplicationTest {
     private static final String CUT_EX_PREFIX = "cut: ";
@@ -97,20 +100,33 @@ public class CutApplicationTest {
     @Test
     void testRun_Range_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        String expected = "Today is";
-        List<int[]> ranges = List.of(new int[]{1, 8});
-        assertDoesNotThrow(() -> cutApp.run(new String[]{"-b", "1-8"}, inputStream, System.out));
+        String expected = "Today is" + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            OutputStream outputStream = new ByteArrayOutputStream();
+            cutApp.run(new String[]{"-b", "1-8"}, inputStream, outputStream);
+            assertEquals(expected, outputStream.toString());
+        });
     }
 
     @Test
-    void testRun_SingleNumber_DoesNotThrowException() {
+    void testRun_SingleNumber_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        assertDoesNotThrow(() -> cutApp.run(new String[]{"-b", "1"}, inputStream, System.out));
+        String expected = "T" + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            OutputStream outputStream = new ByteArrayOutputStream();
+            cutApp.run(new String[]{"-b", "1"}, inputStream, outputStream);
+            assertEquals(expected, outputStream.toString());
+        });
     }
 
     @Test
-    void testRun_MixOfRangeAndSingleNumber_DoesNotThrowException() {
+    void testRun_MixOfRangeAndSingleNumber_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        assertDoesNotThrow(() -> cutApp.run(new String[]{"-b", "1-8,10"}, inputStream, System.out));
+        String expected = "Today isT" + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            OutputStream outputStream = new ByteArrayOutputStream();
+            cutApp.run(new String[]{"-b", "1-8,10"}, inputStream, outputStream);
+            assertEquals(expected, outputStream.toString());
+        });
     }
 }
