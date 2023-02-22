@@ -24,15 +24,15 @@ public class CdApplicationTest {
     @Test
     void cd_NoArgs_ShouldCdCorrectly() throws CdException {
         String string = " ";
-        Exception exception = assertThrows(Exception.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_NO_ARGS, exception.getMessage());
+        CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
+        assertEquals("cd: " + ERR_NO_ARGS, cdException.getMessage());
     }
 
     @Test
     void cd_PathDoesNotExist_ShouldCdCorrectly() throws CdException {
         String string = "blah";
-        Exception exception = assertThrows(Exception.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_FILE_NOT_FOUND, exception.getMessage());
+        CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
+        assertEquals("cd: " + ERR_FILE_NOT_FOUND, cdException.getMessage());
     }
 
     @Test
