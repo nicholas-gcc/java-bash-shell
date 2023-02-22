@@ -37,4 +37,11 @@ public class EchoApplicationTest {
         String result = echoApplication.constructResult(array);
         assertEquals(STRING_NEWLINE, result);
     }
+
+    @Test
+    void echo_EmptyString_ShouldEchoCorrectly() throws EchoException {
+        String [] array = {""};
+        String result = echoApplication.constructResult(array);
+        assertEquals("", result);
+    }
 }
