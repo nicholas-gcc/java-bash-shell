@@ -44,4 +44,11 @@ public class EchoApplicationTest {
         String result = echoApplication.constructResult(array);
         assertEquals("", result);
     }
+
+    @Test
+    void echo_SpecialCharacters_ShouldEchoCorrectly() throws EchoException {
+        String [] array = {"!@#$%^&*()"};
+        String result = echoApplication.constructResult(array);
+        assertEquals("!@#$%^&*()", result);
+    }
 }
