@@ -13,12 +13,13 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
 
 public class CutApplicationTest {
     private static final String CUT_EX_PREFIX = "cut: ";
+    private static final String SAMPLE_SENTENCE = "Today is Tuesday";
+    private static final String SAMPLE_WORD = "baz";
     private final CutApplication cutApp = new CutApplication();
 
     @Test
     void testCutFromStdin_FirstByte_ReturnsCorrectOutput() {
-        String input = "baz";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_WORD.getBytes());
         String expected = "b";
         List<int[]> ranges = List.of(new int[]{1, 1});
         assertDoesNotThrow(() -> {
@@ -29,8 +30,7 @@ public class CutApplicationTest {
 
     @Test
     void testCutFromStdin_SecondByte_ReturnsCorrectOutput() {
-        String input = "baz";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_WORD.getBytes());
         String expected = "a";
         List<int[]> ranges = List.of(new int[]{2, 2});
         assertDoesNotThrow(() -> {
@@ -41,8 +41,7 @@ public class CutApplicationTest {
 
     @Test
     void testCutFromStdin_FirstByteAndEighthByte_ReturnsCorrectOutput() {
-        String input = "Today is Tuesday";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
         String expected = "Ts";
         List<int[]> ranges = List.of(new int[]{1, 1}, new int[]{8, 8});
         assertDoesNotThrow(() -> {
@@ -54,7 +53,7 @@ public class CutApplicationTest {
     @Test
     void testCutFromStdin_RangeFirstByteToEighthByte_ReturnsCorrectOutput() {
         String input = "Today is Tuesday";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
         String expected = "Today is";
         List<int[]> ranges = List.of(new int[]{1, 8});
         assertDoesNotThrow(() -> {
@@ -97,8 +96,7 @@ public class CutApplicationTest {
 
     @Test
     void testRun_Range_ReturnsCorrectOutput() {
-        String input = "Today is Tuesday";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
         String expected = "Today is";
         List<int[]> ranges = List.of(new int[]{1, 8});
         assertDoesNotThrow(() -> cutApp.run(new String[]{"-b", "1-8"}, inputStream, System.out));
@@ -106,15 +104,13 @@ public class CutApplicationTest {
 
     @Test
     void testRun_SingleNumber_DoesNotThrowException() {
-        String input = "Today is Tuesday";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
         assertDoesNotThrow(() -> cutApp.run(new String[]{"-b", "1"}, inputStream, System.out));
     }
 
+    @Test
     void testRun_MixOfRangeAndSingleNumber_DoesNotThrowException() {
-        String input = "Today is Tuesday";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
         assertDoesNotThrow(() -> cutApp.run(new String[]{"-b", "1-8,10"}, inputStream, System.out));
     }
-
 }
