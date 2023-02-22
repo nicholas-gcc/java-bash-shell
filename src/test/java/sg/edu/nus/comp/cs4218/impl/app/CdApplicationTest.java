@@ -22,14 +22,14 @@ public class CdApplicationTest {
     }
 
     @Test
-    void cd_NoArgs_ShouldCdCorrectly() throws CdException {
+    void cd_NoArgs_ThrowsCdException() {
         String string = " ";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
         assertEquals("cd: " + ERR_NO_ARGS, cdException.getMessage());
     }
 
     @Test
-    void cd_PathDoesNotExist_ShouldCdCorrectly() throws CdException {
+    void cd_PathDoesNotExist_ThrowsCdException() {
         String string = "blah";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
         assertEquals("cd: " + ERR_FILE_NOT_FOUND, cdException.getMessage());
@@ -46,10 +46,10 @@ public class CdApplicationTest {
     }
 
     @Test
-    void cd_PathNotDirectory_ShouldCdCorrectly() throws CdException {
+    void cd_PathNotDirectory_ThrowsCdException() {
         String string = "README.md";
-        Exception exception = assertThrows(Exception.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_IS_NOT_DIR, exception.getMessage());
+        CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
+        assertEquals("cd: " + ERR_IS_NOT_DIR, cdException.getMessage());
     }
 
     @Test
