@@ -35,10 +35,10 @@ public class CdApplicationTest {
 
     @Test
     void cd_PathExist_ShouldCdCorrectly() throws CdException {
-        String string = "src/test";
+        String string = "src" + File.separator + "test";
         String directory = Environment.currentDirectory;
         cdApplication.changeToDirectory(string);
-        assertEquals(directory + "/src/test", Environment.currentDirectory);
+        assertEquals(directory + File.separator + string, Environment.currentDirectory);
         Environment.currentDirectory = directory;
 
     }
