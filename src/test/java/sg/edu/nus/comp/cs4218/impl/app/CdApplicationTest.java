@@ -59,4 +59,12 @@ public class CdApplicationTest {
         assertEquals(parentDirectory, Environment.currentDirectory);
         Environment.currentDirectory = directory;
     }
+
+    @Test
+    void cd_PathCurrentDirectory_ShouldCdCorrectly() throws CdException {
+        String string = ".";
+        String directory = Environment.currentDirectory;
+        cdApplication.changeToDirectory(string);
+        assertEquals(directory, Environment.currentDirectory);
+    }
 }
