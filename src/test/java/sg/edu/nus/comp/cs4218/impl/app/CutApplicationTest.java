@@ -10,8 +10,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
@@ -93,6 +92,18 @@ public class CutApplicationTest {
         });
         assertEquals(CUT_EX_PREFIX + "No such file or directory", thrown.getMessage());
     }
+
+    @Test
+    void testCurFromFiles_Directory_ThrowsException() {
+        List<int[]> ranges = List.of(new int[]{1, 1});
+        String filepath = FOLDER_FILEPATH;
+        Throwable thrown = assertThrows(CutException.class, () -> {
+            cutApp.cutFromFiles(false, true, ranges, filepath);
+        });
+        assertEquals(CUT_EX_PREFIX + ERR_IS_DIR, thrown.getMessage());
+    }
+
+    @Test
     void testCutFromFiles_FirstByteOfOneWordFile_ReturnsCorrectOutput() {
         String expected = "b";
         List<int[]> ranges = List.of(new int[]{1, 1});
