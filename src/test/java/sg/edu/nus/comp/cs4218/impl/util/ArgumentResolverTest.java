@@ -2,15 +2,15 @@ package sg.edu.nus.comp.cs4218.impl.util;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
-import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 
 public class ArgumentResolverTest {
     ApplicationRunner applicationRunner;
@@ -28,12 +28,10 @@ public class ArgumentResolverTest {
     void parseArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() {
         List<String> args = Arrays.asList("echo", "`echo hello`");
         List<String> expectedTokens = Arrays.asList("echo", "hello");
-        try {
+        assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 
     @Test
@@ -42,12 +40,10 @@ public class ArgumentResolverTest {
 
         // From project documentation: Other characters (including quotes) are not interpreted as special characters
         List<String> expectedTokens = Arrays.asList("echo", "hello", "world");
-        try {
+        assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 
     @Test
@@ -56,18 +52,16 @@ public class ArgumentResolverTest {
 
         // From proj documentation: Other characters (including quotes) are not interpreted as special characters
         List<String> expectedTokens = Arrays.asList("echo", "‘quote", "is", "not", "interpreted", "as", "special", "character’");
-        try {
+        assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 
     @Test
     void parseArgument_CommandSubstitution_ReturnsCommandWithNoNewline() {
         List<String> args = Arrays.asList("`ls`");
-        try {
+        assertDoesNotThrow(() -> {
             // output without command substitution: file1\n file2\n file3...
             // with command substitution: file1 file2 file3
             List<String> actualTokens = argumentResolver.parseArguments(args);
@@ -75,9 +69,7 @@ public class ArgumentResolverTest {
             // no newlines -> newlineIndex should be -1
             int newlineIndex = actualTokens.get(0).indexOf('\n');
             assertEquals(newlineIndex, -1);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 
     @Test
@@ -101,24 +93,20 @@ public class ArgumentResolverTest {
     void resolveOneArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() {
         String args = "`echo hello`";
         List<String> expectedTokens = Arrays.asList("hello");
-        try {
+        assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 
     @Test
     void resolveOneArgument_CommandSubstitutionNoQuoteMultipleTokens_ReturnsCommandWithCorrectArgTokens() {
         String args = "`echo hello world`";
         List<String> expectedTokens = Arrays.asList("hello", "world");
-        try {
+        assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 
     @Test
@@ -127,11 +115,9 @@ public class ArgumentResolverTest {
 
         // note: resolveOneArgument should split up 'hello world'. parseArguments will combine them into one single 'hello world' token
         List<String> expectedTokens = Arrays.asList("hello", "world");
-        try {
+        assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);
-        } catch (ShellException | FileNotFoundException | AbstractApplicationException ignored) {
-
-        }
+        });
     }
 }
