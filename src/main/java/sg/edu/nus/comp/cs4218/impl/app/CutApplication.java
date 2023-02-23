@@ -5,8 +5,10 @@ import sg.edu.nus.comp.cs4218.exception.CutException;
 import sg.edu.nus.comp.cs4218.impl.app.args.CutArguments;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
@@ -59,9 +61,30 @@ public class CutApplication implements CutInterface {
 
     @Override
     public String cutFromFiles(Boolean isCharPo, Boolean isBytePo, List<int[]> ranges, String... fileName)
-            throws Exception {
-        // TODO: Complete implementation
-        return null;
+            throws CutException {
+        if (fileName == null) {
+            throw new CutException(ERR_NULL_ARGS);
+        }
+        List<String> lines = new ArrayList<>();
+        for (String fileString : fileName) {
+            File file = IOUtils.resolveFilePath(fileString).toFile();
+            if (!file.exists()) {
+                throw new CutException(ERR_FILE_NOT_FOUND);
+            }
+            if (file.isDirectory()) {
+                throw new CutException(ERR_IS_DIR);
+            }
+            if (!file.canRead()) {
+                throw new CutException(ERR_NO_PERM);
+            }
+            try (InputStream fileStream = IOUtils.openInputStream(fileString)) {
+                lines.addAll(IOUtils.getLinesFromInputStream(fileStream));
+                IOUtils.closeInputStream(fileStream);
+            } catch (Exception e) {
+                throw new CutException(ERR_IO_EXCEPTION);
+            }
+        }
+        return cutString(isCharPo, isBytePo, ranges, lines);
     }
 
     @Override
@@ -95,7 +118,8 @@ public class CutApplication implements CutInterface {
                     result.append(line, start - 1, end);
                 }
             }
+            result.append(STRING_NEWLINE);
         }
-        return result.toString();
+        return result.toString().trim(); // trim removes the last newline
     }
 }
