@@ -45,8 +45,10 @@ public class CdApplicationTest {
     void cd_PathExist_ShouldCdCorrectly() throws CdException {
         String string = "src" + File.separator + "test";
         String initialDirectory = Environment.currentDirectory;
-        cdApplication.changeToDirectory(string);
-        assertEquals(initialDirectory + File.separator + string, Environment.currentDirectory);
+        assertDoesNotThrow(() -> {
+            cdApplication.changeToDirectory(string);
+            assertEquals(initialDirectory + File.separator + string, Environment.currentDirectory);
+        });
     }
 
     @Test
@@ -61,15 +63,19 @@ public class CdApplicationTest {
         String string = "..";
         String initialDirectory = Environment.currentDirectory;
         String parentDirectory = new File(initialDirectory).getParent();
-        cdApplication.changeToDirectory(string);
-        assertEquals(parentDirectory, Environment.currentDirectory);
+        assertDoesNotThrow(() -> {
+            cdApplication.changeToDirectory(string);
+            assertEquals(parentDirectory, Environment.currentDirectory);
+        });
     }
 
     @Test
     void cd_PathCurrentDirectory_ShouldCdCorrectly() throws CdException {
         String string = ".";
         String initialDirectory = Environment.currentDirectory;
-        cdApplication.changeToDirectory(string);
-        assertEquals(initialDirectory, Environment.currentDirectory);
+        assertDoesNotThrow(() -> {
+            cdApplication.changeToDirectory(string);
+            assertEquals(initialDirectory, Environment.currentDirectory);
+        });
     }
 }
