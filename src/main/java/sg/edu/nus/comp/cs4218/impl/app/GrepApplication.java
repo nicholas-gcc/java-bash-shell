@@ -50,13 +50,14 @@ public class GrepApplication implements GrepInterface {
         StringJoiner lineResults = new StringJoiner(STRING_NEWLINE);
         StringJoiner countResults = new StringJoiner(STRING_NEWLINE);
 
-        grepResultsFromFiles(pattern, isCaseInsensitive, lineResults, countResults, fileNames);
+        grepResultsFromFiles(pattern, isCaseInsensitive, isPrefixFileName, lineResults, countResults, fileNames);
 
         String results = "";
         if (isCountLines) {
             results = countResults.toString() + STRING_NEWLINE;
         } else {
             if (!lineResults.toString().isEmpty()) {
+
                 results = lineResults.toString() + STRING_NEWLINE;
             }
         }
@@ -73,7 +74,7 @@ public class GrepApplication implements GrepInterface {
      * @param countResults      a StringJoiner of the grep line count results
      * @param fileNames         a String Array of file names supplied by user
      */
-    private void grepResultsFromFiles(String pattern, Boolean isCaseInsensitive, StringJoiner lineResults, StringJoiner countResults, String... fileNames) throws Exception {
+    private void grepResultsFromFiles(String pattern, Boolean isCaseInsensitive, Boolean hasPrefix, StringJoiner lineResults, StringJoiner countResults, String... fileNames) throws Exception {
         int count;
         boolean isSingleFile = (fileNames.length == 1);
         for (String f : fileNames) {
@@ -104,6 +105,7 @@ public class GrepApplication implements GrepInterface {
                     Matcher matcher = compiledPattern.matcher(line);
                     if (matcher.find()) { // match
                         if (isSingleFile) {
+                            line = hasPrefix? f + ": " + line : line;
                             lineResults.add(line);
                         } else {
                             lineResults.add(f + ": " + line);
@@ -111,7 +113,7 @@ public class GrepApplication implements GrepInterface {
                         count++;
                     }
                 }
-                if (isSingleFile) {
+                if (isSingleFile && !hasPrefix) {
                     countResults.add("" + count);
                 } else {
                     countResults.add(f + ": " + count);
@@ -168,7 +170,6 @@ public class GrepApplication implements GrepInterface {
 
     @Override
     public String grepFromStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, InputStream stdin) throws Exception {
-        // TODO: To implement -H flag print file name with output lines
         int count = 0;
         StringJoiner stringJoiner = new StringJoiner(STRING_NEWLINE);
 
@@ -184,6 +185,7 @@ public class GrepApplication implements GrepInterface {
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = compiledPattern.matcher(line);
                 if (matcher.find()) { // match
+                    line = isPrefixFileName? "standard input: " + line: line;
                     stringJoiner.add(line);
                     count++;
                 }
@@ -197,7 +199,11 @@ public class GrepApplication implements GrepInterface {
 
         String results = "";
         if (isCountLines) {
-            results = count + STRING_NEWLINE;
+            if (isPrefixFileName) {
+                results = "standard input: " + count;
+            } else {
+                results = count + STRING_NEWLINE;
+            }
         } else {
             if (!stringJoiner.toString().isEmpty()) {
                 results = stringJoiner.toString() + STRING_NEWLINE;
@@ -290,11 +296,10 @@ public class GrepApplication implements GrepInterface {
 
     @Override
     public String grepFromFileAndStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, InputStream stdin, String... fileNames) throws Exception {
-        // TODO: To implement
         String result = "";
         for (String input: fileNames) {
             if (String.valueOf(CHAR_FLAG_PREFIX).equals(input)) {
-                result = result + "standard input:" + grepFromStdin(pattern, isCaseInsensitive, isCountLines, isPrefixFileName, stdin);
+                result = result + "standard input: " + grepFromStdin(pattern, isCaseInsensitive, isCountLines, isPrefixFileName, stdin);
             } else {
                 String[] file = new String[] {input};
                 result = result + grepFromFiles(pattern, isCaseInsensitive, isCountLines, true, file);
