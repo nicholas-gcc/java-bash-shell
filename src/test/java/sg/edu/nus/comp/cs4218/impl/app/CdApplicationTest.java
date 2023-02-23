@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
@@ -21,6 +22,11 @@ public class CdApplicationTest {
         cdApplication = new CdApplication();
     }
 
+    @AfterEach
+    void resetDir() {
+        Environment.currentDirectory = System.getProperty("user.dir");
+    }
+
     @Test
     void cd_NoArgs_ThrowsCdException() {
         String string = " ";
@@ -38,11 +44,9 @@ public class CdApplicationTest {
     @Test
     void cd_PathExist_ShouldCdCorrectly() throws CdException {
         String string = "src" + File.separator + "test";
-        String directory = Environment.currentDirectory;
+        String initialDirectory = Environment.currentDirectory;
         cdApplication.changeToDirectory(string);
-        assertEquals(directory + File.separator + string, Environment.currentDirectory);
-        Environment.currentDirectory = directory;
-
+        assertEquals(initialDirectory + File.separator + string, Environment.currentDirectory);
     }
 
     @Test
@@ -55,18 +59,17 @@ public class CdApplicationTest {
     @Test
     void cd_PathParentDirectory_ShouldCdCorrectly() throws CdException {
         String string = "..";
-        String directory = Environment.currentDirectory;
-        String parentDirectory = new File(directory).getParent();
+        String initialDirectory = Environment.currentDirectory;
+        String parentDirectory = new File(initialDirectory).getParent();
         cdApplication.changeToDirectory(string);
         assertEquals(parentDirectory, Environment.currentDirectory);
-        Environment.currentDirectory = directory;
     }
 
     @Test
     void cd_PathCurrentDirectory_ShouldCdCorrectly() throws CdException {
         String string = ".";
-        String directory = Environment.currentDirectory;
+        String initialDirectory = Environment.currentDirectory;
         cdApplication.changeToDirectory(string);
-        assertEquals(directory, Environment.currentDirectory);
+        assertEquals(initialDirectory, Environment.currentDirectory);
     }
 }
