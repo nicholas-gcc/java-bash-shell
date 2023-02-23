@@ -28,7 +28,7 @@ public class CutApplication implements CutInterface {
         try {
             cutArgs.parse(args);
         } catch (Exception e) {
-            throw new CutException(e.getMessage());
+            throw new CutException(e.getMessage()); //NOPMD
         }
 
         StringBuilder result = new StringBuilder();
@@ -39,7 +39,7 @@ public class CutApplication implements CutInterface {
             } else {
                 for (String fileName : cutArgs.getFiles()) {
                     //  If a FILE is ‘-’, read standard input instead of file
-                    if (fileName.equals("-")) {
+                    if ("-".equals(fileName)) {
                         result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
                     } else {
                         result.append(cutFromFiles(cutArgs.isCharPo(), cutArgs.isBytePo(),
@@ -49,13 +49,13 @@ public class CutApplication implements CutInterface {
                 }
             }
         } catch (Exception e) {
-            throw new CutException(e.getMessage());
+            throw new CutException(e.getMessage());//NOPMD
         }
 
         try {
             stdout.write(result.toString().getBytes());
         } catch (Exception e) {
-            throw new CutException(ERR_WRITE_STREAM);
+            throw new CutException(ERR_WRITE_STREAM);//NOPMD
         }
     }
 
@@ -81,7 +81,7 @@ public class CutApplication implements CutInterface {
                 lines.addAll(IOUtils.getLinesFromInputStream(fileStream));
                 IOUtils.closeInputStream(fileStream);
             } catch (Exception e) {
-                throw new CutException(ERR_IO_EXCEPTION);
+                throw new CutException(ERR_IO_EXCEPTION);//NOPMD
             }
         }
         return cutString(isCharPo, isBytePo, ranges, lines);

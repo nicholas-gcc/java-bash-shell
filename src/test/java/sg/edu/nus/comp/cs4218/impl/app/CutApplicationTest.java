@@ -21,12 +21,11 @@ public class CutApplicationTest {
 
     private static final String FOLDER_FILEPATH = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "cut";
     private static final String ONE_SENTENCE_FILE = "one-sentence.txt";
-    private static final String MULTI_SENTENCE_FILE = "multi-sentence.txt";
+    private static final String MUL_SENTENCE_FILE = "multi-sentence.txt";
 
     private static final String ONE_WORD_FILE = "one-word.txt";
 
-    private static String EMPTY_FILE = "empty.txt";
-    private static String NON_EXISTENT_FILE = "non-existent.txt";
+    private static final String NON_EXISTENT_FILE = "non-existent.txt";
 
     private final CutApplication cutApp = new CutApplication();
 
@@ -65,9 +64,8 @@ public class CutApplicationTest {
 
     @Test
     void testCutFromStdin_RangeFirstByteToEighthByte_ReturnsCorrectOutput() {
-        String input = "Today is Tuesday";
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        String expected = "Today is";
+        String expected = "Today is";//NOPMD
         List<int[]> ranges = List.of(new int[]{1, 8});
         assertDoesNotThrow(() -> {
             String actual = cutApp.cutFromStdin(false, true, ranges, inputStream);
@@ -142,7 +140,7 @@ public class CutApplicationTest {
     void testCutFromFile_RangeFirstByteToEighthByteOfMultiSentenceFile_ReturnsCorrectOutput() {
         String expected = "Good mor" + STRING_NEWLINE + "This is " + STRING_NEWLINE + "I hope y";
         List<int[]> ranges = List.of(new int[]{1, 8});
-        String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + MULTI_SENTENCE_FILE;
+        String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + MUL_SENTENCE_FILE;
         assertDoesNotThrow(() -> {
             String actual = cutApp.cutFromFiles(false, true, ranges, filepath);
             assertEquals(expected, actual);
@@ -210,7 +208,7 @@ public class CutApplicationTest {
 
     @Test
     void testRun_RangeFromMultiSentenceFile_ReturnsCorrectOutput() {
-        String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + MULTI_SENTENCE_FILE;
+        String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + MUL_SENTENCE_FILE;
         String expected = "Good mor" + STRING_NEWLINE + "This is " + STRING_NEWLINE + "I hope y" + STRING_NEWLINE;
         assertDoesNotThrow(() -> {
             OutputStream outputStream = new ByteArrayOutputStream();
