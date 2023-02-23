@@ -229,7 +229,11 @@ public class GrepApplication implements GrepInterface {
                 } else {
                     String[] inputFilesArray = new String[inputFiles.size()];
                     inputFilesArray = inputFiles.toArray(inputFilesArray);
-                    result = grepFromFiles(pattern, grepFlags[CASE_INSEN_IDX], grepFlags[COUNT_INDEX], grepFlags[PREFIX_FN_IDX], inputFilesArray);
+                    if (inputFilesArray.length < 2) {
+                        result = grepFromFiles(pattern, grepFlags[CASE_INSEN_IDX], grepFlags[COUNT_INDEX], grepFlags[PREFIX_FN_IDX], inputFilesArray);
+                    } else {
+                        result = grepFromFileAndStdin(pattern, grepFlags[CASE_INSEN_IDX], grepFlags[COUNT_INDEX], grepFlags[PREFIX_FN_IDX], stdin, inputFilesArray);
+                    }
 
                 }
             }
@@ -287,6 +291,15 @@ public class GrepApplication implements GrepInterface {
     @Override
     public String grepFromFileAndStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, InputStream stdin, String... fileNames) throws Exception {
         // TODO: To implement
-        return null;
+        String result = "";
+        for (String input: fileNames) {
+            if (String.valueOf(CHAR_FLAG_PREFIX).equals(input)) {
+                result = result + "standard input:" + grepFromStdin(pattern, isCaseInsensitive, isCountLines, isPrefixFileName, stdin);
+            } else {
+                String[] file = new String[] {input};
+                result = result + grepFromFiles(pattern, isCaseInsensitive, isCountLines, true, file);
+            }
+        }
+        return result;
     }
 }
