@@ -45,16 +45,15 @@ public class CpApplication implements CpInterface {
     private File[] getFilenamesWithPattern(String srcFile){
         String[] arr = srcFile.split("\\*");
         String pattern = arr[1];
-        srcFile = arr[0];
-        File src = new File(srcFile);
+        String filename = arr[0];
+        File src = new File(filename);
 
-        File[] filenames = src.listFiles(new FilenameFilter() {
+        return src.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(pattern);
             }
         });
-        return filenames;
     }
 
     @Override
@@ -64,8 +63,7 @@ public class CpApplication implements CpInterface {
             boolean isRecursive = getArguments(args, files);
 
             if (files.size() < 2) {
-                CpException e = new CpException(ERR_MISSING_ARG);
-                throw e;
+                throw new CpException(ERR_MISSING_ARG);
             } else if (files.size() > 2) {
                 throw new CpException(ERR_TOO_MANY_ARGS);
             }
@@ -127,13 +125,20 @@ public class CpApplication implements CpInterface {
             throw new CpException(srcFile + ": " + ERR_FILE_NOT_FOUND);
         }
 
-        FileInputStream in = new FileInputStream(src);
-        FileOutputStream out = new FileOutputStream(dest);
+        FileInputStream inputStream = new FileInputStream(src);
+        FileOutputStream outputStream = new FileOutputStream(dest);
 
-        int n;
+        int line;
 
-        while ((n = in.read()) != -1) {
-            out.write(n);
+        try {
+            while ((line = inputStream.read()) != -1) {
+                outputStream.write(line);
+            }
+        } catch (IOException ioexception) {
+            throw ioexception;
+        } finally {
+            inputStream.close();
+            outputStream.close();
         }
 
         return null;
