@@ -18,6 +18,12 @@ public class CpApplication implements CpInterface {
     private static final char RECURSIVE = 'r';
     private static final String NOT_COPIED = "(not copied)";
 
+    /**
+     * @param args Arguments from stdin
+     * @param files Empty arraylist, in which file arguments will be stored
+     * @return boolean isRecursive
+     * @throws AbstractApplicationException
+     */
     private boolean getArguments(String[] args, ArrayList<String> files) throws AbstractApplicationException {
         boolean isFirstArg = true;
         boolean isRecursive = false;
@@ -42,6 +48,10 @@ public class CpApplication implements CpInterface {
         return isRecursive;
     }
 
+    /**
+     * @param srcFile String of source file
+     * @return array of Files that fulfills pattern
+     */
     private File[] getFilenamesWithPattern(String srcFile){
         String[] arr = srcFile.split("\\*");
         String pattern = arr[1];
@@ -89,7 +99,6 @@ public class CpApplication implements CpInterface {
         } catch (CpException cpException) {
             throw cpException;
         } catch (Exception e) {
-            //TODO: check excpetion type
             throw new RuntimeException(e);
         }
 
