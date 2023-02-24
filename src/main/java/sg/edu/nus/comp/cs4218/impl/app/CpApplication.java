@@ -97,7 +97,7 @@ public class CpApplication implements CpInterface {
         }
 
         if (!src.exists()) {
-            throw new CpException(ERR_FILE_NOT_FOUND);
+            throw new CpException(srcFile + ": " + ERR_FILE_NOT_FOUND);
         }
 
         FileInputStream in = new FileInputStream(src);
@@ -109,8 +109,6 @@ public class CpApplication implements CpInterface {
             out.write(n);
         }
 
-
-        //Files.copy(src.toPath(), dest.toPath());
         return null;
     }
 
