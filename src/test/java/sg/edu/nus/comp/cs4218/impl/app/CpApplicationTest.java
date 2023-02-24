@@ -1,14 +1,13 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import sg.edu.nus.comp.cs4218.impl.exception.CpException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,6 +38,26 @@ public class CpApplicationTest {
             "A wonder of nature, a sight to see,\n" +
             "Snowflakes falling, free and light as can be.";
 
+    boolean isContentEqual (String path1, String path2) throws IOException {
+        Path file1 = new File(path1).toPath();
+        Path file2 = new File(path2).toPath();
+
+        return Files.mismatch(file1, file2) == -1;
+    }
+    void rewriteFileContent() throws IOException {
+        File outFile = new File(outTestFileName);
+        if (outFile.isFile()) {
+            FileWriter inputWriter = null;
+            try {
+                inputWriter = new FileWriter(outTestFileName);
+                inputWriter.write("new content");
+            } catch (IOException ioException) {
+                throw ioException;
+            } finally {
+                inputWriter.close();
+            }
+        }
+    }
     @BeforeAll
     static void populateFiles() throws IOException {
         File inputTestFile = new File (inTestFileName);
@@ -83,7 +102,10 @@ public class CpApplicationTest {
         File inTestFile = new File(inTestFileName);
         File dirTestFile = new File(inTestDirectory + "/" + inTestFileName);
         File outTestFile = new File(outTestFileName);
-        File dirOutFile = new File(outTestDirectory);
+        File dirOutFile1 = new File(outTestDirectory + "/" + outTestFileName);
+        File dirOutFile2 = new File(outTestDirectory + "/" + inTestFileName);
+        File dirOutDirFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
+        File dirOutDir = new File(outTestDirectory + "/" + inTestDirectory);
         File inDir = new File(inTestDirectory);
         File outDir = new File(outTestDirectory);
 
@@ -96,8 +118,17 @@ public class CpApplicationTest {
         if (outTestFile.exists()) {
             outTestFile.delete();
         }
-        if (dirOutFile.exists()) {
-            dirOutFile.delete();
+        if (dirOutFile1.exists()) {
+            dirOutFile1.delete();
+        }
+        if (dirOutFile2.exists()) {
+            dirOutFile2.delete();
+        }
+        if (dirOutDirFile.exists()) {
+            dirOutDirFile.delete();
+        }
+        if (dirOutDir.exists()) {
+            dirOutDir.delete();
         }
         if (inDir.exists()) {
             inDir.delete();
@@ -114,9 +145,122 @@ public class CpApplicationTest {
     }
 
     @Test
-    void cp_FileToUnexistingFile_ShouldCpCorrectly() throws CpException {
-        cpApplication.run
-        String a = "1";
-        assertEquals("1", a);
+    void cp_FileToNonExistingFile_ShouldCpCorrectly() throws IOException {
+        assertDoesNotThrow(() -> {
+            cpApplication.cpSrcFileToDestFile(false, inTestFileName, outTestFileName);
+        });
+        assertTrue(isContentEqual(inTestFileName, outTestFileName));
     }
+
+    @Test
+    void cp_FileToExistingFile_ShouldCpCorrectly() throws IOException {
+        File outFile = new File(outTestFileName);
+        assertTrue(outFile.isFile());
+        rewriteFileContent();
+
+        assertDoesNotThrow(() -> {
+            cpApplication.cpSrcFileToDestFile(false, inTestFileName, outTestFileName);
+        });
+        assertTrue(isContentEqual(inTestFileName, outTestFileName));
+    }
+
+//    @Test
+//    void cp_FileToNonExistingFolder_ShouldCpCorrectly() throws IOException {
+//        File outDir = new File(outTestDirectory);
+//        if(outDir.exists()) {
+//            outDir.delete();
+//        }
+//        assertTrue(!outDir.exists());
+//
+//        assertDoesNotThrow(() -> {
+//            cpApplication.cpFilesToFolder(false, outTestDirectory, inTestFileName);
+//        });
+//
+//        assertTrue(isContentEqual(outTestDirectory + "/" + inTestFileName, inTestFileName));
+//    }
+
+    @Test
+    void cp_FileToExistingFolder_ShouldCpCorrectly() throws IOException {
+        File outDir = new File(outTestDirectory);
+        if (!outDir.exists()) {
+            outDir.mkdir();
+        }
+        assertTrue(outDir.exists());
+
+        assertDoesNotThrow(() -> {
+            cpApplication.cpFilesToFolder(false, outTestDirectory, inTestFileName);
+        });
+
+        assertTrue(isContentEqual(outTestDirectory + "/" + inTestFileName, inTestFileName));
+
+        File file = new File(outTestDirectory + "/" + inTestFileName);
+        file.delete();
+        assertTrue(!file.exists());
+        outDir.delete();
+        assertTrue(!outDir.exists());
+    }
+
+    @Test
+    void cp_FolderToExistingFolder_ShouldCpCorrectly() throws IOException {
+        File outDir = new File(outTestDirectory);
+        if (!outDir.exists()) {
+            outDir.mkdir();
+        }
+        assertTrue(outDir.exists());
+
+        assertDoesNotThrow(() -> {
+            cpApplication.cpFilesToFolder(true, outTestDirectory, inTestDirectory);
+        });
+
+        File outDir_inDir = new File(outTestDirectory + "/" + inTestDirectory);
+        assertTrue(outDir_inDir.isDirectory());
+        File outDir_inDir_inFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
+        assertTrue(outDir_inDir_inFile.isFile());
+        assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDir_inDir_inFile.getPath()));
+        outDir_inDir_inFile.delete();
+        assertTrue(!outDir_inDir_inFile.exists());
+        outDir_inDir.delete();
+        assertTrue(!outDir_inDir.exists());
+        outDir.delete();
+        assertTrue(!outDir.exists());
+    }
+
+    @Test
+    void cp_FolderToNonExistingFolderRecursively_ShouldCpCorrectly() throws IOException {
+        File outDir = new File(outTestDirectory);
+        if(outDir.exists()) {
+            outDir.delete();
+        }
+        assertTrue(!outDir.exists());
+
+        assertDoesNotThrow(() -> {
+            cpApplication.cpFilesToFolder(true, outTestDirectory, inTestDirectory);
+        });
+
+        File outDir_inDir = new File(outTestDirectory + "/" + inTestDirectory);
+        assertTrue(outDir_inDir.isDirectory());
+        File outDir_inDir_inFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
+        assertTrue(outDir_inDir_inFile.isFile());
+        assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDir_inDir_inFile.getPath()));
+        outDir_inDir_inFile.delete();
+        assertTrue(!outDir_inDir_inFile.exists());
+        outDir_inDir.delete();
+        assertTrue(!outDir_inDir.exists());
+        outDir.delete();
+        assertTrue(!outDir.exists());
+    }
+
+    @Test
+    void cp_FolderToNonExistingFolderNonRecursively_ShouldThrowCpException() {
+        File outDir = new File(outTestDirectory);
+        if(outDir.exists()) {
+            outDir.delete();
+        }
+        assertTrue(!outDir.exists());
+
+        assertThrows(CpException.class, () -> {
+            cpApplication.cpFilesToFolder(false, outTestDirectory, inTestDirectory);
+        });
+    }
+
 }

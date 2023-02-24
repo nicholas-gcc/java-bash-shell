@@ -82,20 +82,9 @@ public class CpApplication implements CpInterface {
             }
 
             if (destFile.isDirectory()) {
-                if (srcFile.isDirectory()) {
-                    File[] subfiles = srcFile.listFiles();
-                    ArrayList<String> filenames = new ArrayList<String>();
-                    for (File file: subfiles) {
-                        filenames.add(file.getName());
-                    }
-                    String[] filename = new String[filenames.size()];
-                    filename = filenames.toArray(filename);
-                    cpFilesToFolder(isRecursive, destFileName, srcFileName);
-                } else {
-                    cpFilesToFolder(isRecursive, destFileName, srcFileName);
-                }
+                cpFilesToFolder(isRecursive, destFileName, srcFileName);
             } else {
-                    cpSrcFileToDestFile(isRecursive, srcFileName, destFileName);
+                cpSrcFileToDestFile(isRecursive, srcFileName, destFileName);
             }
         } catch (CpException cpException) {
             throw cpException;
@@ -107,7 +96,7 @@ public class CpApplication implements CpInterface {
     }
 
     @Override
-    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws Exception {
+    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws CpException, IOException {
         File src = new File(srcFile);
         File dest = new File(destFile);
         if(srcFile.contains("*.")) {
@@ -150,6 +139,10 @@ public class CpApplication implements CpInterface {
         File dest = new File(destFolder);
         File src = new File(srcName);
 
+        if (src.isDirectory() && !isRecursive) {
+            throw new CpException(ERR_IS_DIR + NOT_COPIED);
+        }
+
         if(srcName.contains("*.")) {
             File[] filenames = getFilenamesWithPattern(srcName);
             for (File f: filenames) {
@@ -189,4 +182,5 @@ public class CpApplication implements CpInterface {
 
         return null;
     }
+
 }
