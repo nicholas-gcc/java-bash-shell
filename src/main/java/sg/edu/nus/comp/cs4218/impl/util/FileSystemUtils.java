@@ -6,21 +6,29 @@ import java.io.IOException;
 public final class FileSystemUtils {
 
     private FileSystemUtils() {}
+
+    public static boolean fileExist(String filename) {
+        return new File(filename).exists();
+    }
+
     public static void createFile(String filename) throws FileExistException, FileCreationException, IOException {
-        File file = new File(filename);
-        if (file.exists()) {
+        if (fileExist(filename)) {
             throw new FileExistException(filename);
         }
+
+        File file = new File(filename);
+
         if (!file.createNewFile()) {
             throw new FileCreationException(filename);
         }
     }
 
     public static void deleteFile(String filename) throws FileDoesNotExistException, FileDeletionException {
-        File file = new File(filename);
-        if (!file.exists()) {
+        if (!fileExist(filename)) {
             throw new FileDoesNotExistException(filename);
         }
+
+        File file = new File(filename);
 
         if (!file.delete()) {
             throw new FileDeletionException(filename);
