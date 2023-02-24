@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +43,9 @@ public class CpApplicationTest {
         Path file1 = new File(path1).toPath();
         Path file2 = new File(path2).toPath();
 
-        return Files.mismatch(file1, file2) == -1;
+        byte[] first = Files.readAllBytes(file1);
+        byte[] second = Files.readAllBytes(file1);
+        return Arrays.equals(first, second);
     }
     void rewriteFileContent() throws IOException {
         File outFile = new File(outTestFileName);
