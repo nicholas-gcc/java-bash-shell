@@ -6,6 +6,12 @@ import java.io.IOException;
 public final class FileSystemUtils {
 
     private FileSystemUtils() {}
+
+    /**
+     * Creates a file in the current working directory
+     *
+     * @param filename  Name of file
+     */
     public static void createFile(String filename) throws FileExistException, FileCreationException, IOException {
         File file = new File(filename);
         if (file.exists()) {
@@ -16,6 +22,11 @@ public final class FileSystemUtils {
         }
     }
 
+    /**
+     * Deletes a file in the current working directory
+     *
+     * @param filename  Name of file
+     */
     public static void deleteFile(String filename) throws FileDoesNotExistException, FileDeletionException {
         File file = new File(filename);
         if (!file.exists()) {
