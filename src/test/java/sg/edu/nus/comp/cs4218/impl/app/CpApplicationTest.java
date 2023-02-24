@@ -263,4 +263,26 @@ public class CpApplicationTest {
         });
     }
 
+    @Test
+    void cp_FolderToExistingFile_ShouldThrowCpException() throws IOException {
+        File outFile = new File(outTestFileName);
+        if(!outFile.exists()) {
+            outFile.createNewFile();
+        }
+        assertTrue(outFile.exists());
+
+        assertThrows(CpException.class, () -> {
+            cpApplication.cpFilesToFolder(true, outTestFileName, inTestDirectory);
+        });
+    }
+
+    @Test
+    void cp_wildcardToFolder_ShouldCpCorrectly (){
+        String wildcard = inTestDirectory + "/*.txt";
+
+        assertDoesNotThrow(() -> {
+            cpApplication.cpFilesToFolder(true, outTestDirectory, wildcard);
+        });
+    }
+
 }

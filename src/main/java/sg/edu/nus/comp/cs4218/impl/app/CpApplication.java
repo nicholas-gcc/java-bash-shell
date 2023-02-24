@@ -166,6 +166,8 @@ public class CpApplication implements CpInterface {
 
         if (!dest.exists()) {
             dest.mkdir();
+        } else if (dest.isFile()){
+             throw new CpException(destFolder + ": " + ERR_IS_NOT_DIR);
         }
 
         dest = new File(destFolder + "/" + src.getName());
