@@ -9,6 +9,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
@@ -62,6 +64,10 @@ public class CpApplication implements CpInterface {
                 throw new CpException(ERR_IS_DIR + NOT_COPIED);
             }
 
+            if (srcFile.isDirectory() && destFile.isFile()) {
+                throw new CpException(destFileName + ": " + ERR_IS_NOT_DIR);
+            }
+
             if (destFile.isDirectory()) {
                 if (srcFile.isDirectory()) {
                     File[] subfiles = srcFile.listFiles();
@@ -71,7 +77,7 @@ public class CpApplication implements CpInterface {
                     }
                     String[] filename = new String[filenames.size()];
                     filename = filenames.toArray(filename);
-                    cpFilesToFolder(isRecursive, destFileName, filename);
+                    cpFilesToFolder(isRecursive, destFileName, srcFileName);
                 } else {
                     cpFilesToFolder(isRecursive, destFileName, srcFileName);
                 }
@@ -114,6 +120,39 @@ public class CpApplication implements CpInterface {
 
     @Override
     public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileName) throws Exception {
+        String srcName = fileName[0];
+        File dest = new File(destFolder);
+        File src = new File(srcName);
+
+        if (!src.exists()) {
+            throw new CpException(srcName + ": " + ERR_FILE_NOT_FOUND);
+        }
+
+        if (!dest.exists()) {
+            dest.mkdir();
+        }
+
+        dest = new File(destFolder + "/" + src.getName());
+        if (src.isFile()) {
+            cpSrcFileToDestFile(isRecursive,srcName,dest.getPath());
+            return null;
+        }
+        if (!dest.exists()) {
+            dest.mkdir();
+        }
+
+
+        for (String f : src.list()) {
+            File source = new File(src, f);
+            File destination = new File(dest, f);
+
+            if (source.isDirectory()) {
+                cpFilesToFolder(true, destination.getPath(), source.getPath());
+            } else {
+                cpSrcFileToDestFile(true, source.getPath(), destination.getPath());
+            }
+        }
+
         return null;
     }
 }
