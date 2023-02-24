@@ -42,6 +42,21 @@ public class CpApplication implements CpInterface {
         return isRecursive;
     }
 
+    private File[] getFilenamesWithPattern(String srcFile){
+        String[] arr = srcFile.split("\\*");
+        String pattern = arr[1];
+        srcFile = arr[0];
+        File src = new File(srcFile);
+
+        File[] filenames = src.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(pattern);
+            }
+        });
+        return filenames;
+    }
+
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
         try {
@@ -97,12 +112,18 @@ public class CpApplication implements CpInterface {
     public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws Exception {
         File src = new File(srcFile);
         File dest = new File(destFile);
+        if(srcFile.contains("*.")) {
+            throw new CpException(destFile + " is " + ERR_IS_NOT_DIR);
+        }
+
+
 
         if (!dest.exists()) {
             dest.createNewFile();
         }
 
         if (!src.exists()) {
+
             throw new CpException(srcFile + ": " + ERR_FILE_NOT_FOUND);
         }
 
@@ -123,6 +144,14 @@ public class CpApplication implements CpInterface {
         String srcName = fileName[0];
         File dest = new File(destFolder);
         File src = new File(srcName);
+
+        if(srcName.contains("*.")) {
+            File[] filenames = getFilenamesWithPattern(srcName);
+            for (File f: filenames) {
+                cpFilesToFolder(isRecursive,destFolder , f.getPath());
+            }
+            return null;
+        }
 
         if (!src.exists()) {
             throw new CpException(srcName + ": " + ERR_FILE_NOT_FOUND);
