@@ -8,15 +8,20 @@ public final class FileSystemUtils {
     private FileSystemUtils() {}
 
     /**
+     * Checks if file or directory exists in the current working directory
+     *
+     * @param name  Name of file or directory
+     * @return true if file or directory exist, else false
+     */
+    public static boolean fileOrDirExist(String name) {
+        return new File(name).exists();
+    }
+
+    /**
      * Creates a file in the current working directory
      *
      * @param filename  Name of file
      */
-
-    public static boolean fileOrDirExist(String filename) {
-        return new File(filename).exists();
-    }
-
     public static void createFile(String filename) throws IOException, FileOrDirExistException, FileOrDirCreationException {
         if (fileOrDirExist(filename)) {
             throw new FileOrDirExistException(filename);
@@ -29,20 +34,15 @@ public final class FileSystemUtils {
         }
     }
 
-    public static void deleteFile(String filename) throws FileOrDirDoesNotExistException, FileOrDirDeletionException {
-        if (!fileOrDirExist(filename)) {
-            throw new FileOrDirDoesNotExistException(filename);
-        }
-
     /**
      * Deletes a file in the current working directory
      *
      * @param filename  Name of file
      */
-    public static void deleteFile(String filename) throws FileDoesNotExistException, FileDeletionException {
+    public static void deleteFile(String filename) throws FileOrDirDoesNotExistException, FileOrDirDeletionException {
         File file = new File(filename);
         if (!file.exists()) {
-            throw new FileDoesNotExistException(filename);
+            throw new FileOrDirDoesNotExistException(filename);
         }
 
         if (!file.delete()) {
@@ -50,6 +50,11 @@ public final class FileSystemUtils {
         }
     }
 
+    /**
+     * Creates a new directory in the current working directory
+     *
+     * @param dirname  Name of directory
+     */
     public static void createDir(String dirname) throws FileOrDirExistException, FileOrDirCreationException, IOException {
         if (fileOrDirExist(dirname)) {
             throw new FileOrDirExistException(dirname);
@@ -62,7 +67,23 @@ public final class FileSystemUtils {
         }
     }
 
-    // TODO: Create a util method to recursively delete directories
+    /**
+     * Deletes an empty directory in the current working directory.
+     *
+     * @param dirname  Name of directory
+     */
+    public static void deleteEmptyDir(String dirname) {
+        // TODO: Implement method
+    }
+
+    /**
+     * Recursively deletes a directory's content and the directory itself in the current working directory.
+     *
+     * @param dirname  Name of directory
+     */
+    public static void deleteDirRecursively(String dirname) {
+        // TODO: Implement method
+    }
 
     private static class FileOrDirExistException extends Exception {
         public FileOrDirExistException(String name) {
