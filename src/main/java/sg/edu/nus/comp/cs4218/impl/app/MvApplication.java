@@ -64,10 +64,10 @@ public class MvApplication implements MvInterface {
 
                 // check if file can be moved to destination folder
                 if (FileSystemUtils.isFileInFolder(srcFilePath, destFolderPath)) {
-                    throw new MvException("Cannot move file: source file is equal to or inside destination folder");
+                    throw new MvException("Cannot move file: source file is at the same level or inside destination folder");
                 }
                 if (FileSystemUtils.isSubDir(srcFilePath, destFolderPath)) {
-                    throw new MvException("Cannot move file: destination folder is inside source file directory");
+                    throw new MvException("Cannot move file: destination folder is nested in source file dir");
                 }
 
                 // prepare destination file path
@@ -101,7 +101,6 @@ public class MvApplication implements MvInterface {
             throw new MvException(ErrorConstants.ERR_NULL_ARGS);
         }
         MvArgsParser mvArgsParser = new MvArgsParser();
-        boolean isOverwrite = true; // should be true by default
         try {
             mvArgsParser.parse(args);
             String[] toMoveFiles = mvArgsParser.getSourceFiles();
@@ -109,7 +108,7 @@ public class MvApplication implements MvInterface {
                 throw new InvalidArgsException(ErrorConstants.ERR_MISSING_ARG);
             }
             String destPath = mvArgsParser.getDestFile();
-            isOverwrite = mvArgsParser.shouldOverwrite();
+            boolean isOverwrite = mvArgsParser.shouldOverwrite();
             if (new File(FileSystemUtils.getAbsolutePathName(destPath)).isDirectory()) {
                 mvFilesToFolder(isOverwrite, destPath, toMoveFiles);
             } else {
@@ -124,14 +123,15 @@ public class MvApplication implements MvInterface {
         } catch (Exception e) {
             try {
                 if (stdout == null) {
-                    throw (MvException) new MvException("OutputStream not provided").initCause(e);
+                    throw (MvException) new MvException("OutputStream cannot be null").initCause(e);
                 }
-                stdout.write(e.getMessage().getBytes());
+                else {
+                    stdout.write(e.getMessage().getBytes());
+                    throw new MvException(e.getMessage());
+                }
             } catch (IOException ex) {
                 throw (MvException) new MvException("Could not write to output stream").initCause(ex);
             }
-        } finally {
-            isOverwrite = true;
         }
     }
 
