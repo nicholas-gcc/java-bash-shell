@@ -158,7 +158,7 @@ public class GrepApplicationTest {
         String mockInput = "Beaconn looks like bacon,\n but beacon is not beacon";
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromStdin(pattern, true, true, false, mockStd);
-        String correctResult = "2\n";
+        String correctResult = "2";
         assertEquals(correctResult, result);
     }
 
