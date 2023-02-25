@@ -256,7 +256,7 @@ public class GrepApplication implements GrepInterface {
         String result = "";
         for (String input: fileNames) {
             if (String.valueOf(CHAR_FLAG_PREFIX).equals(input)) {
-                result = result + "standard input: " + grepFromStdin(pattern, isCaseInsensitive, isCountLines, isPrefixFileName, stdin);
+                result = result + grepFromStdin(pattern, isCaseInsensitive, isCountLines, true, stdin);
             } else {
                 String[] file = new String[] {input};
                 result = result + grepFromFiles(pattern, isCaseInsensitive, isCountLines, true, file);

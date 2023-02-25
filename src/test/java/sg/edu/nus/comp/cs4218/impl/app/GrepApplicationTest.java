@@ -140,4 +140,58 @@ public class GrepApplicationTest {
         String correctResult = "beacon looks like bacon\n";
         assertEquals(correctResult, result);
     }
+
+    @Test
+    void grep_CaseInsensitiveFromStdin_ShouldGrepCorrectly() throws Exception  {
+        String pattern = "beacon";
+        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
+        String result = grepApplication.grepFromStdin(pattern, true, false, false, mockStd);
+        String correctResult = mockInput + "\n";
+        assertEquals(correctResult, result);
+    }
+
+    @Test
+    void grep_CaseInsensitiveCountFromStdin_ShouldGrepCorrectly() throws Exception  {
+        String pattern = "beacon";
+        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
+        String result = grepApplication.grepFromStdin(pattern, true, true, false, mockStd);
+        String correctResult = "2\n";
+        assertEquals(correctResult, result);
+    }
+
+    @Test
+    void grep_CaseInsensitiveCountWithPrefixFromStdin_ShouldGrepCorrectly() throws Exception  {
+        String pattern = "beacon";
+        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
+        String result = grepApplication.grepFromStdin(pattern, true, true, true, mockStd);
+        String correctResult = "standard input: " + "2";
+        assertEquals(correctResult, result);
+    }
+
+    @Test
+    void grep_NoTagFromFileAndStdin_ShouldGrepCorrectly() throws Exception  {
+        String pattern = "beacon";
+        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
+        String result = grepApplication.grepFromFileAndStdin(pattern, false, false, false,
+                mockStd, fileName, "-");
+        String correctResult = fileName + ": A beacon of hope in the dark of night.\n" +
+                "standard input: " + "but beacon is not beacon\n";
+        assertEquals(correctResult, result);
+    }
+
+    @Test
+    void grep_CountWithPrefixFromFileAndStdin_ShouldGrepCorrectly() throws Exception  {
+        String pattern = "beacon";
+        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
+        String result = grepApplication.grepFromFileAndStdin(pattern, false, true, true,
+                mockStd, fileName, "-");
+        String correctResult = fileName + ": 1\n" +
+                "standard input: " + "1";
+        assertEquals(correctResult, result);
+    }
 }
