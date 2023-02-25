@@ -232,7 +232,11 @@ public class GrepApplication implements GrepInterface {
                     String[] inputFilesArray = new String[inputFiles.size()];
                     inputFilesArray = inputFiles.toArray(inputFilesArray);
                     if (inputFilesArray.length < 2) {
-                        result = grepFromFiles(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), inputFilesArray);
+                        if (inputFilesArray[0].equals("-")) {
+                            result = grepFromStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin );
+                        } else {
+                            result = grepFromFiles(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), inputFilesArray);
+                        }
                     } else {
                         result = grepFromFileAndStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin, inputFilesArray);
                     }
