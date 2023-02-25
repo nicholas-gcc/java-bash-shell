@@ -5,6 +5,7 @@ import sg.edu.nus.comp.cs4218.app.GrepInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.GrepException;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
+import sg.edu.nus.comp.cs4218.impl.app.args.GrepArguments;
 import sg.edu.nus.comp.cs4218.impl.parser.GrepArgsParser;
 
 import java.io.*;
@@ -30,15 +31,11 @@ public class GrepApplication implements GrepInterface {
     public static final String EMPTY_PATTERN = "Pattern should not be empty.";
     public static final String IS_DIRECTORY = "Is a directory";
     public static final String NULL_POINTER = "Null Pointer Exception";
-
     private static final int NUM_ARGUMENTS = 3;
-    private static final char CASE_INSEN_IDENT = 'i';
-    private static final char COUNT_IDENT = 'c';
-    private static final char PREFIX_FN = 'H';
-    private static final int CASE_INSEN_IDX = 0;
-    private static final int COUNT_INDEX = 1;
-    private static final int PREFIX_FN_IDX = 2;
 
+
+
+    private static GrepArguments grepArgs = new GrepArguments();
 
     @Override
     public String grepFromFiles(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, String... fileNames) throws Exception {
@@ -215,9 +212,8 @@ public class GrepApplication implements GrepInterface {
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
         try {
-            boolean[] grepFlags = new boolean[NUM_ARGUMENTS];
             ArrayList<String> inputFiles = new ArrayList<>();
-            String pattern = getGrepArguments(args, grepFlags, inputFiles);
+            String pattern = grepArgs.getGrepArguments(args, inputFiles);
             String result = "";
 
             if (stdin == null && inputFiles.isEmpty()) {
@@ -231,14 +227,14 @@ public class GrepApplication implements GrepInterface {
                 throw new Exception(EMPTY_PATTERN);
             } else {
                 if (inputFiles.isEmpty()) {
-                    result = grepFromStdin(pattern, grepFlags[CASE_INSEN_IDX], grepFlags[COUNT_INDEX], grepFlags[PREFIX_FN_IDX], stdin);
+                    result = grepFromStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin);
                 } else {
                     String[] inputFilesArray = new String[inputFiles.size()];
                     inputFilesArray = inputFiles.toArray(inputFilesArray);
                     if (inputFilesArray.length < 2) {
-                        result = grepFromFiles(pattern, grepFlags[CASE_INSEN_IDX], grepFlags[COUNT_INDEX], grepFlags[PREFIX_FN_IDX], inputFilesArray);
+                        result = grepFromFiles(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), inputFilesArray);
                     } else {
-                        result = grepFromFileAndStdin(pattern, grepFlags[CASE_INSEN_IDX], grepFlags[COUNT_INDEX], grepFlags[PREFIX_FN_IDX], stdin, inputFilesArray);
+                        result = grepFromFileAndStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin, inputFilesArray);
                     }
 
                 }
@@ -249,49 +245,6 @@ public class GrepApplication implements GrepInterface {
         } catch (Exception e) {
             throw new GrepException(e.getMessage());
         }
-    }
-
-    /**
-     * Separates the arguments provided by user into the flags, pattern and input files.
-     *
-     * @param args       supplied by user
-     * @param grepFlags  a bool array of possible flags in grep
-     * @param inputFiles a ArrayList<String> of file names supplied by user
-     * @return regex pattern supplied by user. An empty String if not supplied.
-     */
-    private String getGrepArguments(String[] args, boolean[] grepFlags, ArrayList<String> inputFiles) throws Exception {
-        String pattern = null;
-        boolean isFile = false; // files can only appear after pattern
-
-        for (String s : args) {
-            char[] arg = s.toCharArray();
-            if (isFile) {
-                inputFiles.add(s);
-            } else {
-                if (!s.isEmpty() && arg[0] == CHAR_FLAG_PREFIX) {
-                    arg = Arrays.copyOfRange(arg, 1, arg.length);
-                    for (char c : arg) {
-                        switch (c) {
-                            case CASE_INSEN_IDENT:
-                                grepFlags[CASE_INSEN_IDX] = true;
-                                break;
-                            case COUNT_IDENT:
-                                grepFlags[COUNT_INDEX] = true;
-                                break;
-                            case PREFIX_FN:
-                                grepFlags[PREFIX_FN_IDX] = true;
-                                break;
-                            default:
-                                throw new GrepException(ERR_SYNTAX);
-                        }
-                    }
-                } else { // pattern must come before file names
-                    pattern = s;
-                    isFile = true; // next arg onwards will be file
-                }
-            }
-        }
-        return pattern;
     }
 
     @Override
