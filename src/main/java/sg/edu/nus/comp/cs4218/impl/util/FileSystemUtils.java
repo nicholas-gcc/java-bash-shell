@@ -1,7 +1,14 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
+import sg.edu.nus.comp.cs4218.Environment;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public final class FileSystemUtils {
 
@@ -18,11 +25,11 @@ public final class FileSystemUtils {
     }
 
     /**
-     * Creates a file in the current working directory
+     * Creates an emptyfile in the current working directory
      *
      * @param filename  Name of file
      */
-    public static void createFile(String filename) throws IOException, FileOrDirExistException, FileOrDirCreationException {
+    public static void createEmptyFile(String filename) throws IOException, FileOrDirExistException, FileOrDirCreationException {
         if (fileOrDirExist(filename)) {
             throw new FileOrDirExistException(filename);
         }
@@ -51,11 +58,11 @@ public final class FileSystemUtils {
     }
 
     /**
-     * Creates a new directory in the current working directory
+     * Creates a new empty directory in the current working directory
      *
      * @param dirname  Name of directory
      */
-    public static void createDir(String dirname) throws FileOrDirExistException, FileOrDirCreationException, IOException {
+    public static void createEmptyDir(String dirname) throws FileOrDirExistException, FileOrDirCreationException, IOException {
         if (fileOrDirExist(dirname)) {
             throw new FileOrDirExistException(dirname);
         }
@@ -83,6 +90,32 @@ public final class FileSystemUtils {
      */
     public static void deleteDirRecursively(String dirname) {
         // TODO: Implement method
+    }
+
+    /**
+     * Reads content of the file and return the content as a string
+     *
+     * @param filename  Name of file
+     * @return content of the file
+     */
+    public static String readFileContent(String filename) throws FileOrDirExistException, IOException {
+        if (fileOrDirExist(filename)) {
+            throw new FileOrDirExistException(filename);
+        }
+        return Files.readString(Paths.get(Environment.currentDirectory + CHAR_FILE_SEP + filename));
+    }
+
+    /**
+     * Appends String to an existing file
+     *
+     * @param filename  Name of file
+     * @param str  String to be appended to content of file
+     */
+    public static void appendStrToFile(String filename, String str) throws FileOrDirExistException, IOException {
+        if (fileOrDirExist(filename)) {
+            throw new FileOrDirExistException(filename);
+        }
+        Files.write(Paths.get(Environment.currentDirectory + CHAR_FILE_SEP + filename), str.getBytes(), StandardOpenOption.APPEND);
     }
 
     private static class FileOrDirExistException extends Exception {
