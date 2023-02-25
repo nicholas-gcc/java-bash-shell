@@ -27,11 +27,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class GrepApplication implements GrepInterface {
-    public static final String INVALID_PATTERN = "Invalid pattern syntax";
-    public static final String EMPTY_PATTERN = "Pattern should not be empty.";
     public static final String IS_DIRECTORY = "Is a directory";
     public static final String NULL_POINTER = "Null Pointer Exception";
-    private static final int NUM_ARGUMENTS = 3;
 
 
 
@@ -77,7 +74,7 @@ public class GrepApplication implements GrepInterface {
         for (String f : fileNames) {
             BufferedReader reader = null;
             try {
-                String path = convertToAbsolutePath(f);
+                String path = grepArgs.convertToAbsolutePath(f);
                 File file = new File(path);
                 if (!file.exists()) {
                     lineResults.add(f + ": " + ERR_FILE_NOT_FOUND);
@@ -120,45 +117,6 @@ public class GrepApplication implements GrepInterface {
                 }
             }
         }
-    }
-
-    /**
-     * Converts filename to absolute path, if initially was relative path
-     *
-     * @param fileName supplied by user
-     * @return a String of the absolute path of the filename
-     */
-    private String convertToAbsolutePath(String fileName) {
-        String home = System.getProperty("user.home").trim();
-        String currentDir = Environment.currentDirectory.trim();
-        String convertedPath = convertPathToSystemPath(fileName);
-
-        String newPath;
-        if (convertedPath.length() >= home.length() && convertedPath.substring(0, home.length()).trim().equals(home)) {
-            newPath = convertedPath;
-        } else {
-            newPath = currentDir + CHAR_FILE_SEP + convertedPath;
-        }
-        return newPath;
-    }
-
-    /**
-     * Converts path provided by user into path recognised by the system
-     *
-     * @param path supplied by user
-     * @return a String of the converted path
-     */
-    private String convertPathToSystemPath(String path) {
-        String convertedPath = path;
-        String pathIdentifier = "\\" + Character.toString(CHAR_FILE_SEP);
-        convertedPath = convertedPath.replaceAll("(\\\\)+", pathIdentifier);
-        convertedPath = convertedPath.replaceAll("/+", pathIdentifier);
-
-        if (convertedPath.length() != 0 && convertedPath.charAt(convertedPath.length() - 1) == CHAR_FILE_SEP) {
-            convertedPath = convertedPath.substring(0, convertedPath.length() - 1);
-        }
-
-        return convertedPath;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.app.args;
 
+import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.GrepException;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 
 public class GrepArguments {
@@ -19,9 +21,10 @@ public class GrepArguments {
     private static final char CASE_INSEN_IDENT = 'i';
     private static final char COUNT_IDENT = 'c';
     private static final char PREFIX_FN = 'H';
-    private static final int CASE_INSEN_IDX = 0;
-    private static final int COUNT_INDEX = 1;
-    private static final int PREFIX_FN_IDX = 2;
+
+    public static final String INVALID_PATTERN = "Invalid pattern syntax";
+    public static final String EMPTY_PATTERN = "Pattern should not be empty.";
+
     private final List<String> files;
     private String pattern;
     private boolean caseInsensitive, countOfLinesOnly, prefixFile;
@@ -124,6 +127,7 @@ public class GrepArguments {
             char[] arg = s.toCharArray();
             if (isFile) {
                 inputFiles.add(s);
+                files.add(s);
             } else {
                 if (!s.isEmpty() && arg[0] == CHAR_FLAG_PREFIX) {
                     arg = Arrays.copyOfRange(arg, 1, arg.length);
@@ -149,5 +153,44 @@ public class GrepArguments {
             }
         }
         return pattern;
+    }
+
+    /**
+     * Converts filename to absolute path, if initially was relative path
+     *
+     * @param fileName supplied by user
+     * @return a String of the absolute path of the filename
+     */
+    public String convertToAbsolutePath(String fileName) {
+        String home = System.getProperty("user.home").trim();
+        String currentDir = Environment.currentDirectory.trim();
+        String convertedPath = convertPathToSystemPath(fileName);
+
+        String newPath;
+        if (convertedPath.length() >= home.length() && convertedPath.substring(0, home.length()).trim().equals(home)) {
+            newPath = convertedPath;
+        } else {
+            newPath = currentDir + CHAR_FILE_SEP + convertedPath;
+        }
+        return newPath;
+    }
+
+    /**
+     * Converts path provided by user into path recognised by the system
+     *
+     * @param path supplied by user
+     * @return a String of the converted path
+     */
+    public String convertPathToSystemPath(String path) {
+        String convertedPath = path;
+        String pathIdentifier = "\\" + Character.toString(CHAR_FILE_SEP);
+        convertedPath = convertedPath.replaceAll("(\\\\)+", pathIdentifier);
+        convertedPath = convertedPath.replaceAll("/+", pathIdentifier);
+
+        if (convertedPath.length() != 0 && convertedPath.charAt(convertedPath.length() - 1) == CHAR_FILE_SEP) {
+            convertedPath = convertedPath.substring(0, convertedPath.length() - 1);
+        }
+
+        return convertedPath;
     }
 }
