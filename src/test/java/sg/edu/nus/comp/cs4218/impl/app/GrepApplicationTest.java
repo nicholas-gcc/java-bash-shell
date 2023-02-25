@@ -66,8 +66,12 @@ public class GrepApplicationTest {
     @AfterAll
     static void cleanUpFile() {
         File file = new File(fileName);
+        File file2 = new File(fileName2);
         if (file.exists()) {
             file.delete();
+        }
+        if (file2.exists()) {
+            file2.delete();
         }
     }
 
