@@ -214,34 +214,29 @@ public class GrepApplication implements GrepInterface {
         try {
             ArrayList<String> inputFiles = new ArrayList<>();
             String pattern = grepArgs.getGrepArguments(args, inputFiles);
+            GrepArguments.validate(pattern);
+
             String result = "";
 
             if (stdin == null && inputFiles.isEmpty()) {
                 throw new Exception(ERR_NO_INPUT);
             }
-            if (pattern == null) {
-                throw new Exception(ERR_SYNTAX);
-            }
 
-            if (pattern.isEmpty()) {
-                throw new Exception(EMPTY_PATTERN);
+            if (inputFiles.isEmpty()) {
+                result = grepFromStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin);
             } else {
-                if (inputFiles.isEmpty()) {
-                    result = grepFromStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin);
-                } else {
-                    String[] inputFilesArray = new String[inputFiles.size()];
-                    inputFilesArray = inputFiles.toArray(inputFilesArray);
-                    if (inputFilesArray.length < 2) {
-                        if (inputFilesArray[0].equals("-")) {
-                            result = grepFromStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin );
-                        } else {
-                            result = grepFromFiles(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), inputFilesArray);
-                        }
+                String[] inputFilesArray = new String[inputFiles.size()];
+                inputFilesArray = inputFiles.toArray(inputFilesArray);
+                if (inputFilesArray.length < 2) {
+                    if (inputFilesArray[0].equals("-")) {
+                        result = grepFromStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin );
                     } else {
-                        result = grepFromFileAndStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin, inputFilesArray);
+                        result = grepFromFiles(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), inputFilesArray);
                     }
-
+                } else {
+                    result = grepFromFileAndStdin(pattern, grepArgs.isCaseInsensitive(), grepArgs.isCountOfLinesOnly(), grepArgs.isPrefixFile(), stdin, inputFilesArray);
                 }
+
             }
             stdout.write(result.getBytes());
         } catch (GrepException grepException) {

@@ -4,10 +4,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -193,5 +190,21 @@ public class GrepApplicationTest {
         String correctResult = fileName + ": 1\n" +
                 "standard input: " + "1";
         assertEquals(correctResult, result);
+    }
+
+    @Test
+    void grep_InvalidPatterFromFile_ShouldThrowException() throws Exception{
+        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
+        OutputStream mockOut = new ByteArrayOutputStream();
+
+        String[] args = {"([abc", fileName};
+        assertThrows(Exception.class, () -> grepApplication.run(args, mockStd, mockOut ));
+
+        args[0] = "";
+        assertThrows(Exception.class, () -> grepApplication.run(args, mockStd, mockOut ));
+
+        args[0] = null;
+        assertThrows(Exception.class, () -> grepApplication.run(args, mockStd, mockOut ));
     }
 }
