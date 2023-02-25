@@ -92,18 +92,14 @@ public class GrepApplication implements GrepInterface {
                 reader = new BufferedReader(new FileReader(path));
                 String line;
                 Pattern compiledPattern;
-                if (isCaseInsensitive) {
-                    compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-                } else {
-                    compiledPattern = Pattern.compile(pattern);
-                }
+                compiledPattern = isCaseInsensitive? Pattern.compile(pattern, Pattern.CASE_INSENSITIVE) : Pattern.compile(pattern);
+
                 count = 0;
                 while ((line = reader.readLine()) != null) {
                     Matcher matcher = compiledPattern.matcher(line);
                     if (matcher.find()) { // match
                         if (isSingleFile) {
-                            line = hasPrefix? f + ": " + line : line;
-                            lineResults.add(line);
+                            lineResults.add(hasPrefix? f + ": " + line : line);
                         } else {
                             lineResults.add(f + ": " + line);
                         }

@@ -9,9 +9,9 @@ import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GrepApplicationTest {
-    private GrepApplication grepApplication = new GrepApplication();
-    private static final String fileName = "test.md";
-    private static final String fileConent = "In the deep expanse of the midnight sky,\n" +
+    private final GrepApplication grepApplication = new GrepApplication();
+    private static String fileName = "test.md";
+    private static String fileConent = "In the deep expanse of the midnight sky,\n" +
             "The stars above twinkle and shine.\n" +
             "A cosmic dance that's never-ending,\n" +
             "A symphony that's truly divine.\n" +
@@ -35,13 +35,13 @@ public class GrepApplicationTest {
             "And see the stars shining high,\n" +
             "Remember that they are there for you,\n" +
             "Guiding your way, always true.";
-    private static final String fileName_2 = "test2.md";
-    private static final String fileContent_2 = "Twinkle twinkle little star, \n" + "How I wonder what you are.\n" +
+    private static String fileName2 = "test2.md";
+    private static String fileContent2 = "Twinkle twinkle little star, \n" + "How I wonder what you are.\n" +
             "Up above the world so high, \n" + "Like a diamond in the sky.";
     @BeforeAll
     static void setUpTestFile() throws IOException {
         File testFile = new File(fileName);
-        File testFile2 = new File(fileName_2);
+        File testFile2 = new File(fileName2);
         if (!testFile.exists()) {
             testFile.createNewFile();
         }
@@ -53,8 +53,8 @@ public class GrepApplicationTest {
         try {
             writer1 = new FileWriter(fileName);
             writer1.write(fileConent);
-            writer2 = new FileWriter(fileName_2);
-            writer2.write(fileContent_2);
+            writer2 = new FileWriter(fileName2);
+            writer2.write(fileContent2);
         } catch (IOException ioException) {
             throw ioException;
         } finally {
@@ -109,12 +109,12 @@ public class GrepApplicationTest {
     void grep_NoTagFromMultipleFiles_ShouldGrepCorrectly() throws Exception {
         String pattern = "star";
         String result = grepApplication.grepFromFiles(pattern, false, false, false,
-                fileName, fileName_2);
+                fileName, fileName2);
         String correctResult = fileName + ": The stars above twinkle and shine.\n" +
                 fileName + ": Each star a miracle of light,\n" +
                 fileName + ": The stars above, a celestial wonder,\n" +
                 fileName + ": And see the stars shining high,\n" +
-                fileName_2 + ": Twinkle twinkle little star, \n";
+                fileName2 + ": Twinkle twinkle little star, \n";
         assertEquals(correctResult, result);
     }
 
@@ -122,26 +122,26 @@ public class GrepApplicationTest {
     void grep_CountFromMultipleFiles_ShouldGrepCorrectly() throws Exception {
         String pattern = "star";
         String result = grepApplication.grepFromFiles(pattern, false, true, false,
-                fileName, fileName_2);
+                fileName, fileName2);
         String correctResult = fileName + ": 4\n" +
-                fileName_2 + ": 1\n";
+                fileName2 + ": 1\n";
         assertEquals(correctResult, result);
     }
 
     @Test
     void grep_NoTagFromStdin_ShouldGrepCorrectly() throws Exception  {
-        String pattern = "beacon";
-        String mockInput = "beacon looks like bacon";
+        String pattern = "pacon";
+        String mockInput = "pacon looks like bacon";
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromStdin(pattern, false, false, false, mockStd);
-        String correctResult = "beacon looks like bacon\n";
+        String correctResult = mockInput + "\n";
         assertEquals(correctResult, result);
     }
 
     @Test
     void grep_CaseInsensitiveFromStdin_ShouldGrepCorrectly() throws Exception  {
-        String pattern = "beacon";
-        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        String pattern = "ham";
+        String mockInput = "ham looks like bacon,\nbut ham is not bacon";
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromStdin(pattern, true, false, false, mockStd);
         String correctResult = mockInput + "\n";
@@ -150,8 +150,8 @@ public class GrepApplicationTest {
 
     @Test
     void grep_CaseInsensitiveCountFromStdin_ShouldGrepCorrectly() throws Exception  {
-        String pattern = "beacon";
-        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        String pattern = "n";
+        String mockInput = "Beaconn looks like bacon,\n but beacon is not beacon";
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromStdin(pattern, true, true, false, mockStd);
         String correctResult = "2\n";
@@ -160,7 +160,7 @@ public class GrepApplicationTest {
 
     @Test
     void grep_CaseInsensitiveCountWithPrefixFromStdin_ShouldGrepCorrectly() throws Exception  {
-        String pattern = "beacon";
+        String pattern = "ea";
         String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromStdin(pattern, true, true, true, mockStd);
@@ -183,7 +183,7 @@ public class GrepApplicationTest {
     @Test
     void grep_CountWithPrefixFromFileAndStdin_ShouldGrepCorrectly() throws Exception  {
         String pattern = "beacon";
-        String mockInput = "Beacon looks like bacon,\nbut beacon is not beacon";
+        String mockInput = "Beaconnn looks like bacon,\nbut beacon is not beacon";
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromFileAndStdin(pattern, false, true, true,
                 mockStd, fileName, "-");
