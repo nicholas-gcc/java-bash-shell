@@ -54,6 +54,16 @@ public class CpArguments {
         return isRecursive;
     }
 
+    /**
+     * check if the input source file, flag and output file are valid
+     * throws error if:
+     * - input contains multiple files or is a directory but output is file
+     * - input is a folder but there is no -r/-R flag
+     * @param src
+     * @param dest
+     * @param isRecursive
+     * @throws CpException
+     */
     public void checkFilesValidity(File src, File dest, boolean isRecursive) throws CpException {
         if (src.isDirectory() && !isRecursive) {
             throw new CpException(ERR_IS_DIR + NOT_COPIED);

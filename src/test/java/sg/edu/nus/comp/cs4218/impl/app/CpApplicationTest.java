@@ -19,24 +19,24 @@ public class CpApplicationTest {
     static String outTestFileName = "output_test.txt";
     static String inTestDirectory = "input";
     static String outTestDirectory = "output";
-    static String fileContent = "Snowflakes fall gently from the sky,\n" +
-            "Blanketing the world in white.\n" +
-            "A winter wonderland appears,\n" +
-            "A magical and peaceful sight.\n" +
-            "\n" +
-            "The air is crisp, the ground is still,\n" +
-            "As snowflakes dance in the chill.\n" +
-            "The trees are dressed in snowy lace,\n" +
-            "A serene and wondrous place.\n" +
-            "\n" +
-            "Children play and build snowmen,\n" +
-            "Sledding down the hills again and again.\n" +
-            "Families gather by the fire,\n" +
-            "Enjoying warmth and holiday cheer.\n" +
-            "\n" +
-            "Oh, snow, you bring us joy and peace,\n" +
-            "A blanket of calm in winter's freeze.\n" +
-            "A wonder of nature, a sight to see,\n" +
+    static String fileContent = "Snowflakes fall gently from the sky," + System.lineSeparator() +
+            "Blanketing the world in white." + System.lineSeparator() +
+            "A winter wonderland appears," + System.lineSeparator() +
+            "A magical and peaceful sight." + System.lineSeparator() +
+            System.lineSeparator() +
+            "The air is crisp, the ground is still," + System.lineSeparator() +
+            "As snowflakes dance in the chill." + System.lineSeparator() +
+            "The trees are dressed in snowy lace," + System.lineSeparator() +
+            "A serene and wondrous place." + System.lineSeparator() +
+            System.lineSeparator() +
+            "Children play and build snowmen," + System.lineSeparator() +
+            "Sledding down the hills again and again." + System.lineSeparator() +
+            "Families gather by the fire," + System.lineSeparator() +
+            "Enjoying warmth and holiday cheer." + System.lineSeparator() +
+            System.lineSeparator() +
+            "Oh, snow, you bring us joy and peace," + System.lineSeparator() +
+            "A blanket of calm in winter's freeze." + System.lineSeparator() +
+            "A wonder of nature, a sight to see," + System.lineSeparator() +
             "Snowflakes falling, free and light as can be.";
 
     boolean isContentEqual (String path1, String path2) throws IOException {
@@ -148,11 +148,14 @@ public class CpApplicationTest {
     }
 
     @Test
-    void cp_FileToNonExistingFile_ShouldCpCorrectly() throws IOException {
+    void cp_FileToNonExistingFile_ShouldCpCorrectly() {
         assertDoesNotThrow(() -> {
             cpApplication.cpSrcFileToDestFile(false, inTestFileName, outTestFileName);
         });
-        assertTrue(isContentEqual(inTestFileName, outTestFileName));
+        assertDoesNotThrow(() -> {
+            assertTrue(isContentEqual(inTestFileName, outTestFileName));
+        });
+
     }
 
     @Test
@@ -163,27 +166,13 @@ public class CpApplicationTest {
 
         assertDoesNotThrow(() -> {
             cpApplication.cpSrcFileToDestFile(false, inTestFileName, outTestFileName);
+            assertTrue(isContentEqual(inTestFileName, outTestFileName));
         });
-        assertTrue(isContentEqual(inTestFileName, outTestFileName));
+
     }
 
-//    @Test
-//    void cp_FileToNonExistingFolder_ShouldCpCorrectly() throws IOException {
-//        File outDir = new File(outTestDirectory);
-//        if(outDir.exists()) {
-//            outDir.delete();
-//        }
-//        assertTrue(!outDir.exists());
-//
-//        assertDoesNotThrow(() -> {
-//            cpApplication.cpFilesToFolder(false, outTestDirectory, inTestFileName);
-//        });
-//
-//        assertTrue(isContentEqual(outTestDirectory + "/" + inTestFileName, inTestFileName));
-//    }
-
     @Test
-    void cp_FileToExistingFolder_ShouldCpCorrectly() throws IOException {
+    void cp_FileToExistingFolder_ShouldCpCorrectly() {
         File outDir = new File(outTestDirectory);
         if (!outDir.exists()) {
             outDir.mkdir();
@@ -192,9 +181,9 @@ public class CpApplicationTest {
 
         assertDoesNotThrow(() -> {
             cpApplication.cpFilesToFolder(false, outTestDirectory, inTestFileName);
+            assertTrue(isContentEqual(outTestDirectory + "/" + inTestFileName, inTestFileName));
         });
 
-        assertTrue(isContentEqual(outTestDirectory + "/" + inTestFileName, inTestFileName));
 
         File file = new File(outTestDirectory + "/" + inTestFileName);
         file.delete();
@@ -204,7 +193,7 @@ public class CpApplicationTest {
     }
 
     @Test
-    void cp_FolderToExistingFolder_ShouldCpCorrectly() throws IOException {
+    void cp_FolderToExistingFolder_ShouldCpCorrectly() {
         File outDir = new File(outTestDirectory);
         if (!outDir.exists()) {
             outDir.mkdir();
@@ -215,21 +204,23 @@ public class CpApplicationTest {
             cpApplication.cpFilesToFolder(true, outTestDirectory, inTestDirectory);
         });
 
-        File outDir_inDir = new File(outTestDirectory + "/" + inTestDirectory);
-        assertTrue(outDir_inDir.isDirectory());
-        File outDir_inDir_inFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
-        assertTrue(outDir_inDir_inFile.isFile());
-        assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDir_inDir_inFile.getPath()));
-        outDir_inDir_inFile.delete();
-        assertTrue(!outDir_inDir_inFile.exists());
-        outDir_inDir.delete();
-        assertTrue(!outDir_inDir.exists());
+        File outDirInDir = new File(outTestDirectory + "/" + inTestDirectory);
+        assertTrue(outDirInDir.isDirectory());
+        File outDirInDirInFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
+        assertTrue(outDirInDirInFile.isFile());
+        assertDoesNotThrow(()->{
+            assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDirInDirInFile.getPath()));
+        });
+        outDirInDirInFile.delete();
+        assertTrue(!outDirInDirInFile.exists());
+        outDirInDir.delete();
+        assertTrue(!outDirInDir.exists());
         outDir.delete();
         assertTrue(!outDir.exists());
     }
 
     @Test
-    void cp_FolderToNonExistingFolderRecursively_ShouldCpCorrectly() throws IOException {
+    void cp_FolderToNonExistingFolderRecursively_ShouldCpCorrectly() {
         File outDir = new File(outTestDirectory);
         if(outDir.exists()) {
             outDir.delete();
@@ -240,15 +231,17 @@ public class CpApplicationTest {
             cpApplication.cpFilesToFolder(true, outTestDirectory, inTestDirectory);
         });
 
-        File outDir_inDir = new File(outTestDirectory + "/" + inTestDirectory);
-        assertTrue(outDir_inDir.isDirectory());
-        File outDir_inDir_inFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
-        assertTrue(outDir_inDir_inFile.isFile());
-        assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDir_inDir_inFile.getPath()));
-        outDir_inDir_inFile.delete();
-        assertTrue(!outDir_inDir_inFile.exists());
-        outDir_inDir.delete();
-        assertTrue(!outDir_inDir.exists());
+        File outDirInDir = new File(outTestDirectory + "/" + inTestDirectory);
+        assertTrue(outDirInDir.isDirectory());
+        File outDirInDirInFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
+        assertTrue(outDirInDirInFile.isFile());
+        assertDoesNotThrow(() -> {
+            assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDirInDirInFile.getPath()));
+        });
+        outDirInDirInFile.delete();
+        assertTrue(!outDirInDirInFile.exists());
+        outDirInDir.delete();
+        assertTrue(!outDirInDir.exists());
         outDir.delete();
         assertTrue(!outDir.exists());
     }

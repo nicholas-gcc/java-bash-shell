@@ -19,6 +19,8 @@ public class CpApplication implements CpInterface {
     private static final char RECURSIVE = 'r';
 
     /**
+     * for file path/name containing "*" wildcard
+     * retrieve filenames that qualify for the wildcard
      * @param srcFile String of source file
      * @return array of Files that fulfills pattern
      */
