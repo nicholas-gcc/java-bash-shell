@@ -20,6 +20,7 @@ public class CpArguments {
     }
 
     /**
+     * retrieve file arguments (source and destination file)
      * @param args Arguments from stdin
      * @param files Empty arraylist, in which file arguments will be stored
      * @return boolean isRecursive
