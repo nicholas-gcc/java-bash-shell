@@ -20,7 +20,7 @@ public class IORedirectionHandlerTest {
     private static ArgumentResolver argumentResolver;
     private static InputStream origInputStream;
     private static OutputStream origOutputStream;
-    static IORedirectionHandler ioRedirectionHandler;
+    static IORedirectionHandler handler;
 
     @BeforeAll
     static void setup() throws IOException {
@@ -31,7 +31,7 @@ public class IORedirectionHandlerTest {
         argumentResolver = new ArgumentResolver();
         origInputStream = new ByteArrayInputStream(new byte[0]);
         origOutputStream = new ByteArrayOutputStream();
-        ioRedirectionHandler = new IORedirectionHandler( argsList, origInputStream,
+        handler = new IORedirectionHandler( argsList, origInputStream,
                 origOutputStream, argumentResolver);
     }
 
@@ -46,19 +46,19 @@ public class IORedirectionHandlerTest {
     @Test
     void extract_Arguments_ShouldNotThrowException() {
         assertDoesNotThrow(() -> {
-            ioRedirectionHandler.extractRedirOptions();
-            assertEquals(Arrays.asList("paste"), ioRedirectionHandler.getNoRedirArgsList());
+            handler.extractRedirOptions();
+            assertEquals(Arrays.asList("paste"), handler.getNoRedirArgsList());
             assertEquals(Files.readString(Path.of(filename)),
-                    new String(ioRedirectionHandler.getInputStream().readAllBytes()));
+                    new String(handler.getInputStream().readAllBytes()));
         });
     }
 
     @Test
     void extract_EmptyArguments_ShouldThrowShellException() {
-        IORedirectionHandler ioRedirectionHandler2 = new IORedirectionHandler(new ArrayList(), origInputStream,
+        IORedirectionHandler handler1 = new IORedirectionHandler(new ArrayList(), origInputStream,
                 origOutputStream, argumentResolver);
         assertThrows(ShellException.class, () -> {
-            ioRedirectionHandler2.extractRedirOptions();
+            handler1.extractRedirOptions();
         });
     }
 }
