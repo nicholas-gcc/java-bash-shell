@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
+import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.app.UniqInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.UniqException;
@@ -8,6 +9,7 @@ import sg.edu.nus.comp.cs4218.impl.app.args.UniqArguments;
 import java.io.*;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public class UniqApplication implements UniqInterface {
     static final UniqArguments uniqArgs = new UniqArguments();
@@ -26,7 +28,7 @@ public class UniqApplication implements UniqInterface {
             if (fileNames[1] == null) {//write to stdout
                 stdout.write(result.getBytes());
             } else {
-                File outputFile = new File(fileNames[1]);
+                File outputFile = new File(convertToAbsolutePath(fileNames[1]));
                 if (!outputFile.exists()) {
                     outputFile.createNewFile();
                 }
@@ -49,7 +51,7 @@ public class UniqApplication implements UniqInterface {
     @Override
     public String uniqFromFile(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, String inputFileName,
                                String outputFileName) throws Exception {
-        File inputFile = new File(inputFileName);
+        File inputFile = new File(convertToAbsolutePath(inputFileName));
         if (!inputFile.isFile()) {
             throw new UniqException(ERR_FILE_NOT_FOUND);
         }
@@ -95,5 +97,44 @@ public class UniqApplication implements UniqInterface {
 
         }
         return result;
+    }
+
+    /**
+     * Converts filename to absolute path, if initially was relative path
+     *
+     * @param fileName supplied by user
+     * @return a String of the absolute path of the filename
+     */
+    private String convertToAbsolutePath(String fileName) {
+        String home = System.getProperty("user.home").trim();
+        String currentDir = Environment.currentDirectory.trim();
+        String convertedPath = convertPathToSystemPath(fileName);
+
+        String newPath;
+        if (convertedPath.length() >= home.length() && convertedPath.substring(0, home.length()).trim().equals(home)) {
+            newPath = convertedPath;
+        } else {
+            newPath = currentDir + CHAR_FILE_SEP + convertedPath;
+        }
+        return newPath;
+    }
+
+    /**
+     * Converts path provided by user into path recognised by the system
+     *
+     * @param path supplied by user
+     * @return a String of the converted path
+     */
+    private String convertPathToSystemPath(String path) {
+        String convertedPath = path;
+        String pathIdentifier = "\\" + Character.toString(CHAR_FILE_SEP);
+        convertedPath = convertedPath.replaceAll("(\\\\)+", pathIdentifier);
+        convertedPath = convertedPath.replaceAll("/+", pathIdentifier);
+
+        if (convertedPath.length() != 0 && convertedPath.charAt(convertedPath.length() - 1) == CHAR_FILE_SEP) {
+            convertedPath = convertedPath.substring(0, convertedPath.length() - 1);
+        }
+
+        return convertedPath;
     }
 }
