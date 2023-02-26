@@ -1,0 +1,6 @@
+This is file C.
+It has many lines.
+
+This is another line.
+
+This is the last line.
