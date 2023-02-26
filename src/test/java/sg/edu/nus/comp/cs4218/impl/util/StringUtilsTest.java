@@ -3,7 +3,9 @@ package sg.edu.nus.comp.cs4218.impl.util;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -70,5 +72,21 @@ public class StringUtilsTest {
 
         String[] actualTokens = StringUtils.tokenize(toBeTokenize);
         assertTrue(Arrays.equals(actualTokens, expectedTokens));
+    }
+
+    @Test
+    void sortFilenamesByExt_ListOfFilenames_FilesAreSortedByExtension() {
+        List<String> fileNames = Arrays.asList("123.txt", "abc.rtf", "123.rtf");
+        List<String> expectedList = Arrays.asList("abc.rtf", "123.rtf", "123.txt");
+        StringUtils.sortFilenamesByExt(fileNames);
+        assertEquals(expectedList, fileNames);
+    }
+
+    @Test
+    void sortFilenamesByExt_ListOfFilenamesAndDir_FilesAreSortedByExtension() {
+        List<String> fileNames = Arrays.asList("123.txt", "abc.rtf", "dir2","123.rtf", "dir1");
+        List<String> expectedList = Arrays.asList("dir1", "dir2", "abc.rtf", "123.rtf", "123.txt");
+        StringUtils.sortFilenamesByExt(fileNames);
+        assertEquals(expectedList, fileNames);
     }
 }
