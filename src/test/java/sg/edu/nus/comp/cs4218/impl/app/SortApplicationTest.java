@@ -3,7 +3,8 @@ package sg.edu.nus.comp.cs4218.impl.app;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
-import sg.edu.nus.comp.cs4218.impl.exception.SortException;
+import sg.edu.nus.comp.cs4218.exception.SortException;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
