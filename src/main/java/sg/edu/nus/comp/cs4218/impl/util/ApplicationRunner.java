@@ -21,6 +21,8 @@ public class ApplicationRunner {
     public final static String APP_CD = "cd";
     public final static String APP_CAT = "cat";
 
+    public final static String APP_UNIQ = "uniq";
+
     /**
      * Run the application as specified by the application command keyword and arguments.
      *
@@ -59,6 +61,9 @@ public class ApplicationRunner {
                 break;
             case APP_CAT:
                 application = new CatApplication();
+                break;
+            case APP_UNIQ:
+                application = new UniqApplication();
                 break;
             default:
                 throw new ShellException(app + ": " + ERR_INVALID_APP);
