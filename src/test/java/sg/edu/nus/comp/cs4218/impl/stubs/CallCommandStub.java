@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.stubs;
 
+import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.cmd.CallCommand;
@@ -7,6 +8,7 @@ import sg.edu.nus.comp.cs4218.impl.util.ApplicationRunner;
 import sg.edu.nus.comp.cs4218.impl.util.ArgumentResolver;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -19,7 +21,10 @@ public class CallCommandStub extends CallCommand {
         GREP_SUCCESS_STUB,
         GREP_SUCCESS_SUBSEQUENT_STUB,
         LS_ERROR,
-        GREP_ERROR
+        GREP_ERROR,
+        CD_SUCCESS_STUB,
+        ECHO_SUCCESS_STUB,
+        CD_ERROR
     }
 
     private CommandType commandType;
@@ -36,6 +41,10 @@ public class CallCommandStub extends CallCommand {
 
         // stub output for grep "src"
         String grepOutput = "src";
+
+        // stub output for echo "test"
+        String echoOutput = "test";
+
 
         switch(this.commandType) {
             case LS_SUCCESS_STUB:
@@ -64,10 +73,26 @@ public class CallCommandStub extends CallCommand {
 
                 }
                 break;
+            case CD_SUCCESS_STUB:
+                try {
+                    Environment.currentDirectory = System.getProperty("user.dir") + File.separator + "src";
+                } catch (Exception ignored) {
+
+                }
+                break;
+            case ECHO_SUCCESS_STUB:
+                try {
+                    stdout.write(echoOutput.getBytes());
+                } catch (Exception ignored) {
+
+                }
+                break;
             case LS_ERROR:
                 throw new ShellException("Something went wrong in ls");
             case GREP_ERROR:
                 throw new ShellException("Something went wrong in grep");
+            case CD_ERROR:
+                throw new ShellException("Something went wrong in cd");
             default:
                 throw new ShellException("Piping failure");
         }

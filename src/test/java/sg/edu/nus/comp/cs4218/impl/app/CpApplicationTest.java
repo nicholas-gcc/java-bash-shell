@@ -1,7 +1,7 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
 import org.junit.jupiter.api.*;
-import sg.edu.nus.comp.cs4218.impl.exception.CpException;
+import sg.edu.nus.comp.cs4218.exception.CpException;
 
 import java.io.File;
 import java.io.FileWriter;

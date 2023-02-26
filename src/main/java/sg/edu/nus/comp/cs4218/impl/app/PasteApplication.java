@@ -44,7 +44,12 @@ public class PasteApplication implements PasteInterface {
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
         PasteArgsParser pasteArgsParser = new PasteArgsParser();
-
+        if (args == null || args.length == 0) {
+            throw new PasteException(ERR_NULL_ARGS);
+        }
+        if (stdout == null) {
+            throw new PasteException(ERR_NO_OSTREAM);
+        }
         try {
             pasteArgsParser.parse(args);
         } catch (InvalidArgsException e) {
@@ -53,12 +58,7 @@ public class PasteApplication implements PasteInterface {
 
         boolean isSerial = pasteArgsParser.isSerial();
         String[] fileNames = pasteArgsParser.getFileNames().toArray(String[]::new);
-        if (args == null) {
-            throw new PasteException(ERR_NULL_ARGS);
-        }
-        if (stdout == null) {
-            throw new PasteException(ERR_NO_OSTREAM);
-        }
+
         if (stdin == null && (fileNames == null || fileNames.length == 0)) {
             throw new PasteException(ERR_NO_INPUT);
         }
