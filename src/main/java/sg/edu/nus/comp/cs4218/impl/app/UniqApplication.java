@@ -26,7 +26,19 @@ public class UniqApplication implements UniqInterface {
             if (fileNames[1] == null) {//write to stdout
                 stdout.write(result.getBytes());
             } else {
-
+                File outputFile = new File(fileNames[1]);
+                if (!outputFile.exists()) {
+                    outputFile.createNewFile();
+                }
+                FileWriter inputWriter = null;
+                try {
+                    inputWriter = new FileWriter(fileNames[1]);
+                    inputWriter.write(result);
+                } catch (IOException ioException) {
+                    throw ioException;
+                } finally {
+                    inputWriter.close();
+                }
             }
         } catch (Exception exception) {
             throw new UniqException(exception.getMessage());
@@ -77,7 +89,7 @@ public class UniqApplication implements UniqInterface {
             memorisedLine = line;
             line = reader.readLine();
         }
-        if ((!isRepeated && !isAllRepeated && count == 1) || ((isAllRepeated || isRepeated) && count > 1)) {
+        if ((!isRepeated && !isAllRepeated) || ((isAllRepeated || isRepeated) && count > 1)) {
             result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
                     : result + memorisedLine + System.lineSeparator();
 
