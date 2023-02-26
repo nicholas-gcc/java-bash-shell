@@ -100,7 +100,7 @@ public class RmApplicationTest {
     void run_OneFileArgs_CorrectOutputStream() {
         String[] args = {TEXT_FILE_NAME1};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createFile(TEXT_FILE_NAME1);
+            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
             rmApplication.run(args, System.in, outputStream);
             assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
         });
@@ -122,8 +122,8 @@ public class RmApplicationTest {
     void run_MultipleFilesArgs_CorrectOutputStream() {
         String[] args = {TEXT_FILE_NAME1, TEXT_FILE_NAME2};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createFile(TEXT_FILE_NAME1);
-            FileSystemUtils.createFile(TEXT_FILE_NAME2);
+            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
+            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
             rmApplication.run(args, System.in, outputStream);
             assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
             assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2));
@@ -135,11 +135,11 @@ public class RmApplicationTest {
     void run_OneDirWithRecursiveArgs_CorrectOutputStream() {
         String[] args = {DIR_NAME1, RECURSIVE_ARG};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createDir(DIR_NAME1);
+            FileSystemUtils.createEmptyDir(DIR_NAME1);
             String prevDir = Environment.currentDirectory;
             // Moves current working directory to the directory created
             Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createDir(SUB_DIR_NAME1);
+            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
             // Reset current working directory to working directory prior to moving
             Environment.currentDirectory = prevDir;
 
@@ -153,18 +153,18 @@ public class RmApplicationTest {
     void run_MultipleDirsWithRecursiveArgs_CorrectOutputStream() {
         String[] args = {DIR_NAME1, DIR_NAME2, RECURSIVE_ARG};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createDir(DIR_NAME1);
+            FileSystemUtils.createEmptyDir(DIR_NAME1);
             String prevDir = Environment.currentDirectory;
             // Moves current working directory to the directory created
             Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createDir(SUB_DIR_NAME1);
+            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
             // Reset current working directory to working directory prior to moving
             Environment.currentDirectory = prevDir;
 
-            FileSystemUtils.createDir(DIR_NAME2);
+            FileSystemUtils.createEmptyDir(DIR_NAME2);
             // Moves current working directory to the directory created
             Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME2;
-            FileSystemUtils.createDir(SUB_DIR_NAME2);
+            FileSystemUtils.createEmptyDir(SUB_DIR_NAME2);
             // Reset current working directory to working directory prior to moving
             Environment.currentDirectory = prevDir;
 
@@ -178,7 +178,7 @@ public class RmApplicationTest {
     void run_OneDirWithRmEmptyDirArgs_CorrectOutputStream() {
         String[] args = {DIR_NAME1, RM_EMPTY_DIR_ARG};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createDir(DIR_NAME1);
+            FileSystemUtils.createEmptyDir(DIR_NAME1);
             rmApplication.run(args, System.in, outputStream);
             assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
         });
@@ -189,8 +189,8 @@ public class RmApplicationTest {
     void run_MultipleDirsWithRmEmptyDirArgs_CorrectOutputStream() {
         String[] args = {DIR_NAME1, DIR_NAME2, RM_EMPTY_DIR_ARG};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createDir(DIR_NAME1);
-            FileSystemUtils.createDir(DIR_NAME2);
+            FileSystemUtils.createEmptyDir(DIR_NAME1);
+            FileSystemUtils.createEmptyDir(DIR_NAME2);
             rmApplication.run(args, System.in, outputStream);
             assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
             assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
@@ -202,16 +202,16 @@ public class RmApplicationTest {
     void run_MultipleDirWithRecursiveAndRmEmptyDirArgs_CorrectOutputStream() {
         String[] args = {DIR_NAME1, DIR_NAME2, RECURSIVE_ARG, RM_EMPTY_DIR_ARG};
         assertDoesNotThrow(() -> {
-            FileSystemUtils.createDir(DIR_NAME1);
+            FileSystemUtils.createEmptyDir(DIR_NAME1);
             String prevDir = Environment.currentDirectory;
             // Moves current working directory to the directory created
             Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createDir(SUB_DIR_NAME1);
+            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
             // Reset current working directory to working directory prior to moving
             Environment.currentDirectory = prevDir;
 
             // Create empty directory
-            FileSystemUtils.createDir(DIR_NAME2);
+            FileSystemUtils.createEmptyDir(DIR_NAME2);
 
             rmApplication.run(args, System.in, outputStream);
             assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));

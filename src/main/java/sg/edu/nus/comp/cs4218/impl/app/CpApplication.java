@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-
 public class CpApplication implements CpInterface {
     private static final char RECURSIVE = 'r';
 
@@ -62,10 +61,11 @@ public class CpApplication implements CpInterface {
     /**
      * for file path/name containing "*" wildcard
      * retrieve filenames that qualify for the wildcard
+     * 
      * @param srcFile String of source file
      * @return array of Files that fulfills pattern
      */
-    private File[] getFilenamesWithPattern(String srcFile){
+    private File[] getFilenamesWithPattern(String srcFile) {
         String[] arr = srcFile.split("\\*");
         String pattern = arr[1];
         String filename = arr[0];
@@ -107,10 +107,11 @@ public class CpApplication implements CpInterface {
     }
 
     @Override
-    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws CpException, IOException {
+    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
+            throws CpException, IOException {
         File src = new File(srcFile);
         File dest = new File(destFile);
-        if(srcFile.contains("*.")) {
+        if (srcFile.contains("*.")) {
             throw new CpException(destFile + " is " + ERR_IS_NOT_DIR);
         }
 
@@ -151,10 +152,10 @@ public class CpApplication implements CpInterface {
         CpArguments cpArgs = new CpArguments();
         cpArgs.checkFilesValidity(src, dest, isRecursive);
 
-        if(srcName.contains("*.")) {
+        if (srcName.contains("*.")) {
             File[] filenames = getFilenamesWithPattern(srcName);
-            for (File f: filenames) {
-                cpFilesToFolder(isRecursive,destFolder , f.getPath());
+            for (File f : filenames) {
+                cpFilesToFolder(isRecursive, destFolder, f.getPath());
             }
             return null;
         }
@@ -166,13 +167,13 @@ public class CpApplication implements CpInterface {
         if (!dest.exists()) {
             dest.mkdir();
         }
-        if (dest.isFile()){
-             throw new CpException(destFolder + ": " + ERR_IS_NOT_DIR);
+        if (dest.isFile()) {
+            throw new CpException(destFolder + ": " + ERR_IS_NOT_DIR);
         }
         dest = new File(destFolder + "/" + src.getName());
 
         if (src.isFile()) {
-            cpSrcFileToDestFile(isRecursive,srcName,dest.getPath());
+            cpSrcFileToDestFile(isRecursive, srcName, dest.getPath());
             return null;
         }
         if (!dest.exists()) {

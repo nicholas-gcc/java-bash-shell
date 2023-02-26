@@ -13,13 +13,10 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_CURR_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.*;
 
 public class LsApplication implements LsInterface {
 
@@ -41,7 +38,7 @@ public class LsApplication implements LsInterface {
             paths = resolvePaths(folderName);
         }
 
-        return buildResult(paths, isRecursive, isSortByExt);
+        return buildResult(paths, isRecursive, isSortByExt).trim();
     }
 
     @Override
@@ -59,7 +56,7 @@ public class LsApplication implements LsInterface {
         try {
             parser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new LsException(e.getMessage());
+            throw new LsException(e.getMessage());//NOPMD
         }
 
         Boolean recursive = parser.isRecursive();
@@ -72,7 +69,7 @@ public class LsApplication implements LsInterface {
             stdout.write(result.getBytes());
             stdout.write(StringUtils.STRING_NEWLINE.getBytes());
         } catch (Exception e) {
-            throw new LsException(ERR_WRITE_STREAM);
+            throw new LsException(ERR_WRITE_STREAM);//NOPMD
         }
     }
 
@@ -88,7 +85,7 @@ public class LsApplication implements LsInterface {
         try {
             return formatContents(getContents(Paths.get(cwd)), isSortByExt);
         } catch (InvalidDirectoryException e) {
-            throw new LsException("Unexpected error occurred!");
+            throw new LsException("Unexpected error occurred!");//NOPMD
         }
     }
 
@@ -110,7 +107,8 @@ public class LsApplication implements LsInterface {
                 String formatted = formatContents(contents, isSortByExt);
                 String relativePath = getRelativeToCwd(path).toString();
                 result.append(StringUtils.isBlank(relativePath) ? PATH_CURR_DIR : relativePath);
-                result.append(":\n");
+                result.append(':');
+                result.append(STRING_NEWLINE);
                 result.append(formatted);
 
                 if (!formatted.isEmpty()) {
@@ -132,12 +130,37 @@ public class LsApplication implements LsInterface {
                 // do we do then?
                 if (!isRecursive) {
                     result.append(e.getMessage());
-                    result.append('\n');
+                    result.append(STRING_NEWLINE);
                 }
             }
         }
 
-        return result.toString().trim();
+        return result.toString();
+    }
+
+    /**
+     * Sorts the given fileNames by extension. If the filename has no extension, sort it first.
+     *
+     * @param fileNames    - list of filenames
+     * @return
+     */
+    private void sortFilenamesByExt(List<String> fileNames) {
+        Collections.sort(fileNames, new Comparator<String>() {
+            @Override
+            public int compare(String file1, String file2) {
+                final int f1Dot = file1.lastIndexOf('.');
+                final int f2Dot = file2.lastIndexOf('.');
+                if ((f1Dot == -1) == (f2Dot == -1)) {
+                    String formattedF1 = file1.substring(f1Dot + 1);
+                    String formattedF2 = file2.substring(f2Dot + 1);
+                    return formattedF1.compareTo(formattedF2);
+                } else if (f1Dot == -1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        });
     }
 
     /**
@@ -148,16 +171,19 @@ public class LsApplication implements LsInterface {
      * @return
      */
     private String formatContents(List<Path> contents, Boolean isSortByExt) {
-        // TODO: To implement sorting by extension
         List<String> fileNames = new ArrayList<>();
         for (Path path : contents) {
             fileNames.add(path.getFileName().toString());
         }
 
+        if (isSortByExt) {
+            sortFilenamesByExt(fileNames);
+        }
+
         StringBuilder result = new StringBuilder();
         for (String fileName : fileNames) {
             result.append(fileName);
-            result.append('\n');
+            result.append(STRING_NEWLINE);
         }
 
         return result.toString().trim();
@@ -215,7 +241,10 @@ public class LsApplication implements LsInterface {
      * @return
      */
     private Path resolvePath(String directory) {
-        if (directory.charAt(0) == '/') {
+        // To account for absolute paths for Mac/Linux systems
+        if (directory.charAt(0) == CHAR_FILE_SEP ||
+                // To account for absolute paths for Windows systems
+                (directory.length() > 1 && directory.charAt(1) == ':')) {
             // This is an absolute path
             return Paths.get(directory).normalize();
         }
@@ -233,7 +262,7 @@ public class LsApplication implements LsInterface {
         return Paths.get(Environment.currentDirectory).relativize(path);
     }
 
-    private class InvalidDirectoryException extends Exception {
+    public class InvalidDirectoryException extends Exception {
         InvalidDirectoryException(String directory) {
             super(String.format("ls: cannot access '%s': No such file or directory", directory));
         }
