@@ -10,11 +10,7 @@ import sg.edu.nus.comp.cs4218.impl.util.ApplicationRunner;
 import sg.edu.nus.comp.cs4218.impl.util.CommandBuilder;
 import sg.edu.nus.comp.cs4218.impl.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 
 public class ShellImpl implements Shell {
 
@@ -28,20 +24,37 @@ public class ShellImpl implements Shell {
         Shell shell = new ShellImpl();
 
         try {
-            String currentDirectory = Environment.currentDirectory;
             String commandString;
-            System.out.print("> ");
-            try {
-                commandString = reader.readLine();
-            } catch (IOException e) {
-                return; // Streams are closed, terminate process
+            while (true) {
+                // try to read and set up shell
+                try {
+                    String currentDirectory = Environment.currentDirectory;
+                    System.out.print(new File(currentDirectory).getAbsolutePath() + "> ");
+                    commandString = reader.readLine();
+                    if (commandString == null) break;
+                } catch (IOException e) {
+                    break; // Streams are closed, terminate process
+                }
+
+                // try to parse commands
+                try {
+                    if (!StringUtils.isBlank(commandString)) {
+                        shell.parseAndEvaluate(commandString, System.out);
+                        System.out.println();
+                    }
+                } catch (ShellException | AbstractApplicationException e) {
+                    System.out.println(e.getMessage());
+                }
             }
 
-            if (!StringUtils.isBlank(commandString)) {
-                shell.parseAndEvaluate(commandString, System.out);
-            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        } finally {
+            try {
+                reader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
