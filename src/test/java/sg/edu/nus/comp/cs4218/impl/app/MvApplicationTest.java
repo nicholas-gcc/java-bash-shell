@@ -111,7 +111,7 @@ class MvApplicationTest {
     }
 
     @Test
-    void run_MoveTwoFilesIntoDirectoryOverride() {
+    void run_MoveTwoFilesIntoDirectoryOverride_ShouldNotThrow() {
         String[] args = {getFileName(tempFileA), getFileName(tempFileB), getFileName(tempDirA)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
     }

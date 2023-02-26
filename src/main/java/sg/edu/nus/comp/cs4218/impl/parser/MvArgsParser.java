@@ -1,13 +1,13 @@
 package sg.edu.nus.comp.cs4218.impl.parser;
 
 public class MvArgsParser extends ArgsParser {
-    private static final char FLAG_IS_NO_OVERWRITE = 'n';
+    private static final char FLAG_NO_OVERWRITE = 'n';
     private String[] sourceFiles;
     private String destFile;
 
     public MvArgsParser() {
         super();
-        legalFlags.add(FLAG_IS_NO_OVERWRITE);
+        legalFlags.add(FLAG_NO_OVERWRITE);
     }
 
     public String[] getSourceFiles() {
@@ -28,7 +28,7 @@ public class MvArgsParser extends ArgsParser {
 
 
     public boolean shouldOverwrite() {
-        return !flags.contains(FLAG_IS_NO_OVERWRITE);
+        return !flags.contains(FLAG_NO_OVERWRITE);
     }
 
     private void splitArgs() {

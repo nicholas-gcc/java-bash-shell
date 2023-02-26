@@ -38,15 +38,15 @@ public class MvApplication implements MvInterface {
 
         } catch (NoSuchFileException e) {
             // If the source file does not exist
-            throw new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage());
+            throw new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage()); //NOPMD
 
         } catch (FileAlreadyExistsException e) {
             // If the destination file already exists
-            throw new MvException("Target file already exists: " + e.getMessage());
+            throw new MvException("Target file already exists: " + e.getMessage()); //NOPMD
 
         } catch (IOException e) {
             // If there is any other exception while moving the file
-            throw new MvException(e.getMessage());
+            throw new MvException(e.getMessage()); //NOPMD
         }
 
         return destFilePath;
@@ -127,7 +127,7 @@ public class MvApplication implements MvInterface {
                 }
                 else {
                     stdout.write(e.getMessage().getBytes());
-                    throw new MvException(e.getMessage());
+                    throw new MvException(e.getMessage()); //NOPMD
                 }
             } catch (IOException ex) {
                 throw (MvException) new MvException("Could not write to output stream").initCause(ex);
