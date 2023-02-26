@@ -65,6 +65,7 @@ public class ApplicationRunner {
                 break;
             case APP_UNIQ:
                 application = new UniqApplication();
+                break;
             case APP_CP:
                 application = new CpApplication();
                 break;

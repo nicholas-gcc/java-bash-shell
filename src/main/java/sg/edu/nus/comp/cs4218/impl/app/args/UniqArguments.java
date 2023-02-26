@@ -39,17 +39,31 @@ public class UniqArguments {
 
     }
 
-    public String[] getArguments(String[] args) throws UniqException {
+    /**
+     * given an array of arguments, extract flags (options) and return input and output filename
+     * if input/output file is not specified, null is contained in the array
+     * @param args
+     * @return [inputFileName, outputFileName]
+     * @throws UniqException
+     */
+    public String[] getFiles(String[] args) throws UniqException {
         boolean isOption = true;
-        boolean isInput = false;
         boolean isOutput = false;
         String[] result = {null, null};
         if(args.length == 0) {
-            return new String[] {};
+            return result;
         }
 
         for (String arg: args) {
-            if (arg.charAt(0) == CHAR_FLAG && arg.length() == 2){//option flag
+            if (isOption && !arg.isEmpty() && arg.charAt(0) == CHAR_FLAG){//option flag
+                if (arg.length() > 2) {
+                    throw new UniqException(ERR_INVALID_FLAG);
+                }
+                if (arg.length() == 1) {//- is for stdin, end of options
+                    isOption = false;
+                    isOutput = true;
+                    continue;
+                }
                 switch (arg.charAt(1)) {
                     case CHAR_COUNT:
                         this.count = true;
@@ -63,12 +77,14 @@ public class UniqArguments {
                     default:
                         throw new UniqException(ERR_INVALID_FLAG);
                 }
-            } else {
+            } else if (isOption && !isOutput){//this is input file
                 isOption = false;
+                isOutput = true;
+                result[0] = arg;
+            } else {//this is output file
+                result[1] = arg;
             }
         }
-        if(args.length == 1) {
-
-        }
+        return result;
     }
 }
