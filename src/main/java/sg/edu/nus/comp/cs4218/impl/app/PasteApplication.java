@@ -2,6 +2,9 @@ package sg.edu.nus.comp.cs4218.impl.app;
 
 import sg.edu.nus.comp.cs4218.app.PasteInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
+import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
+import sg.edu.nus.comp.cs4218.exception.PasteException;
+import sg.edu.nus.comp.cs4218.impl.parser.PasteArgsParser;
 import sg.edu.nus.comp.cs4218.exception.PasteException;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
@@ -20,6 +23,9 @@ import java.util.stream.Collectors;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_INPUT;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ISTREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
@@ -29,13 +35,41 @@ public class PasteApplication implements PasteInterface {
     /**
      * Runs application with specified input data and specified output stream.
      *
-     * @param args
-     * @param stdin
-     * @param stdout
+     * @param args [Option] [FILES]...
+     *             Option: -s, paste one file at a time instead of in parallel
+     *             FILES: File names to be read and merged (including "-" for reading from stdin)
+     * @param stdin InputStream containing arguments from Stdin
+     * @param stdout OutputStream to write the result to
      */
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
+        PasteArgsParser pasteArgsParser = new PasteArgsParser();
 
+        try {
+            pasteArgsParser.parse(args);
+        } catch (InvalidArgsException e) {
+            throw new PasteException(e.getMessage());
+        }
+
+        boolean isSerial = pasteArgsParser.isSerial();
+        String[] fileNames = pasteArgsParser.getFileNames().toArray(String[]::new);
+        if (args == null) {
+            throw new PasteException(ERR_NULL_ARGS);
+        }
+        if (stdout == null) {
+            throw new PasteException(ERR_NO_OSTREAM);
+        }
+        if (stdin == null && (fileNames == null || fileNames.length == 0)) {
+            throw new PasteException(ERR_NO_INPUT);
+        }
+
+        try {
+            List<InputStream> streams = getInputStreamsFromFiles(stdin, fileNames);
+            String result = mergeInputStreams(isSerial, streams.toArray(InputStream[]::new));
+            stdout.write(result.getBytes());
+        } catch (Exception e) {
+            throw new PasteException(e.getMessage());
+        }
     }
 
     /**
@@ -48,7 +82,18 @@ public class PasteApplication implements PasteInterface {
      */
     @Override
     public String mergeStdin(Boolean isSerial, InputStream stdin) throws Exception {
-        return null;
+        try {
+            if (isSerial == null) {
+                throw new PasteException(ERR_NULL_ARGS);
+            }
+            if (stdin == null) {
+                throw new PasteException(ERR_NO_ISTREAM);
+            }
+            InputStream[] streams = {stdin};
+            return mergeInputStreams(isSerial, streams);
+        } catch (Exception e) {
+            throw new PasteException(e.getMessage());
+        }
     }
 
     /**
@@ -66,7 +111,32 @@ public class PasteApplication implements PasteInterface {
             if (fileNames == null || fileNames.length == 0 || isSerial == null) {
                 throw new PasteException(ERR_NULL_ARGS);
             }
-            List<InputStream> inputStreams = getInputStreams(null, fileNames);
+            List<InputStream> inputStreams = getInputStreamsFromFiles(null, fileNames);
+            return mergeInputStreams(isSerial, inputStreams.toArray(InputStream[]::new));
+        } catch (Exception e) {
+            throw new PasteException(e.getMessage());
+        }
+    }
+
+    /**
+     * Returns string of line-wise concatenated (tab-separated) files and Stdin arguments.
+     *
+     * @param isSerial Paste one file at a time instead of in parallel
+     * @param stdin    InputStream containing arguments from Stdin
+     * @param fileName Array of file names to be read and merged (including "-" for reading from stdin)
+     * @throws Exception if an error occurs while reading from the input streams
+     */
+    @Override
+    public String mergeFileAndStdin(Boolean isSerial, InputStream stdin, String... fileName) throws Exception {
+        try {
+            if (fileName == null || fileName.length == 0 || isSerial == null) {
+                throw new PasteException(ERR_NULL_ARGS);
+            }
+            if (stdin == null) {
+                throw new PasteException(ERR_NO_ISTREAM);
+            }
+            List<InputStream> inputStreams = getInputStreamsFromFiles(stdin, fileName);
+            inputStreams.add(0, stdin);
             return mergeInputStreams(isSerial, inputStreams.toArray(InputStream[]::new));
         } catch (Exception e) {
             throw new PasteException(e.getMessage());
@@ -141,19 +211,6 @@ public class PasteApplication implements PasteInterface {
     }
 
     /**
-     * Returns string of line-wise concatenated (tab-separated) files and Stdin arguments.
-     *
-     * @param isSerial Paste one file at a time instead of in parallel
-     * @param stdin    InputStream containing arguments from Stdin
-     * @param fileName Array of file names to be read and merged (including "-" for reading from stdin)
-     * @throws Exception
-     */
-    @Override
-    public String mergeFileAndStdin(Boolean isSerial, InputStream stdin, String... fileName) throws Exception {
-        return null;
-    }
-
-    /**
      * Convert a mix of String file names and an InputStream object (which may represent stdin)
      * into a List of InputStream objects that can be processed together
      *
@@ -162,7 +219,7 @@ public class PasteApplication implements PasteInterface {
      * @return a List of InputStream objects
      * @throws Exception if an error occurs while reading from the input streams
      */
-    public List<InputStream> getInputStreams(InputStream stdin, String... fileNames) throws Exception {
+    public List<InputStream> getInputStreamsFromFiles(InputStream stdin, String... fileNames) throws Exception {
         List<InputStream> inputStreams = new ArrayList<>();
         if (fileNames == null || fileNames.length == 0) {
             inputStreams.add(stdin);
