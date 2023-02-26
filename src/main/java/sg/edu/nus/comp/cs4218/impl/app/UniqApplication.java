@@ -12,7 +12,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public class UniqApplication implements UniqInterface {
-    static final UniqArguments uniqArgs = new UniqArguments();
+    static UniqArguments uniqArgs = new UniqArguments();
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
         String[] fileNames = uniqArgs.getFiles(args);
@@ -56,7 +56,15 @@ public class UniqApplication implements UniqInterface {
             throw new UniqException(ERR_FILE_NOT_FOUND);
         }
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-        return getResultFromReader(isCount, isRepeated, isAllRepeated, reader);
+        String result;
+        try {
+            result = getResultFromReader(isCount, isRepeated, isAllRepeated, reader);
+        } catch (Exception exception) {
+            throw exception;
+        } finally {
+            reader.close();
+        }
+        return result;
     }
 
     @Override
