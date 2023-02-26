@@ -35,14 +35,25 @@ public class UniqApplication implements UniqInterface {
     }
 
     @Override
-    public String uniqFromFile(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, String inputFileName, String outputFileName) throws Exception {
+    public String uniqFromFile(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, String inputFileName,
+                               String outputFileName) throws Exception {
         File inputFile = new File(inputFileName);
-        String result = "";
-        int count = 1;
         if (!inputFile.isFile()) {
             throw new UniqException(ERR_FILE_NOT_FOUND);
         }
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        return getResultFromReader(isCount, isRepeated, isAllRepeated, reader);
+    }
+
+    @Override
+    public String uniqFromStdin(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, InputStream stdin, String outputFileName) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stdin));
+        return getResultFromReader(isCount, isRepeated, isAllRepeated, reader);
+    }
+
+    String getResultFromReader(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, BufferedReader reader) throws IOException {
+        String result = "";
+        int count = 1;
         String line = reader.readLine();
         String memorisedLine = "";
         while (line != null) {
@@ -72,10 +83,5 @@ public class UniqApplication implements UniqInterface {
 
         }
         return result;
-    }
-
-    @Override
-    public String uniqFromStdin(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, InputStream stdin, String outputFileName) throws Exception {
-        return null;
     }
 }
