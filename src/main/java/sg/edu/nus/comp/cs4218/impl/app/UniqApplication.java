@@ -43,7 +43,8 @@ public class UniqApplication implements UniqInterface {
                 }
             }
         } catch (Exception exception) {
-            throw new UniqException(exception.getMessage());
+            throw new UniqException(exception.getMessage()); //NOPMD - suppressed PreserveStackTrace - the proper way
+                                                             // is to throw UniqException
         }
 
     }
@@ -76,34 +77,38 @@ public class UniqApplication implements UniqInterface {
     String getResultFromReader(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, BufferedReader reader) throws IOException {
         String result = "";
         int count = 1;
-        String line = reader.readLine();
-        String memorisedLine = "";
-        while (line != null) {
-            if (line.equals(memorisedLine)) { //line matches previous line
-                if(isAllRepeated) {
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String memorisedLine = "";
+            while (line != null) {
+                if (line.equals(memorisedLine)) { //line matches previous line
+                    if(isAllRepeated) {
+                        result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
+                                : result + memorisedLine + System.lineSeparator();
+                    }
+                    count++;
+                } else if (count > 1) {//line does not match previous line and previous line was repeated
                     result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
                             : result + memorisedLine + System.lineSeparator();
+                    count = 1;
+                } else {//line does not match previous line and previous line was NOT repeated
+                    if (!isAllRepeated && !isRepeated && !memorisedLine.isEmpty()) {
+                        result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
+                                : result + memorisedLine + System.lineSeparator();
+                    }
+                    count = 1;
                 }
-                count++;
-            } else if (count > 1) {//line does not match previous line and previous line was repeated
+                memorisedLine = line;
+                line = reader.readLine();
+            }
+            if ((!isRepeated && !isAllRepeated) || ((isAllRepeated || isRepeated) && count > 1)) {
                 result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
                         : result + memorisedLine + System.lineSeparator();
-                count = 1;
-            } else {//line does not match previous line and previous line was NOT repeated
-                if (!isAllRepeated && !isRepeated && !memorisedLine.isEmpty()) {
-                    result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
-                            : result + memorisedLine + System.lineSeparator();
-                }
-                count = 1;
-            }
-            memorisedLine = line;
-            line = reader.readLine();
-        }
-        if ((!isRepeated && !isAllRepeated) || ((isAllRepeated || isRepeated) && count > 1)) {
-            result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
-                    : result + memorisedLine + System.lineSeparator();
 
+            }
         }
+        reader.close();
         return result;
     }
 
