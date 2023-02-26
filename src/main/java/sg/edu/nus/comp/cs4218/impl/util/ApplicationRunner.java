@@ -23,9 +23,7 @@ public class ApplicationRunner {
     public final static String APP_MV = "mv";
 
     public final static String APP_CP = "cp";
-
-    public final static String APP_CP = "cp";
-
+    
     /**
      * Run the application as specified by the application command keyword and arguments.
      *
