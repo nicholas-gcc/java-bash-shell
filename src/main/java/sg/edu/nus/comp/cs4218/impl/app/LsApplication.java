@@ -16,13 +16,19 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_WRITE_STREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_SPACE;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_CURR_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.sortFilenamesByExt;
 
 public class LsApplication implements LsInterface {
 
     private final static String PATH_CURR_DIR = STRING_CURR_DIR + CHAR_FILE_SEP;
-    private final static String EMPTY_FILE_PATHS_STRING = "";
+    private final static String EMPTY_FILE_STRING = "";
     @Override
     public String listFolderContent(Boolean isRecursive, Boolean isSortByExt,
                                     String... filesAndDirsNames) throws LsException {
@@ -73,7 +79,7 @@ public class LsApplication implements LsInterface {
 
         try {
             stdout.write(result.getBytes());
-            stdout.write(StringUtils.STRING_NEWLINE.getBytes());
+            stdout.write(STRING_NEWLINE.getBytes());
         } catch (Exception e) {
             throw new LsException(ERR_WRITE_STREAM);//NOPMD
         }
@@ -105,32 +111,32 @@ public class LsApplication implements LsInterface {
      * @return String to be written to output stream.
      */
     private String buildResultBasedOnFilePaths(List<Path> paths, Boolean isSortByExt) {
-        if (paths.size() == 0) {
-            return EMPTY_FILE_PATHS_STRING;
+        if (paths.isEmpty()) {
+            return EMPTY_FILE_STRING;
         }
         StringBuilder invalidResult = new StringBuilder();
         StringBuilder validResult = new StringBuilder();
         List<String> fileNames = new ArrayList<>();
-        List<String> filesThatDoesNotExist = new ArrayList<>();
+        List<String> nonExistentFiles = new ArrayList<>();
 
         for (Path path : paths) {
             if (Files.exists(path)) {
                 fileNames.add(path.getFileName().toString());
             } else {
-                filesThatDoesNotExist.add(path.getFileName().toString());
+                nonExistentFiles.add(path.getFileName().toString());
             }
         }
         if (isSortByExt) {
             sortFilenamesByExt(fileNames);
         }
 
-        for (String nonexistentFile: filesThatDoesNotExist) {
+        for (String nonexistentFile: nonExistentFiles) {
             invalidResult.append(new InvalidFileOrDirectoryException(nonexistentFile).getMessage());
             invalidResult.append(STRING_NEWLINE);
         }
 
         // To prevent extra new line when there is no valid file names
-        if (fileNames.size() == 0) {
+        if (fileNames.isEmpty()) {
             return invalidResult.toString();
         }
 
@@ -166,9 +172,9 @@ public class LsApplication implements LsInterface {
 
                 if (!formatted.isEmpty()) {
                     // Empty directories should not have an additional new line
-                    result.append(StringUtils.STRING_NEWLINE);
+                    result.append(STRING_NEWLINE);
                 }
-                result.append(StringUtils.STRING_NEWLINE);
+                result.append(STRING_NEWLINE);
 
                 // RECURSE!
                 if (isRecursive) {
@@ -191,30 +197,6 @@ public class LsApplication implements LsInterface {
         return result.toString();
     }
 
-    /**
-     * Sorts the given fileNames by extension. If the filename has no extension, sort it first.
-     *
-     * @param fileNames    - list of filenames
-     * @return
-     */
-    private void sortFilenamesByExt(List<String> fileNames) {
-        Collections.sort(fileNames, new Comparator<String>() {
-            @Override
-            public int compare(String file1, String file2) {
-                final int f1Dot = file1.lastIndexOf('.');
-                final int f2Dot = file2.lastIndexOf('.');
-                if ((f1Dot == -1) == (f2Dot == -1)) {
-                    String formattedF1 = file1.substring(f1Dot + 1);
-                    String formattedF2 = file2.substring(f2Dot + 1);
-                    return formattedF1.compareTo(formattedF2);
-                } else if (f1Dot == -1) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        });
-    }
 
     /**
      * Formats the contents of a directory into a single string.
@@ -274,13 +256,13 @@ public class LsApplication implements LsInterface {
     /**
      * Resolve all paths given as arguments into a list of Path objects for easy path management.
      *
-     * @param fileOrDirectoriesPaths
+     * @param fileOrDirPaths
      * @return List of java.nio.Path objects
      */
-    private List<Path> resolvePaths(String... fileOrDirectoriesPaths) {
+    private List<Path> resolvePaths(String... fileOrDirPaths) {
         List<Path> paths = new ArrayList<>();
-        for (int i = 0; i < fileOrDirectoriesPaths.length; i++) {
-            paths.add(resolvePath(fileOrDirectoriesPaths[i]));
+        for (int i = 0; i < fileOrDirPaths.length; i++) {
+            paths.add(resolvePath(fileOrDirPaths[i]));
         }
 
         return paths;
