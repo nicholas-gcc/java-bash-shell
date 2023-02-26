@@ -74,6 +74,15 @@ public class UniqApplication implements UniqInterface {
         return getResultFromReader(isCount, isRepeated, isAllRepeated, reader);
     }
 
+    /**
+     * take in the options and a reader, and return the result that should be printed to stdout or file
+     * @param isCount
+     * @param isRepeated
+     * @param isAllRepeated
+     * @param reader BufferedReader, can be for either stdin or file reader
+     * @return
+     * @throws IOException
+     */
     String getResultFromReader(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, BufferedReader reader) throws IOException {
         String result = "";
         int count = 1;
