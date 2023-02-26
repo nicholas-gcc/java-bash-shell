@@ -45,9 +45,12 @@ public class SequenceCommandTest {
     }
 
     @Test
-    public void evaluate_SequenceCommandSuccess_NoException() throws FileNotFoundException, AbstractApplicationException, ShellException {
+    public void evaluate_CdAndEchoCommandSequence_NoException() throws FileNotFoundException, AbstractApplicationException, ShellException {
         // set up stub commands
+
+        // cdCommand stub will change directory to src
         CallCommandStub cdCommand = new CallCommandStub(args, applicationRunner, argumentResolver, CallCommandStub.CommandType.CD_SUCCESS_STUB);
+        // echoCommand stub will return string "test"
         CallCommandStub echoCommand = new CallCommandStub(args, applicationRunner, argumentResolver, CallCommandStub.CommandType.ECHO_SUCCESS_STUB);
         callCommands.add(cdCommand);
         callCommands.add(echoCommand);
