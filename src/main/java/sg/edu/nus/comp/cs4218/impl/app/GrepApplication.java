@@ -88,14 +88,14 @@ public class GrepApplication implements GrepInterface {
                 reader = new BufferedReader(new FileReader(path));
                 String line;
                 Pattern compiledPattern;
-                compiledPattern = isCaseInsensitive? Pattern.compile(pattern, Pattern.CASE_INSENSITIVE) : Pattern.compile(pattern);
+                compiledPattern = isCaseInsensitive ? Pattern.compile(pattern, Pattern.CASE_INSENSITIVE) : Pattern.compile(pattern);
 
                 count = 0;
                 while ((line = reader.readLine()) != null) {
                     Matcher matcher = compiledPattern.matcher(line);
                     if (matcher.find()) { // match
                         if (isSingleFile) {
-                            lineResults.add(hasPrefix? f + ": " + line : line);
+                            lineResults.add(hasPrefix ? f + ": " + line : line);
                         } else {
                             lineResults.add(f + ": " + line);
                         }
@@ -119,7 +119,8 @@ public class GrepApplication implements GrepInterface {
     }
 
     @Override
-    public String grepFromStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, InputStream stdin) throws Exception {
+    public String grepFromStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName,
+                                InputStream stdin) throws Exception {
         int count = 0;
         StringJoiner stringJoiner = new StringJoiner(STRING_NEWLINE);
 
@@ -135,7 +136,7 @@ public class GrepApplication implements GrepInterface {
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = compiledPattern.matcher(line);
                 if (matcher.find()) { // match
-                    line = isPrefixFileName? "standard input: " + line: line;
+                    line = isPrefixFileName ? "standard input: " + line: line;
                     stringJoiner.add(line);
                     count++;
                 }
@@ -200,7 +201,8 @@ public class GrepApplication implements GrepInterface {
     }
 
     @Override
-    public String grepFromFileAndStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, InputStream stdin, String... fileNames) throws Exception {
+    public String grepFromFileAndStdin(String pattern, Boolean isCaseInsensitive, Boolean isCountLines,
+                                       Boolean isPrefixFileName, InputStream stdin, String... fileNames) throws Exception {
         String result = "";
         for (String input: fileNames) {
             if (String.valueOf(CHAR_FLAG_PREFIX).equals(input)) {
