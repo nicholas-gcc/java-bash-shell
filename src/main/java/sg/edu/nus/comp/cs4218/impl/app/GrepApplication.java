@@ -36,7 +36,6 @@ public class GrepApplication implements GrepInterface {
 
     @Override
     public String grepFromFiles(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, String... fileNames) throws Exception {
-        // TODO: To implement -H flag print file name with output lines
         if (fileNames == null || pattern == null) {
             throw new GrepException(NULL_POINTER);
         }
