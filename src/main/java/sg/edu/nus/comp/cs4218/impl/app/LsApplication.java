@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.*;
@@ -21,24 +22,29 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.*;
 public class LsApplication implements LsInterface {
 
     private final static String PATH_CURR_DIR = STRING_CURR_DIR + CHAR_FILE_SEP;
-
+    private final static String EMPTY_FILE_PATHS_STRING = "";
     @Override
     public String listFolderContent(Boolean isRecursive, Boolean isSortByExt,
-                                    String... folderName) throws LsException {
-        if (folderName.length == 0 && !isRecursive) {
+                                    String... filesAndDirsNames) throws LsException {
+        if (filesAndDirsNames.length == 0 && !isRecursive) {
             return listCwdContent(isSortByExt);
         }
-
         List<Path> paths;
-        if (folderName.length == 0 && isRecursive) {
+        if (filesAndDirsNames.length == 0 && isRecursive) {
             String[] directories = new String[1];
             directories[0] = Environment.currentDirectory;
             paths = resolvePaths(directories);
+            return buildResultBasedOnDirPaths(paths, isRecursive, isSortByExt).trim();
         } else {
-            paths = resolvePaths(folderName);
+            // there are files/dir names in args
+            paths = resolvePaths(filesAndDirsNames);
+
+            List<Path> filePaths = paths.stream().filter(path -> !Files.isDirectory(path)).collect(Collectors.toList());
+            List<Path> dirPaths = paths.stream().filter(Files::isDirectory).collect(Collectors.toList());
+            String result = buildResultBasedOnFilePaths(filePaths, isSortByExt) + buildResultBasedOnDirPaths(dirPaths, isRecursive, isSortByExt);
+            return result.trim();
         }
 
-        return buildResult(paths, isRecursive, isSortByExt).trim();
     }
 
     @Override
@@ -61,9 +67,9 @@ public class LsApplication implements LsInterface {
 
         Boolean recursive = parser.isRecursive();
         Boolean sortByExt = parser.isSortByExt();
-        String[] directories = parser.getDirectories()
+        String[] filesOrDirs = parser.getDirectories()
                 .toArray(new String[parser.getDirectories().size()]);
-        String result = listFolderContent(recursive, sortByExt, directories);
+        String result = listFolderContent(recursive, sortByExt, filesOrDirs);
 
         try {
             stdout.write(result.getBytes());
@@ -84,24 +90,71 @@ public class LsApplication implements LsInterface {
         String cwd = Environment.currentDirectory;
         try {
             return formatContents(getContents(Paths.get(cwd)), isSortByExt);
-        } catch (InvalidDirectoryException e) {
+        } catch (InvalidFileOrDirectoryException e) {
             throw new LsException("Unexpected error occurred!");//NOPMD
         }
     }
 
     /**
-     * Builds the resulting string to be written into the output stream.
+     * Builds the resulting string on file paths to be written into the output stream based.
      * <p>
-     * NOTE: This is recursively called if user wants recursive mode.
+     * NOTE: Does not need recursive boolean since these are not directory paths
      *
-     * @param paths         - list of java.nio.Path objects to list
-     * @param isRecursive   - recursive mode, repeatedly ls the child directories
-     * @param isSortByExt - sorts folder contents alphabetically by file extension (characters after the last ‘.’ (without quotes)). Files with no extension are sorted first.
+     * @param paths         - list of java.nio.Path objects that points to files to list
+     * @param isSortByExt   - sorts files alphabetically by extension.
      * @return String to be written to output stream.
      */
-    private String buildResult(List<Path> paths, Boolean isRecursive, Boolean isSortByExt) {
-        StringBuilder result = new StringBuilder();
+    private String buildResultBasedOnFilePaths(List<Path> paths, Boolean isSortByExt) {
+        if (paths.size() == 0) {
+            return EMPTY_FILE_PATHS_STRING;
+        }
+        StringBuilder invalidResult = new StringBuilder();
+        StringBuilder validResult = new StringBuilder();
+        List<String> fileNames = new ArrayList<>();
+        List<String> filesThatDoesNotExist = new ArrayList<>();
+
         for (Path path : paths) {
+            if (Files.exists(path)) {
+                fileNames.add(path.getFileName().toString());
+            } else {
+                filesThatDoesNotExist.add(path.getFileName().toString());
+            }
+        }
+        if (isSortByExt) {
+            sortFilenamesByExt(fileNames);
+        }
+
+        for (String nonexistentFile: filesThatDoesNotExist) {
+            invalidResult.append(new InvalidFileOrDirectoryException(nonexistentFile).getMessage());
+            invalidResult.append(STRING_NEWLINE);
+        }
+
+        // To prevent extra new line when there is no valid file names
+        if (fileNames.size() == 0) {
+            return invalidResult.toString();
+        }
+
+        for (String fileName: fileNames) {
+            validResult.append(fileName);
+            validResult.append(CHAR_SPACE);
+        }
+
+        return invalidResult + validResult.toString().trim() + STRING_NEWLINE;
+    }
+
+        /**
+         * Builds the resulting string based on directory paths to be written into the output stream.
+         * <p>
+         * NOTE: This is recursively called if user wants recursive mode.
+         *
+         * @param dirPaths      - list of java.nio.Path objects that points to directories to list
+         * @param isRecursive   - recursive mode, repeatedly ls the child directories
+         * @param isSortByExt - sorts folder contents alphabetically by file extension (characters after the last ‘.’ (without quotes)). Files with no extension are sorted first.
+         * @return String to be written to output stream.
+         */
+    private String buildResultBasedOnDirPaths(List<Path> dirPaths, Boolean isRecursive, Boolean isSortByExt) {
+        StringBuilder result = new StringBuilder();
+        for (Path path : dirPaths) {
             try {
                 List<Path> contents = getContents(path);
                 String formatted = formatContents(contents, isSortByExt);
@@ -119,9 +172,9 @@ public class LsApplication implements LsInterface {
 
                 // RECURSE!
                 if (isRecursive) {
-                    result.append(buildResult(contents, isRecursive, isSortByExt));
+                    result.append(buildResultBasedOnDirPaths(contents, isRecursive, isSortByExt));
                 }
-            } catch (InvalidDirectoryException e) {
+            } catch (InvalidFileOrDirectoryException e) {
                 // NOTE: This is pretty hackish IMO - we should find a way to change this
                 // If the user is in recursive mode, and if we resolve a file that isn't a directory
                 // we should not spew the error message.
@@ -196,13 +249,13 @@ public class LsApplication implements LsInterface {
      * @return List of files + directories in the passed directory.
      */
     private List<Path> getContents(Path directory)
-            throws InvalidDirectoryException {
+            throws InvalidFileOrDirectoryException {
         if (!Files.exists(directory)) {
-            throw new InvalidDirectoryException(getRelativeToCwd(directory).toString());
+            throw new InvalidFileOrDirectoryException(getRelativeToCwd(directory).toString());
         }
 
         if (!Files.isDirectory(directory)) {
-            throw new InvalidDirectoryException(getRelativeToCwd(directory).toString());
+            throw new InvalidFileOrDirectoryException(getRelativeToCwd(directory).toString());
         }
 
         List<Path> result = new ArrayList<>();
@@ -221,13 +274,13 @@ public class LsApplication implements LsInterface {
     /**
      * Resolve all paths given as arguments into a list of Path objects for easy path management.
      *
-     * @param directories
+     * @param fileOrDirectoriesPaths
      * @return List of java.nio.Path objects
      */
-    private List<Path> resolvePaths(String... directories) {
+    private List<Path> resolvePaths(String... fileOrDirectoriesPaths) {
         List<Path> paths = new ArrayList<>();
-        for (int i = 0; i < directories.length; i++) {
-            paths.add(resolvePath(directories[i]));
+        for (int i = 0; i < fileOrDirectoriesPaths.length; i++) {
+            paths.add(resolvePath(fileOrDirectoriesPaths[i]));
         }
 
         return paths;
@@ -262,12 +315,12 @@ public class LsApplication implements LsInterface {
         return Paths.get(Environment.currentDirectory).relativize(path);
     }
 
-    public class InvalidDirectoryException extends Exception {
-        InvalidDirectoryException(String directory) {
-            super(String.format("ls: cannot access '%s': No such file or directory", directory));
+    public class InvalidFileOrDirectoryException extends Exception {
+        InvalidFileOrDirectoryException(String fileOrDir) {
+            super(String.format("ls: cannot access '%s': No such file or directory", fileOrDir));
         }
 
-        InvalidDirectoryException(String directory, Throwable cause) {
+        InvalidFileOrDirectoryException(String directory, Throwable cause) {
             super(String.format("ls: cannot access '%s': No such file or directory", directory),
                     cause);
         }
