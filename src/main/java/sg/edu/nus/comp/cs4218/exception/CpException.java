@@ -1,4 +1,4 @@
-package sg.edu.nus.comp.cs4218.impl.exception;
+package sg.edu.nus.comp.cs4218.exception;
 
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 
