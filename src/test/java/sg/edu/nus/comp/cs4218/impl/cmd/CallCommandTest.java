@@ -7,6 +7,7 @@ import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.util.ApplicationRunner;
 import sg.edu.nus.comp.cs4218.impl.util.ArgumentResolver;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -85,4 +86,5 @@ public class CallCommandTest {
         List<String> expectedList = Arrays.asList("echo", "hello", "world");
         assertEquals(expectedList, callCommand.getArgsList());
     }
+
 }

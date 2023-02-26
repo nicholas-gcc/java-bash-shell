@@ -3,6 +3,8 @@ package sg.edu.nus.comp.cs4218.impl.util;
 import sg.edu.nus.comp.cs4218.Environment;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,11 +81,19 @@ public final class RegexArgument {
                 dir += tokens[i] + File.separator;
             }
 
-            File currentDir = Paths.get(Environment.currentDirectory + File.separator + dir).toFile();
-
+            File currentDir;
+            Path path = Paths.get(dir);
+            if (path.isAbsolute()){
+                currentDir = path.toFile();
+            } else {
+                currentDir = Paths.get(Environment.currentDirectory + File.separator + dir).toFile();
+            }
+            
             for (String candidate : currentDir.list()) {
-                if (regexPattern.matcher(candidate).matches()) {
-                    globbedFiles.add(dir + candidate);
+                if (regexPattern.matcher(dir + candidate).matches()) {
+                    if (Files.isDirectory(Path.of(dir + candidate))) {
+                        globbedFiles.add(dir + candidate);
+                    }
                 }
             }
 
