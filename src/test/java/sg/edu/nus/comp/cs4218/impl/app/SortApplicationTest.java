@@ -3,6 +3,7 @@ package sg.edu.nus.comp.cs4218.impl.app;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import sg.edu.nus.comp.cs4218.impl.exception.SortException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,7 +44,7 @@ class SortApplicationTest {
     void sortFromFiles_InvalidFile_ShouldThrow() {
         String[] fileNames = new String[]{"invalid-file"};
 
-        assertThrows(Exception.class, () -> {
+        assertThrows(SortException.class, () -> {
             sortApp.sortFromFiles(false, false, false, fileNames);
         });
     }
@@ -54,7 +54,7 @@ class SortApplicationTest {
     void sortFromFiles_InputIsDirectory_ShouldThrow() {
         String[] fileNames = new String[]{tempDir.toString()};
 
-        assertThrows(Exception.class, () -> {
+        assertThrows(SortException.class, () -> {
             sortApp.sortFromFiles(false, false, false, fileNames);
         });
     }
@@ -85,7 +85,7 @@ class SortApplicationTest {
     @Test
     @Disabled
     void sortFromStdin_NullInput_ShouldThrow() {
-        assertThrows(Exception.class, () -> {
+        assertThrows(SortException.class, () -> {
             sortApp.sortFromStdin(false, false, false, null);
         });
     }
