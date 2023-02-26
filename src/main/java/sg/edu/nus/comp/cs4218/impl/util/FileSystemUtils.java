@@ -4,8 +4,12 @@ import sg.edu.nus.comp.cs4218.Environment;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public final class FileSystemUtils {
 
@@ -36,11 +40,11 @@ public final class FileSystemUtils {
     }
 
     /**
-     * Creates a file in the current working directory
+     * Creates a empty file in the current working directory
      *
      * @param filename  Name of file
      */
-    public static void createFile(String filename) throws IOException, FileOrDirExistException, FileOrDirCreationException {
+    public static void createEmptyFile(String filename) throws IOException, FileOrDirExistException, FileOrDirCreationException {
         if (fileOrDirExist(filename)) {
             throw new FileOrDirExistException(filename);
         }
@@ -73,7 +77,7 @@ public final class FileSystemUtils {
      *
      * @param dirname  Name of directory
      */
-    public static void createDir(String dirname) throws FileOrDirExistException, FileOrDirCreationException, IOException {
+    public static void createEmptyDir(String dirname) throws FileOrDirExistException, FileOrDirCreationException, IOException {
         if (fileOrDirExist(dirname)) {
             throw new FileOrDirExistException(dirname);
         }
@@ -164,8 +168,6 @@ public final class FileSystemUtils {
         }
         return joinedPath;
     }
-
-
 
     private static class FileOrDirExistException extends Exception {
         public FileOrDirExistException(String name) {
