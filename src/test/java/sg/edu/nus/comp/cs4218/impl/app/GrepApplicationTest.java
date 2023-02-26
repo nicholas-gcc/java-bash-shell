@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GrepApplicationTest {
     private final GrepApplication grepApplication = new GrepApplication();
     private static String fileName = "test.md";
-    private static String fileConent = "In the deep expanse of the midnight sky," + System.lineSeparator() +
+    private static String fileContent = "In the deep expanse of the midnight sky," + System.lineSeparator() +
             "The stars above twinkle and shine." + System.lineSeparator() +
             "A cosmic dance that's never-ending," + System.lineSeparator() +
             "A symphony that's truly divine." + System.lineSeparator() +
@@ -54,7 +54,7 @@ public class GrepApplicationTest {
         FileWriter writer2 = null;
         try {
             writer1 = new FileWriter(fileName);
-            writer1.write(fileConent);
+            writer1.write(fileContent);
             writer2 = new FileWriter(fileName2);
             writer2.write(fileContent2);
         } catch (IOException ioException) {
