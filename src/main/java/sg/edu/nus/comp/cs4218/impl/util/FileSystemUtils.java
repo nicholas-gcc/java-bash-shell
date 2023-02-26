@@ -1,7 +1,11 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
+import sg.edu.nus.comp.cs4218.Environment;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public final class FileSystemUtils {
 
@@ -15,6 +19,20 @@ public final class FileSystemUtils {
      */
     public static boolean fileOrDirExist(String name) {
         return new File(name).exists();
+    }
+
+    /**
+     * Resolves absolute path of a file given the name
+     *
+     * @param name of file
+     * @return String representing absolute path to file
+     */
+    public static String getAbsolutePathName(String name) {
+        Path path = Paths.get(name).normalize();
+        if (!path.isAbsolute()) {
+            path = Paths.get(Environment.currentDirectory).resolve(path);
+        }
+        return path.toString();
     }
 
     /**
@@ -84,6 +102,44 @@ public final class FileSystemUtils {
     public static void deleteDirRecursively(String dirname) {
         // TODO: Implement method
     }
+
+    /**
+     * Checks if a folder is in the other's subdirectory
+     *
+     * @param parentFolder
+     * @param childFolder
+     * @return true if childFolder is nested in parentFolder
+     */
+    public static boolean isSubDir(String parentFolder, String childFolder) {
+        Path parentPath = Paths.get(FileSystemUtils.getAbsolutePathName(parentFolder)).normalize();
+        Path childPath = Paths.get(FileSystemUtils.getAbsolutePathName(childFolder)).normalize();
+        return childPath.startsWith(parentPath) && !childPath.equals(parentPath);
+    }
+
+    /**
+     * Determines whether a file is located directly inside a folder.
+     *
+     * @param filePath The path to the file.
+     * @param folderPath The path to the folder.
+     * @return {@code true} if the file is directly inside the folder, {@code false} otherwise.
+     */
+    public static boolean isFileInFolder(String filePath, String folderPath) {
+        Path file = Paths.get(getAbsolutePathName(filePath));
+        Path folder = Paths.get(getAbsolutePathName(folderPath));
+        Path parent = file.getParent();
+        return parent != null && parent.equals(folder);
+    }
+
+    public static String joinPath(String... fileFolderName) {
+        String separator = File.separator;
+        String joinedPath = String.join(separator, fileFolderName);
+        if (!joinedPath.endsWith(separator)) {
+            joinedPath += separator;
+        }
+        return joinedPath;
+    }
+
+
 
     private static class FileOrDirExistException extends Exception {
         public FileOrDirExistException(String name) {
