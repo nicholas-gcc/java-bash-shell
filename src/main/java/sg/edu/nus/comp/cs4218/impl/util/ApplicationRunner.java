@@ -21,7 +21,6 @@ public class ApplicationRunner {
     public final static String APP_CD = "cd";
     public final static String APP_CAT = "cat";
     public final static String APP_MV = "mv";
-
     public final static String APP_CP = "cp";
     public final static String APP_CUT = "cut";
 

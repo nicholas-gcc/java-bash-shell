@@ -1,26 +1,68 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
+import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.app.CpInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.impl.app.args.CpArguments;
 import sg.edu.nus.comp.cs4218.exception.CpException;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 
 import java.io.*;
 import java.util.ArrayList;
-
 
 public class CpApplication implements CpInterface {
     private static final char RECURSIVE = 'r';
 
     /**
+     * Converts filename to absolute path, if initially was relative path
+     *
+     * @param fileName supplied by user
+     * @return a String of the absolute path of the filename
+     */
+    private String convertToAbsolutePath(String fileName) {
+        String home = System.getProperty("user.home").trim();
+        String currentDir = Environment.currentDirectory.trim();
+        String convertedPath = convertPathToSystemPath(fileName);
+
+        String newPath;
+        if (convertedPath.length() >= home.length() && convertedPath.substring(0, home.length()).trim().equals(home)) {
+            newPath = convertedPath;
+        } else {
+            newPath = currentDir + CHAR_FILE_SEP + convertedPath;
+        }
+        return newPath;
+    }
+
+    /**
+     * Converts path provided by user into path recognised by the system
+     *
+     * @param path supplied by user
+     * @return a String of the converted path
+     */
+    private String convertPathToSystemPath(String path) {
+        String convertedPath = path;
+        String pathIdentifier = "\\" + Character.toString(CHAR_FILE_SEP);
+        convertedPath = convertedPath.replaceAll("(\\\\)+", pathIdentifier);
+        convertedPath = convertedPath.replaceAll("/+", pathIdentifier);
+
+        if (convertedPath.length() != 0 && convertedPath.charAt(convertedPath.length() - 1) == CHAR_FILE_SEP) {
+            convertedPath = convertedPath.substring(0, convertedPath.length() - 1);
+        }
+
+        return convertedPath;
+    }
+
+    /**
      * for file path/name containing "*" wildcard
      * retrieve filenames that qualify for the wildcard
+     * 
      * @param srcFile String of source file
      * @return array of Files that fulfills pattern
      */
-    private File[] getFilenamesWithPattern(String srcFile){
+    private File[] getFilenamesWithPattern(String srcFile) {
         String[] arr = srcFile.split("\\*");
         String pattern = arr[1];
         String filename = arr[0];
@@ -41,8 +83,8 @@ public class CpApplication implements CpInterface {
             ArrayList<String> files = new ArrayList<>();
             boolean isRecursive = cpArgs.getArguments(args, files);
 
-            String srcFileName = files.get(0);
-            String destFileName = files.get(1);
+            String srcFileName = convertToAbsolutePath(files.get(0));
+            String destFileName = convertToAbsolutePath(files.get(1));
             File srcFile = new File(srcFileName);
             File destFile = new File(destFileName);
 
@@ -62,10 +104,11 @@ public class CpApplication implements CpInterface {
     }
 
     @Override
-    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws CpException, IOException {
+    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
+            throws CpException, IOException {
         File src = new File(srcFile);
         File dest = new File(destFile);
-        if(srcFile.contains("*.")) {
+        if (srcFile.contains("*.")) {
             throw new CpException(destFile + " is " + ERR_IS_NOT_DIR);
         }
 
@@ -106,10 +149,10 @@ public class CpApplication implements CpInterface {
         CpArguments cpArgs = new CpArguments();
         cpArgs.checkFilesValidity(src, dest, isRecursive);
 
-        if(srcName.contains("*.")) {
+        if (srcName.contains("*.")) {
             File[] filenames = getFilenamesWithPattern(srcName);
-            for (File f: filenames) {
-                cpFilesToFolder(isRecursive,destFolder , f.getPath());
+            for (File f : filenames) {
+                cpFilesToFolder(isRecursive, destFolder, f.getPath());
             }
             return null;
         }
@@ -121,13 +164,13 @@ public class CpApplication implements CpInterface {
         if (!dest.exists()) {
             dest.mkdir();
         }
-        if (dest.isFile()){
-             throw new CpException(destFolder + ": " + ERR_IS_NOT_DIR);
+        if (dest.isFile()) {
+            throw new CpException(destFolder + ": " + ERR_IS_NOT_DIR);
         }
         dest = new File(destFolder + "/" + src.getName());
 
         if (src.isFile()) {
-            cpSrcFileToDestFile(isRecursive,srcName,dest.getPath());
+            cpSrcFileToDestFile(isRecursive, srcName, dest.getPath());
             return null;
         }
         if (!dest.exists()) {
