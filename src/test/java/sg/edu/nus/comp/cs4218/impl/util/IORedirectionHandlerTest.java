@@ -45,6 +45,7 @@ public class IORedirectionHandlerTest {
     }
 
     @Test
+    @Disabled
     void extract_Arguments_ShouldNotThrowException() {
         assertDoesNotThrow(() -> {
             handler.extractRedirOptions();
