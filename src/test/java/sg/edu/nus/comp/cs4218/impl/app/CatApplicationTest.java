@@ -71,7 +71,7 @@ public class CatApplicationTest {
     @Test
     @Disabled
     void testCatFiles_ValidArgs_ReturnsCorrectOutput() {
-        String expected = "This is file A." + System.lineSeparator(); //NOPMD
+        String expected = "This is file A." + System.lineSeparator();
         assertDoesNotThrow(() -> {
             String actual = catApplication.catFiles(false, TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A);
             assertEquals(expected, actual);
