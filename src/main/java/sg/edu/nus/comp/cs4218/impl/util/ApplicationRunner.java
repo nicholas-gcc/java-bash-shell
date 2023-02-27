@@ -20,6 +20,7 @@ public class ApplicationRunner {
     public final static String APP_PASTE = "paste";
     public final static String APP_CD = "cd";
     public final static String APP_CAT = "cat";
+    public final static String APP_UNIQ = "uniq";
     public final static String APP_MV = "mv";
     public final static String APP_CP = "cp";
     public final static String APP_CUT = "cut";
@@ -62,6 +63,9 @@ public class ApplicationRunner {
                 break;
             case APP_CAT:
                 application = new CatApplication();
+                break;
+            case APP_UNIQ:
+                application = new UniqApplication();
                 break;
             case APP_MV:
                 application = new MvApplication();
