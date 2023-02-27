@@ -26,7 +26,7 @@ public class CatApplicationTest {
     private static final String TEST_FOLDER = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "cat";
     private static final String CD_EX_PREFIX = "cd: ";
 
-    private CatApplication catApplication = new CatApplication();
+    private final CatApplication catApplication = new CatApplication();
 
     @Test
     @Disabled
@@ -71,7 +71,7 @@ public class CatApplicationTest {
     @Test
     @Disabled
     void testCatFiles_ValidArgs_ReturnsCorrectOutput() {
-        String expected = "This is file A." + System.lineSeparator();
+        String expected = "This is file A." + System.lineSeparator(); //NOPMD
         assertDoesNotThrow(() -> {
             String actual = catApplication.catFiles(false, TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A);
             assertEquals(expected, actual);
