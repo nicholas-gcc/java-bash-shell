@@ -46,8 +46,8 @@ public class WcApplication implements WcInterface {
                 result = countFromFiles(wcArgs.isBytes(), wcArgs.isLines(), wcArgs.isWords(), wcArgs.getFiles().toArray(new String[0]));
             }
         } catch (Exception e) {
-            // Will never happen
-            throw new WcException(ERR_GENERAL); //NOPMD
+            // Will never happen, actually happens though
+            throw new WcException(e.getMessage()); //NOPMD
         }
         try {
             stdout.write(result.getBytes());
