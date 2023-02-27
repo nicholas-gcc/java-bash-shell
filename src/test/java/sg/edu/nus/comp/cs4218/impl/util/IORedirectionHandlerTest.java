@@ -6,12 +6,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,7 +53,6 @@ public class IORedirectionHandlerTest {
                     new String(handler.getInputStream().readAllBytes()));
         });
     }
-
     @Disabled
     @Test
     void extract_EmptyArguments_ShouldThrowShellException() {
