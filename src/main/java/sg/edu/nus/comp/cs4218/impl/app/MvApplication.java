@@ -80,7 +80,7 @@ public class MvApplication implements MvInterface {
                 }
 
                 // move file to destination folder
-                Files.move(Paths.get(srcFilePath), Paths.get(destFilePath));
+                Files.move(Paths.get(fileName), Paths.get(destFilePath));
             }
         } catch (FileAlreadyExistsException e) {
             throw (MvException) new MvException("Cannot move file: a file with the same name already exists in destination folder")

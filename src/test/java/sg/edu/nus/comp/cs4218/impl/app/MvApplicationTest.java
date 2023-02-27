@@ -5,12 +5,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.MvException;
+import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,32 +98,55 @@ class MvApplicationTest {
     void run_RenameFileOverride_ShouldNotThrow() {
         String[] args = {getFileName(tempFileA), getFileName(tempFileB)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
+        assertTrue(!FileSystemUtils.fileOrDirExist(tempFileA.toString()));
+        assertTrue(FileSystemUtils.fileOrDirExist(tempFileB.toString()));
     }
 
 
     @Test
-    void run_MoveFileIntoDirectoryOverride_ShouldNotThrow() {
+    void run_MoveFileIntoDirectoryOverride_ShouldNotThrow() throws IOException {
         String[] args = {getFileName(tempFileA), getFileName(tempDirA)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
+        List<Path> files = Files.list(tempDirA)
+                .filter(Files::isRegularFile)
+                .collect(Collectors.toList());
+        Path filePath = tempDirA.resolve(getFileName(tempFileA));
+        assertTrue(files.contains(filePath));
     }
 
     @Test
-    void run_MoveFileIntoDirectoryNoOverride_ShouldNotThrow() {
+    void run_MoveFileIntoDirectoryNoOverride_ShouldNotThrow() throws IOException {
         String[] args = {FLAG_IS_NO_OVERWRITE, getFileName(tempFileA), getFileName(tempDirA)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
+        List<Path> files = Files.list(tempDirA)
+                .filter(Files::isRegularFile)
+                .collect(Collectors.toList());
+        Path filePath = tempDirA.resolve(getFileName(tempFileA));
+        assertTrue(files.contains(filePath));
     }
 
     @Test
-    void run_MoveTwoFilesIntoDirectoryOverride_ShouldNotThrow() {
+    void run_MoveTwoFilesIntoDirectoryOverride_ShouldNotThrow() throws IOException {
         String[] args = {getFileName(tempFileA), getFileName(tempFileB), getFileName(tempDirA)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
+        List<Path> files = Files.list(tempDirA)
+                .filter(Files::isRegularFile)
+                .collect(Collectors.toList());
+        Path filePathA = tempDirA.resolve(getFileName(tempFileA));
+        Path filePathB = tempDirA.resolve(getFileName(tempFileB));
+        assertTrue(files.contains(filePathA) && files.contains(filePathB));
     }
 
 
     @Test
-    void run_MoveFolderToAnother_ShouldNotThrow() {
+    void run_MoveFolderToAnother_ShouldNotThrow() throws IOException {
         String[] args = {getFileName(tempDirA), getFileName(tempDirB)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
+        List<Path> files = Files.list(tempDirB)
+                .filter(Files::isDirectory)
+                .collect(Collectors.toList());
+        Path filePath = tempDirB.resolve(getFileName(tempDirA));
+        assertTrue(files.contains(filePath));
     }
 
     private String getFileName(Path path) {
