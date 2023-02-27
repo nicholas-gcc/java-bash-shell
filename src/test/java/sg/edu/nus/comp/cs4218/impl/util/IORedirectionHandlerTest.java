@@ -57,7 +57,6 @@ public class IORedirectionHandlerTest {
                     new String(handler.getInputStream().readAllBytes()));
         });
     }
-
     @Disabled
     @Test
     void extract_EmptyArguments_ShouldThrowShellException() {
