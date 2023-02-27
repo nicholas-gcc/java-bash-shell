@@ -3,6 +3,9 @@ package sg.edu.nus.comp.cs4218.impl.util;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public final class StringUtils {
     public static final String STRING_NEWLINE = System.lineSeparator();
@@ -92,5 +95,29 @@ public final class StringUtils {
             return false;
         }
         return !bigInt.toString().isEmpty();
+    }
+
+    /**
+     * Sorts list of file names based on extension. If the file name is no extension, it will be sorted first.
+     *
+     * @param fileNames list of file names
+     */
+    public static void sortFilenamesByExt(List<String> fileNames) {
+        Collections.sort(fileNames, new Comparator<String>() {
+            @Override
+            public int compare(String file1, String file2) {
+                final int f1Dot = file1.lastIndexOf('.');
+                final int f2Dot = file2.lastIndexOf('.');
+                if ((f1Dot == -1) == (f2Dot == -1)) {
+                    String formattedF1 = file1.substring(f1Dot + 1);
+                    String formattedF2 = file2.substring(f2Dot + 1);
+                    return formattedF1.compareTo(formattedF2);
+                } else if (f1Dot == -1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        });
     }
 }

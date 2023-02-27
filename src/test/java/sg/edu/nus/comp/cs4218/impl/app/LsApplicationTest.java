@@ -30,6 +30,8 @@ public class LsApplicationTest {
     static final String ALP_TEXTFILE1 = "abc.txt";
     static final String ALP_TEXTFILE2 = "abc.rtf";
     static final String NUM_TEXTFILE = "123.txt";
+    static final String FAKE_TEXTFILE = "fake.txt";
+
 
     OutputStream outputStream;
     @BeforeEach
@@ -89,7 +91,28 @@ public class LsApplicationTest {
     }
 
     @Test
-    void run_NoRecursiveNoSortedArgs_CorrectOutputStream() {
+    void run_NonExistingFileArgs_CorrectOutputStream() {
+        String[] args = {TEST_DIR_3, FAKE_TEXTFILE};
+        String expectedResult =  "ls: cannot access 'fake.txt': No such file or directory" + STRING_NEWLINE +
+                TEST_DIR_3 + ":" + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE ;
+        assertDoesNotThrow(() -> {
+            lsApplication.run(args, System.in, outputStream);
+            assertEquals(expectedResult, outputStream.toString());
+        });
+    }
+
+    @Test
+    void run_OneFileNameArgs_CorrectOutputStream() {
+        String[] args = {ALP_TEXTFILE1};
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            lsApplication.run(args, System.in, outputStream);
+            assertEquals(expectedResult, outputStream.toString());
+        });
+    }
+
+    @Test
+    void run_OneDirNameArgs_CorrectOutputStream() {
         String[] args = {TEST_DIR_3};
         String expectedResult =  TEST_DIR_3 + ":" + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE;
         assertDoesNotThrow(() -> {
@@ -99,10 +122,70 @@ public class LsApplicationTest {
     }
 
     @Test
-    void run_NonExistingFileArgs_CorrectOutputStream() {
-        String[] args = {TEST_DIR_3, "fakefile.txt"};
-        String expectedResult =  TEST_DIR_3 + ":" + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE +
-                STRING_NEWLINE + "ls: cannot access 'fakefile.txt': No such file or directory" + STRING_NEWLINE;
+    void run_OneDirNameOneFileNameArgs_CorrectOutputStream() {
+        String[] args = {TEST_DIR_3, ALP_TEXTFILE1};
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE +
+                TEST_DIR_3 + ":" + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            lsApplication.run(args, System.in, outputStream);
+            assertEquals(expectedResult, outputStream.toString());
+        });
+    }
+
+    @Test
+    void run_OneDirNameOneFileNameWithRecursiveArgs_CorrectOutputStream() {
+        String[] args = {TEST_DIR_1, ALP_TEXTFILE1, "-R"};
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE +
+                TEST_DIR_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_2 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            lsApplication.run(args, System.in, outputStream);
+            assertEquals(expectedResult, outputStream.toString());
+        });
+    }
+
+    @Test
+    void run_OneDirNameOneExistingFileOneNonExistingFileWithRecursiveArgs_CorrectOutputStream() {
+        String[] args = {TEST_DIR_1, ALP_TEXTFILE1, FAKE_TEXTFILE, "-R"};
+        String expectedResult =  "ls: cannot access 'fake.txt': No such file or directory" + STRING_NEWLINE
+                + ALP_TEXTFILE1 + STRING_NEWLINE
+                + TEST_DIR_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_2 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            lsApplication.run(args, System.in, outputStream);
+            assertEquals(expectedResult, outputStream.toString());
+        });
+    }
+
+    @Test
+    void run_TwoDirNameOneExistingFileOneFakeFileWithRecursiveWithSortedArgs_CorrectOutputStream() {
+        String[] args = {TEST_DIR_1, ALP_TEXTFILE1, FAKE_TEXTFILE, TEST_DIR_3, "-R" ,"-X"};
+        String expectedResult =  "ls: cannot access 'fake.txt': No such file or directory" + STRING_NEWLINE
+                + ALP_TEXTFILE1 + STRING_NEWLINE +
+                TEST_DIR_1 + ":" + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2 + STRING_NEWLINE + ALP_TEXTFILE1
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_2 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
+                + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_3 + ":" + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE;
+        assertDoesNotThrow(() -> {
+            lsApplication.run(args, System.in, outputStream);
+            assertEquals(expectedResult, outputStream.toString());
+        });
+    }
+
+    @Test
+    void run_OneDirNameOneFileNameWithSortedArgs_CorrectOutputStream() {
+        String[] args = {TEST_DIR_3, ALP_TEXTFILE1, "-X"};
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE +
+                TEST_DIR_3 + ":" + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE;
         assertDoesNotThrow(() -> {
             lsApplication.run(args, System.in, outputStream);
             assertEquals(expectedResult, outputStream.toString());
