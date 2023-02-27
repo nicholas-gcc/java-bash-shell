@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_ASTERISK;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
+
+
 @SuppressWarnings("PMD.AvoidStringBufferField")
 public final class RegexArgument {
     private StringBuilder plaintext;
@@ -71,34 +73,45 @@ public final class RegexArgument {
     }
 
     public List<String> globFiles() {
-        List<String> globbedFiles = new LinkedList<>();
-
-        if (isRegex) {
-            Pattern regexPattern = Pattern.compile(regex.toString());
-            String dir = "";
-            String tokens[] = plaintext.toString().replaceAll("\\\\", "/").split("/");
-            for (int i = 0; i < tokens.length - 1; i++) {
-                dir += tokens[i] + File.separator;
-            }
-
-            File currentDir;
-            Path path = Paths.get(dir);
-            if (path.isAbsolute()){
-                currentDir = path.toFile();
-            } else {
-                currentDir = Paths.get(Environment.currentDirectory + File.separator + dir).toFile();
-            }
-            
-            for (String candidate : currentDir.list()) {
-                if (regexPattern.matcher(dir + candidate).matches()) {
-                    if (Files.isDirectory(Path.of(dir + candidate))) {
-                        globbedFiles.add(dir + candidate);
-                    }
-                }
-            }
-
-            Collections.sort(globbedFiles);
+        if (!isRegex) {
+            return List.of(plaintext.toString());
         }
+
+        String modifiedPlaintext = plaintext.toString().replaceAll(Pattern.quote(File.separator), "/");
+        String[] tokens = modifiedPlaintext.split("/");
+        String dir = "";
+        for (int i = 0; i < tokens.length - 1; i++) {
+            dir += tokens[i] + File.separator;
+        }
+
+        boolean isOnlyDirectories = modifiedPlaintext.charAt(modifiedPlaintext.length() - 1) == CHAR_FILE_SEP;
+
+        File currentDir = Path.of(dir).isAbsolute()
+                ? Path.of(dir).toFile()
+                : Path.of(Environment.currentDirectory, dir).normalize().toFile();
+
+        Pattern regexPattern = Pattern.compile(regex.toString());
+        List<String> globbedFiles = new ArrayList<>();
+
+        if (currentDir.exists()) {
+            for (File file : currentDir.listFiles()) {
+                String filePathName = dir + file.getName();
+                if (Files.isRegularFile(Paths.get(filePathName))) {
+                    continue;
+                }
+                if (isOnlyDirectories && file.isDirectory()) {
+                    filePathName += File.separator;
+                }
+
+                if (!regexPattern.matcher(filePathName).matches()) {
+                    continue;
+                }
+
+                globbedFiles.add(filePathName);
+            }
+        }
+
+        Collections.sort(globbedFiles);
 
         if (globbedFiles.isEmpty()) {
             globbedFiles.add(plaintext.toString());

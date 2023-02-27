@@ -3,6 +3,8 @@ package sg.edu.nus.comp.cs4218.impl.util;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
@@ -35,6 +37,7 @@ public class ArgumentResolverTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
@@ -47,6 +50,7 @@ public class ArgumentResolverTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1");
@@ -57,6 +61,7 @@ public class ArgumentResolverTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testD*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
