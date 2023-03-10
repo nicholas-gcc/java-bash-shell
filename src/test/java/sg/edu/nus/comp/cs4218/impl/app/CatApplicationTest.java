@@ -28,7 +28,7 @@ public class CatApplicationTest {
     private static final String TEST_FOLDER = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "cat";
     private static final String CAT_EX_PREFIX = "cat: ";
 
-    private CatApplication catApplication = new CatApplication();
+    private final CatApplication catApplication = new CatApplication();
 
     @Test
     void testCatFiles_FileDoesNotExist_ThrowsException() {
