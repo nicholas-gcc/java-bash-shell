@@ -104,7 +104,7 @@ public class CpApplication implements CpInterface {
     }
 
     @Override
-    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
+    public void cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
             throws CpException, IOException {
         File src = new File(srcFile);
         File dest = new File(destFile);
@@ -136,12 +136,11 @@ public class CpApplication implements CpInterface {
             inputStream.close();
             outputStream.close();
         }
-
-        return null;
+        return;
     }
 
     @Override
-    public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileName) throws Exception {
+    public void cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileName) throws Exception {
         String srcName = fileName[0];
         File dest = new File(destFolder);
         File src = new File(srcName);
@@ -154,7 +153,7 @@ public class CpApplication implements CpInterface {
             for (File f : filenames) {
                 cpFilesToFolder(isRecursive, destFolder, f.getPath());
             }
-            return null;
+            return;
         }
 
         if (!src.exists()) {
@@ -171,7 +170,7 @@ public class CpApplication implements CpInterface {
 
         if (src.isFile()) {
             cpSrcFileToDestFile(isRecursive, srcName, dest.getPath());
-            return null;
+            return;
         }
         if (!dest.exists()) {
             dest.mkdir();
@@ -186,7 +185,7 @@ public class CpApplication implements CpInterface {
                 cpSrcFileToDestFile(true, source.getPath(), destination.getPath());
             }
         }
-        return null;
+        return;
     }
 
 }
