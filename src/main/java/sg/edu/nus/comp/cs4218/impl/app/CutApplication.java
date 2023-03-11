@@ -35,7 +35,6 @@ public class CutApplication implements CutInterface {
         try {
             if (cutArgs.getFiles().isEmpty()) {
                 result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
-                result.append(STRING_NEWLINE);
             } else {
                 for (String fileName : cutArgs.getFiles()) {
                     //  If a FILE is ‘-’, read standard input instead of file
@@ -45,7 +44,6 @@ public class CutApplication implements CutInterface {
                         result.append(cutFromFiles(cutArgs.isCharPo(), cutArgs.isBytePo(),
                                 cutArgs.getRanges(), fileName));
                     }
-                    result.append(STRING_NEWLINE);
                 }
             }
         } catch (Exception e) {
@@ -120,6 +118,6 @@ public class CutApplication implements CutInterface {
             }
             result.append(STRING_NEWLINE);
         }
-        return result.toString().trim(); // trim removes the last newline
+        return result.toString();
     }
 }

@@ -32,7 +32,7 @@ public class CutApplicationTest {
     @Test
     void testCutFromStdin_FirstByte_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_WORD.getBytes());
-        String expected = "b";
+        String expected = "b" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 1});
         assertDoesNotThrow(() -> {
             String actual = cutApp.cutFromStdin(false, true, ranges, inputStream);
@@ -43,7 +43,7 @@ public class CutApplicationTest {
     @Test
     void testCutFromStdin_SecondByte_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_WORD.getBytes());
-        String expected = "a";
+        String expected = "a" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{2, 2});
         assertDoesNotThrow(() -> {
             String actual = cutApp.cutFromStdin(false, true, ranges, inputStream);
@@ -54,7 +54,7 @@ public class CutApplicationTest {
     @Test
     void testCutFromStdin_FirstByteAndEighthByte_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        String expected = "Ts";
+        String expected = "Ts" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 1}, new int[]{8, 8});
         assertDoesNotThrow(() -> {
             String actual = cutApp.cutFromStdin(false, true, ranges, inputStream);
@@ -65,7 +65,7 @@ public class CutApplicationTest {
     @Test
     void testCutFromStdin_RangeFirstByteToEighthByte_ReturnsCorrectOutput() {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        String expected = "Today is";//NOPMD
+        String expected = "Today is" + STRING_NEWLINE;//NOPMD
         List<int[]> ranges = List.of(new int[]{1, 8});
         assertDoesNotThrow(() -> {
             String actual = cutApp.cutFromStdin(false, true, ranges, inputStream);
@@ -103,7 +103,7 @@ public class CutApplicationTest {
 
     @Test
     void testCutFromFiles_FirstByteOfOneWordFile_ReturnsCorrectOutput() {
-        String expected = "b";
+        String expected = "b" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 1});
         String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + ONE_WORD_FILE;
         assertDoesNotThrow(() -> {
@@ -114,7 +114,7 @@ public class CutApplicationTest {
 
     @Test
     void testCutFromFiles_FirstByteOfOneSentenceFile_ReturnsCorrectOutput() {
-        String expected = "T";
+        String expected = "T" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 1});
         String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + ONE_SENTENCE_FILE;
         assertDoesNotThrow(() -> {
@@ -125,7 +125,7 @@ public class CutApplicationTest {
 
     @Test
     void testCutFromFile_RangeFirstByteToEighthByteOfOneSentenceFile_ReturnsCorrectOutput() {
-        String expected = "Today is";
+        String expected = "Today is" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 8});
         String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + ONE_SENTENCE_FILE;
         assertDoesNotThrow(() -> {
@@ -138,7 +138,7 @@ public class CutApplicationTest {
     // method of CutApplication will add a newline
     @Test
     void testCutFromFile_RangeFirstByteToEighthByteOfMultiSentenceFile_ReturnsCorrectOutput() {
-        String expected = "Good mor" + STRING_NEWLINE + "This is " + STRING_NEWLINE + "I hope y";
+        String expected = "Good mor" + STRING_NEWLINE + "This is " + STRING_NEWLINE + "I hope y" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 8});
         String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + MUL_SENTENCE_FILE;
         assertDoesNotThrow(() -> {
