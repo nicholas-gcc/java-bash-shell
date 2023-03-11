@@ -2,6 +2,7 @@ package sg.edu.nus.comp.cs4218.impl.app;
 
 import sg.edu.nus.comp.cs4218.app.EchoInterface;
 import sg.edu.nus.comp.cs4218.exception.EchoException;
+import sg.edu.nus.comp.cs4218.impl.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ public class EchoApplication implements EchoInterface {
             result = STRING_NEWLINE;
         } else {
             result = String.join(" ", args);
+            result += STRING_NEWLINE;
         }
 
         return result;

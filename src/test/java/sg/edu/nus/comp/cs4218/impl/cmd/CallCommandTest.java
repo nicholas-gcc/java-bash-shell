@@ -65,7 +65,7 @@ public class CallCommandTest {
     void evaluate_simpleCommandArgList_OutputsCorrectly() {
         List<String> args = Arrays.asList("echo", "hello world");
         callCommand = new CallCommand(args, applicationRunner, argumentResolver);
-        String expectedOutput = "hello world";
+        String expectedOutput = "hello world" + System.lineSeparator();
         assertDoesNotThrow(() -> {
             callCommand.evaluate(stdin, stdout);
             assertEquals(expectedOutput, stdout.toString());
