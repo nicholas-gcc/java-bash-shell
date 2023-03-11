@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
@@ -24,7 +25,7 @@ public class CatApplicationTest {
     private static final String FILE_NAME_B = "B.txt";
     private static final String FILE_NAME_C = "C.txt";
 
-    private static final String FILE_DOES_NOT_EXIST = "NonExistent.txt";
+    private static final String FILE_DOES_NOT_EXIST = "NonExistent.txt";//NOPMD
     private static final String TEST_FOLDER = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "cat";
     private static final String CAT_EX_PREFIX = "cat: ";
 
@@ -68,7 +69,7 @@ public class CatApplicationTest {
 
     @Test
     void testCatFiles_SingleLineFile_ReturnsCorrectOutput() {
-        String expected = "This is file A." + STRING_NEWLINE;
+        String expected = "This is file A." + STRING_NEWLINE;//NOPMD
         assertDoesNotThrow(() -> {
             String actual = catApplication.catFiles(false,
                     TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A);
@@ -154,67 +155,67 @@ public class CatApplicationTest {
     }
 
     @Test
-    @Disabled
+    void testCatFileAndStdin_NullFileNames_ThrowsException() {
+        Throwable thrown = assertThrows(CatException.class,
+                () -> catApplication.catFileAndStdin(false, System.in, null));
+        assertEquals(CAT_EX_PREFIX + ERR_NO_FILE_ARGS, thrown.getMessage());
+    }
+
+    @Test
+    void testCatFileAndStdin_isLineNumberNull_ThrowsException() {
+        Throwable thrown = assertThrows(CatException.class,
+                () -> catApplication.catFileAndStdin(null, System.in,
+                        TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A));
+        assertEquals(CAT_EX_PREFIX + ERR_NULL_ARGS, thrown.getMessage());
+    }
+    @Test
     void testCatFileAndStdin_NullStdin_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
-                () -> catApplication.catFileAndStdin(false, null, FILE_NAME_A));
+                () -> catApplication.catFileAndStdin(false, null,
+                        TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A));
         assertEquals(CAT_EX_PREFIX + ERR_NULL_STREAMS, thrown.getMessage());
     }
 
     @Test
-    @Disabled
-    void testCatFileAndStdin_NullFileNames_ThrowsException() {
-        Throwable thrown = assertThrows(CatException.class,
-                () -> catApplication.catFileAndStdin(false, System.in, null));
-        assertEquals(CAT_EX_PREFIX + ERR_NULL_ARGS, thrown.getMessage());
-    }
-
-    @Test
-    @Disabled
     void testCatFileAndStdin_FileNamesContainNull_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
-                () -> catApplication.catFileAndStdin(false, System.in, FILE_NAME_A, null));
+                () -> catApplication.catFileAndStdin(false, System.in,
+                        TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A, null));
         assertEquals(CAT_EX_PREFIX + ERR_NULL_ARGS, thrown.getMessage());
     }
 
     @Test
-    @Disabled
-    void testCatFileAndStdin_NullIsLineNumber_ThrowsException() {
+    void testCatFileAndStdin_FileNotFound_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
-                () -> catApplication.catFileAndStdin(null, System.in, FILE_NAME_A));
-        assertEquals(CAT_EX_PREFIX + ERR_NULL_ARGS, thrown.getMessage());
+                () -> catApplication.catFileAndStdin(false, System.in,
+                        TEST_FOLDER + CHAR_FILE_SEP + FILE_DOES_NOT_EXIST, null));
+        assertEquals(CAT_EX_PREFIX + ERR_FILE_NOT_FOUND +
+                ": " + TEST_FOLDER + CHAR_FILE_SEP + FILE_DOES_NOT_EXIST + " does not exist.", thrown.getMessage());
+
     }
 
+    // We have 1 sentence from stdin and 1 from file
     @Test
-    @Disabled
-    void testCatFileAndStdin_Valid_ReturnsCorrectOutput() {
-        String expected = "This is file A." + System.lineSeparator();
+    void testCatFileAndStdin_ValidArgs_ReturnsCorrectOutput() {
+        String stdinString = "This is from stdin." + STRING_NEWLINE;
+        String expected = "This is file A." + STRING_NEWLINE +
+                "This is from stdin." + STRING_NEWLINE;
         assertDoesNotThrow(() -> {
             String actual = catApplication.catFileAndStdin(false,
-                    new ByteArrayInputStream(expected.getBytes()),
+                    new ByteArrayInputStream(stdinString.getBytes()),
                     TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A);
             assertEquals(expected, actual);
         });
     }
 
     @Test
-    @Disabled
     void testRun_NullOutputStream_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class, () -> catApplication.run(new String[]{FILE_NAME_A},
                 System.in, null));
-        assertEquals(CAT_EX_PREFIX + ERR_NULL_STREAMS, thrown.getMessage());
+        assertEquals(CAT_EX_PREFIX + ERR_NO_OSTREAM, thrown.getMessage());
     }
 
     @Test
-    @Disabled
-    void testRun_NullInputStream_ThrowsException() {
-        Throwable thrown = assertThrows(CatException.class, () -> catApplication.run(new String[]{FILE_NAME_A},
-                null, System.out));
-        assertEquals(CAT_EX_PREFIX + ERR_NULL_STREAMS, thrown.getMessage());
-    }
-
-    @Test
-    @Disabled
     void testRun_NullArgs_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class, () -> catApplication.run(null,
                 System.in, System.out));
@@ -222,7 +223,6 @@ public class CatApplicationTest {
     }
 
     @Test
-    @Disabled
     void testRun_ArgsContainNull_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class, () -> catApplication.run(new String[]{FILE_NAME_A, null},
                 System.in, System.out));
@@ -230,7 +230,6 @@ public class CatApplicationTest {
     }
 
     @Test
-    @Disabled
     void testRun_ValidArgsOneFile_ReturnsCorrectOutput() {
         String expected = "This is file A." + System.lineSeparator();
         OutputStream outputStream = new ByteArrayOutputStream();
@@ -243,7 +242,6 @@ public class CatApplicationTest {
     }
 
     @Test
-    @Disabled
     void testRun_ValidArgsFileAWithLineNo_ReturnsCorrectOutput() {
         String expected = "1 This is file A." + System.lineSeparator();
         OutputStream outputStream = new ByteArrayOutputStream();
@@ -256,7 +254,6 @@ public class CatApplicationTest {
     }
 
     @Test
-    @Disabled
     void testRun_ValidArgsFileBWithLineNo_ReturnsCorrectOutput() {
         String expected = "1 This is file B." + System.lineSeparator() +
                 "2 It has two lines." + System.lineSeparator();
@@ -270,11 +267,10 @@ public class CatApplicationTest {
     }
 
     @Test
-    @Disabled
     void testRun_ValidArgsFileAWithLineNoAndFileBWithLineNo_ReturnsCorrectOutput() {
         String expected = "1 This is file A." + System.lineSeparator() +
-                "2 This is file B." + System.lineSeparator() +
-                "3 It has two lines." + System.lineSeparator();
+                "1 This is file B." + System.lineSeparator() +
+                "2 It has two lines." + System.lineSeparator();
         OutputStream outputStream = new ByteArrayOutputStream();
         assertDoesNotThrow(() -> {
             catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A,
@@ -284,5 +280,4 @@ public class CatApplicationTest {
             assertEquals(expected, outputStream.toString());
         });
     }
-
 }

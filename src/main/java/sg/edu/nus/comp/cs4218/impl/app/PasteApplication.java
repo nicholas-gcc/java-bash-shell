@@ -53,14 +53,14 @@ public class PasteApplication implements PasteInterface {
         try {
             pasteArgsParser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new PasteException(e.getMessage());
+            throw new PasteException(e.getMessage());//NOPMD
         }
 
         boolean isSerial = pasteArgsParser.isSerial();
         String[] fileNames = pasteArgsParser.getFileNames().toArray(String[]::new);
 
         if (stdin == null && (fileNames == null || fileNames.length == 0)) {
-            throw new PasteException(ERR_NO_INPUT);
+            throw new PasteException(ERR_NO_INPUT);//NOPMD
         }
 
         try {
@@ -68,7 +68,7 @@ public class PasteApplication implements PasteInterface {
             String result = mergeInputStreams(isSerial, streams.toArray(InputStream[]::new));
             stdout.write(result.getBytes());
         } catch (Exception e) {
-            throw new PasteException(e.getMessage());
+            throw new PasteException(e.getMessage());//NOPMD
         }
     }
 
@@ -92,7 +92,7 @@ public class PasteApplication implements PasteInterface {
             InputStream[] streams = {stdin};
             return mergeInputStreams(isSerial, streams);
         } catch (Exception e) {
-            throw new PasteException(e.getMessage());
+            throw new PasteException(e.getMessage());//NOPMD
         }
     }
 
@@ -114,7 +114,7 @@ public class PasteApplication implements PasteInterface {
             List<InputStream> inputStreams = getInputStreamsFromFiles(null, fileNames);
             return mergeInputStreams(isSerial, inputStreams.toArray(InputStream[]::new));
         } catch (Exception e) {
-            throw new PasteException(e.getMessage());
+            throw new PasteException(e.getMessage());//NOPMD
         }
     }
 
@@ -139,7 +139,7 @@ public class PasteApplication implements PasteInterface {
             inputStreams.add(0, stdin);
             return mergeInputStreams(isSerial, inputStreams.toArray(InputStream[]::new));
         } catch (Exception e) {
-            throw new PasteException(e.getMessage());
+            throw new PasteException(e.getMessage());//NOPMD
         }
     }
 

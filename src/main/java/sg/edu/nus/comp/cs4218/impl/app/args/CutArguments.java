@@ -49,9 +49,10 @@ public class CutArguments {
         if (args.length < 2) {
             throw new IllegalArgumentException(ERR_NO_ARGS);
         }
-        if (args.length > 4) {
-            throw new IllegalArgumentException(ERR_TOO_MANY_ARGS);
-        }
+        // TODO: confirm removal of this code as can have as many files as args
+//        if (args.length > 4) {
+//            throw new IllegalArgumentException(ERR_TOO_MANY_ARGS);
+//        }
 
         // check and set cut by byte or character option
         if (args[0].charAt(0) == CHAR_FLAG_PREFIX && args[0].charAt(1) == CHAR_CUT_BY_CHAR) {
