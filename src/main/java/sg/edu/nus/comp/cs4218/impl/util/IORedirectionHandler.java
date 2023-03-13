@@ -24,6 +24,8 @@ public class IORedirectionHandler {
     private InputStream inputStream;
     private OutputStream outputStream;
 
+    private boolean isAppend = false;
+
     public IORedirectionHandler(List<String> argsList, InputStream origInputStream,
                                 OutputStream origOutputStream, ArgumentResolver argumentResolver) {
         this.argsList = argsList;
@@ -36,7 +38,7 @@ public class IORedirectionHandler {
 
     public void extractRedirOptions() throws AbstractApplicationException, ShellException, FileNotFoundException {
         // TODO: Fix this?
-        if (argsList == null && argsList.isEmpty()) {
+        if (argsList == null || argsList.isEmpty()) {
             throw new ShellException(ERR_SYNTAX);
         }
 
@@ -53,10 +55,18 @@ public class IORedirectionHandler {
                 continue;
             }
 
+            String file = "";
             // if current arg is < or >, fast-forward to the next arg to extract the specified file
-            String file = argsIterator.next();
-
-            if (isRedirOperator(file)) {
+            String nextArg = argsIterator.next();
+            if (isOutputRedirOperator(nextArg)) {
+                if (!isOutputRedirOperator(arg)) { // if "<>" is supplied
+                    throw new ShellException(ERR_SYNTAX);
+                }
+                //if >> is supplied
+                this.isAppend = true;
+                file = argsIterator.next();
+            } else {
+                file = nextArg;
             }
 
             // handle quoting + globing + command substitution in file arg
@@ -97,6 +107,10 @@ public class IORedirectionHandler {
     }
 
     private boolean isRedirOperator(String str) {
-        return str.equals(String.valueOf(CHAR_REDIR_INPUT));
+        return str.equals(String.valueOf(CHAR_REDIR_INPUT)) || str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
+    }
+
+    private boolean isOutputRedirOperator(String str) {
+        return str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
     }
 }
