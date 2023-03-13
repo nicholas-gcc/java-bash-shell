@@ -89,7 +89,7 @@ public class IORedirectionHandler {
                 if (!outputStream.equals(origOutputStream)) { // Already have a stream
                     throw new ShellException(ERR_MULTIPLE_STREAMS);
                 }
-                outputStream = IOUtils.openOutputStream(file);
+                outputStream = IOUtils.openOutputStream(file, isAppend);
             }
         }
     }

@@ -55,6 +55,24 @@ public final class IOUtils {
     }
 
     /**
+     * Open an outputStream based on the file name.
+     *
+     * @param fileName String containing file name.
+     * @param append boolean: whether the file content should be appended instead.
+     * @return OutputStream of file opened.
+     * @throws ShellException If file destination is inaccessible.
+     */
+    public static OutputStream openOutputStream(String fileName, boolean append) throws ShellException, FileNotFoundException {
+        String resolvedFileName = resolveFilePath(fileName).toString();
+
+        FileOutputStream fileOutputStream;
+
+        fileOutputStream = new FileOutputStream(new File(resolvedFileName), append);
+
+        return fileOutputStream;
+    }
+
+    /**
      * Close an inputStream. If inputStream provided is System.in or null, it will be ignored.
      *
      * @param inputStream InputStream to be closed.
