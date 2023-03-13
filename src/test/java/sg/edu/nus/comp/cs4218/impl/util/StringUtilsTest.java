@@ -1,7 +1,12 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,21 +15,45 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class StringUtilsTest {
+
+    static final String CURRENT_OS = System.getProperty("os.name");
+
+    @AfterEach
+    void reset() {
+        System.setProperty("os.name", CURRENT_OS);
+
+    }
+
+    @Test
+    void fileSeparator_WindowsOS_ReturnsCorrectFileSeparator() {
+        System.setProperty("os.name", "Windows");
+        assertEquals("\\" + File.separator, StringUtils.fileSeparator());
+    }
+
+    @Test
+    void fileSeparator_MacOS_ReturnsCorrectFileSeparator() {
+        System.setProperty("os.name", "Mac");
+        assertEquals(File.separator, StringUtils.fileSeparator());
+    }
+
+    @Test
+    void fileSeparator_LinuxOS_ReturnsCorrectFileSeparator() {
+        System.setProperty("os.name", "Linux");
+        assertEquals(File.separator, StringUtils.fileSeparator());
+    }
+
     @Test
     void isBlank_EmptyString_ReturnsTrue() {
-
         assertTrue(StringUtils.isBlank(""));
     }
 
     @Test
     void isBlank_NullValue_ReturnsTrue() {
-
         assertTrue(StringUtils.isBlank(null));
     }
 
     @Test
     void isBlank_WhiteSpacesOnlyString_ReturnsTrue() {
-
         assertTrue(StringUtils.isBlank("  "));
     }
 
@@ -36,6 +65,36 @@ public class StringUtilsTest {
     @Test
     void isBlank_NonEmptyStringWithWhiteSpaces_ReturnsFalse() {
         assertFalse(StringUtils.isBlank("I have whitespaces."));
+    }
+
+    @Test
+    void multiplyChar_ZeroAlp_ReturnsCorrectString() {
+        assertEquals(StringUtils.multiplyChar('a', 0), "");
+    }
+
+    @Test
+    void multiplyChar_OneAlp_ReturnsCorrectString() {
+        assertEquals(StringUtils.multiplyChar('a', 1), "a");
+    }
+
+    @Test
+    void multiplyChar_TenAlps_ReturnsCorrectString() {
+        assertEquals(StringUtils.multiplyChar('a', 10), "aaaaaaaaaa");
+    }
+
+    @Test
+    void multiplyChar_OneSymbol_ReturnsCorrectString() {
+        assertEquals(StringUtils.multiplyChar('*', 1), "*");
+    }
+
+    @Test
+    void multiplyChar_TenSymbol_ReturnsCorrectString() {
+        assertEquals(StringUtils.multiplyChar('*', 10), "**********");
+    }
+
+    @Test
+    void multiplyChar_FiveSpecialChar_ReturnsCorrectString() {
+        assertEquals(StringUtils.multiplyChar('\\', 5), "\\\\\\\\\\");
     }
 
     @Test
@@ -72,6 +131,31 @@ public class StringUtilsTest {
 
         String[] actualTokens = StringUtils.tokenize(toBeTokenize);
         assertTrue(Arrays.equals(actualTokens, expectedTokens));
+    }
+
+    @Test
+    void isNumber_StrWithOnlyNums_ReturnsTrue() {
+        assertTrue(StringUtils.isNumber("012345"));
+    }
+
+    @Test
+    void isNumber_EmptyStr_ReturnsFalse() {
+        assertFalse(StringUtils.isNumber(""));
+    }
+
+    @Test
+    void isNumber_StrWithNonNums_ReturnsFalse() {
+        assertFalse(StringUtils.isNumber("abc*"));
+    }
+
+    @Test
+    void isNumber_StrWithNumsAndNonNums_ReturnsFalse() {
+        assertFalse(StringUtils.isNumber("a123"));
+    }
+
+    @Test
+    void isNumber_DecimalNumStr_ReturnsFalse() {
+        assertFalse(StringUtils.isNumber("1.1"));
     }
 
     @Test
