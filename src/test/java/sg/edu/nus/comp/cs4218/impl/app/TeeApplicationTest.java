@@ -112,7 +112,7 @@ public class TeeApplicationTest {
             FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
             teeApplication.run(args, System.in, outputStream);
             assertEquals(TEST_INPUT, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-            FileSystemUtils.deleteFile(TEXT_FILE_NAME1);
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
         });
     }
 
@@ -129,8 +129,8 @@ public class TeeApplicationTest {
             teeApplication.run(args, System.in, outputStream);
             assertEquals(TEST_INPUT, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
             assertEquals(TEST_INPUT, FileSystemUtils.readFileContent(TEXT_FILE_NAME2));
-            FileSystemUtils.deleteFile(TEXT_FILE_NAME1);
-            FileSystemUtils.deleteFile(TEXT_FILE_NAME2);
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME2);
         });
     }
 
@@ -145,7 +145,7 @@ public class TeeApplicationTest {
             FileSystemUtils.appendStrToFile(TEXT_FILE_NAME1, SAMPLE_CONTENT);
             teeApplication.run(args, System.in, outputStream);
             assertEquals(SAMPLE_CONTENT + TEST_INPUT, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-            FileSystemUtils.deleteFile(TEXT_FILE_NAME1);
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
         });
     }
 }
