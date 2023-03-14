@@ -189,7 +189,7 @@ public class SortApplication implements SortInterface {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] sublines = line.split("\\r?\\n");
+                String[] sublines = line.split(STRING_NEWLINE);
                 for (String subline : sublines) {
                     lines.add(subline);
                 }
