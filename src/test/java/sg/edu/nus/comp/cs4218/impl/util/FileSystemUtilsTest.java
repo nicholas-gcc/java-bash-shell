@@ -7,7 +7,9 @@ import sg.edu.nus.comp.cs4218.Environment;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 
@@ -180,38 +182,59 @@ public class FileSystemUtilsTest { //NOPMD
     }
 
     @Test
-    void appendStrToFile_ExistingFile_AppendsStringToFile() {
+    void writeStrToFile_NonExistingFile_ThrowsException() {
+        String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE);
+        String notRelevant = "";
+        boolean isAppend = false;
+        try {
+            FileSystemUtils.writeStrToFile(isAppend, FAKE_FILE, notRelevant);
+        } catch (Exception e) {
+            assertEquals(expectedMessage, e.getMessage());
+        }
+    }
+
+    @Test
+    void wrtieStrToFile_ExistingDir_ThrowsException() {
+        String expectedMessage = String.format("Failed to write to file %s", SAMPLE_DIR);
+        String notRelevant = "";
+        boolean isAppend = false;
+        try {
+            FileSystemUtils.writeStrToFile(isAppend, SAMPLE_DIR, notRelevant);
+        } catch (Exception e) {
+            assertEquals(expectedMessage, e.getMessage());
+        }
+    }
+
+    @Test
+    void writeStrToFile_WritingToExistingFile_WritesStringToFile() {
         String absolutePath = Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE;
         File file = new File(absolutePath);
-        String textToAppend = "This is a text to append to the new file." + STRING_NEWLINE + "This is the second line.";
+        String textToAppend = "This is a text to write to the new file." + STRING_NEWLINE + "This is the second line.";
+        boolean isAppend = false;
         assertDoesNotThrow(() -> {
             file.createNewFile();
-            FileSystemUtils.appendStrToFile(NEW_FILE, textToAppend);
+            FileSystemUtils.writeStrToFile(isAppend, NEW_FILE, textToAppend);
             assertEquals(textToAppend, Files.readString(Paths.get(absolutePath)));
             file.delete();
         });
     }
 
     @Test
-    void appendStrToFile_NonExistingFile_ThrowsException() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE);
-        String notRelevant = "";
-        try {
-            FileSystemUtils.appendStrToFile(FAKE_FILE, notRelevant);
-        } catch (Exception e) {
-            assertEquals(expectedMessage, e.getMessage());
-        }
-    }
+    void writeStrToFile_AppendToExistingFile_AppendsStringToFile() {
+        String absolutePath = Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE;
+        File file = new File(absolutePath);
+        String textToWrite = "Initial text" + STRING_NEWLINE + "Testing";
+        String textToAppend = "This is a text to append to the new file." + STRING_NEWLINE + "This is the second line.";
+        boolean isAppend = true;
+        assertDoesNotThrow(() -> {
+            file.createNewFile();
+            Path path = Paths.get(absolutePath);
+            Files.write(path, textToWrite.getBytes(), StandardOpenOption.APPEND);
 
-    @Test
-    void appendStrToFile_ExistingDir_ThrowsException() {
-        String expectedMessage = String.format("Failed to write to file %s", SAMPLE_DIR);
-        String notRelevant = "";
-        try {
-            FileSystemUtils.appendStrToFile(SAMPLE_DIR, notRelevant);
-        } catch (Exception e) {
-            assertEquals(expectedMessage, e.getMessage());
-        }
+            FileSystemUtils.writeStrToFile(isAppend, NEW_FILE, textToAppend);
+            assertEquals(textToWrite + textToAppend, Files.readString(path));
+            file.delete();
+        });
     }
 
     @Test

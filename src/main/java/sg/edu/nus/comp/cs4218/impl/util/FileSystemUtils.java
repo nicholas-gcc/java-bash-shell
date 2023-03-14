@@ -112,19 +112,23 @@ public final class FileSystemUtils {
     }
 
     /**
-     * Appends String to an existing file
+     * Appends String to an existing file.
      *
      * @param filename  Name of file
      * @param str  String to be appended to content of file
      */
-    public static void appendStrToFile(String filename, String str) throws FileOrDirDoesNotExistException, WriteToFileException {
+    public static void writeStrToFile(boolean isAppend, String filename, String str) throws FileOrDirDoesNotExistException, WriteToFileException {
         String absolutePath = getAbsolutePathName(filename);
         if (!fileOrDirExist(absolutePath)) {
             throw new FileOrDirDoesNotExistException(filename);
         }
-
         try {
-            Files.write(Paths.get(absolutePath), str.getBytes(), StandardOpenOption.APPEND);
+            Path path = Paths.get(absolutePath);
+            if (isAppend) {
+                Files.write(path, str.getBytes(), StandardOpenOption.APPEND);
+            } else {
+                Files.write(path, str.getBytes(), StandardOpenOption.WRITE);
+            }
         } catch (IOException e) {
             throw new WriteToFileException(filename); //NOPMD
         }
