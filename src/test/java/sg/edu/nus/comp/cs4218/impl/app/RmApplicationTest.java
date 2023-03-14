@@ -37,8 +37,8 @@ public class RmApplicationTest {
     static final String TEXT_FILE_NAME1 = "text1.txt";
     static final String TEXT_FILE_NAME2 = "text2.txt";
     static final String FAKE_FILE = "fakefile.txt";
-    static final String FAKE_DIR = "fakedir";
     static final String ERROR_INITIALS = "rm: ";
+    static final String FAKE_DIR = "fakedir";
 
     @BeforeEach
     void setup() {
