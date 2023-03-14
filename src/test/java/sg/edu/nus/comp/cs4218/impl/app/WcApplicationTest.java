@@ -1,8 +1,10 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.exception.WcException;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
@@ -11,24 +13,26 @@ import java.io.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public class WcApplicationTest {
 
     WcApplication wcApplication;
     InputStream stdin;
     OutputStream stdout;
-
-    @BeforeAll
-    static void setDirectory() {
-        String currentDirectory = System.getProperty("user.dir");
-        System.setProperty("user.dir", currentDirectory + "/assets/app/wc");
-    }
+    static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "wc";
+    static final String CWD = System.getProperty("user.dir");
 
     @BeforeEach
     void setup() {
         wcApplication = new WcApplication();
         stdin = System.in;
         stdout = System.out;
+        Environment.currentDirectory += TESTING_PATH;
+    }
+    @AfterEach
+    void reset() {
+        Environment.currentDirectory = CWD;
     }
 
     @Test
@@ -59,7 +63,7 @@ public class WcApplicationTest {
     void wc_RunWithStdin_ShouldWcCorrectly() {
         String [] array = {};
         assertDoesNotThrow(() -> {
-            stdin = new FileInputStream(System.getProperty("user.dir") + "/wc_test1.txt");
+            stdin = new FileInputStream(Environment.currentDirectory + CHAR_FILE_SEP + "wc_test1.txt");
             wcApplication.run(array, stdin, stdout);
         });
     }
@@ -131,7 +135,7 @@ public class WcApplicationTest {
     @Test
     void wc_CountFromStdinValidFile_CountsCorrectly() {
         assertDoesNotThrow(() -> {
-            stdin = new FileInputStream(System.getProperty("user.dir") + "/wc_test1.txt");
+            stdin = new FileInputStream(Environment.currentDirectory + CHAR_FILE_SEP + "wc_test1.txt");
             wcApplication.countFromStdin(true, true, true, stdin);
         });
     }
@@ -146,7 +150,7 @@ public class WcApplicationTest {
 
     @Test void wc_GetCountReportValidInput_GetsCorrectly() {
         assertDoesNotThrow(() -> {
-            stdin = new FileInputStream(System.getProperty("user.dir") + "/wc_test1.txt");
+            stdin = new FileInputStream(Environment.currentDirectory + CHAR_FILE_SEP + "wc_test1.txt");
             wcApplication.getCountReport(stdin);
         });
     }
