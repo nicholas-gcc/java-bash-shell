@@ -8,22 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public final class FileSystemUtils {
 
     private FileSystemUtils() {}
-
-    /**
-     * Checks if file or directory exists in the current working directory
-     *
-     * @param name  Name of file or directory
-     * @return true if file or directory exist, else false
-     */
-    public static boolean fileOrDirExist(String name) {
-        return new File(name).exists();
-    }
 
     /**
      * Resolves absolute path of a file given the name
@@ -40,16 +31,27 @@ public final class FileSystemUtils {
     }
 
     /**
+     * Checks if file or directory exists in the current working directory.
+     *
+     * @param name  Name of file or directory
+     * @return true if file or directory exist, else false
+     */
+    public static boolean fileOrDirExist(String name) {
+        return new File(getAbsolutePathName(name)).exists();
+    }
+
+    /**
      * Creates a empty file in the current working directory
      *
      * @param filename  Name of file
      */
     public static void createEmptyFile(String filename) throws IOException, FileOrDirExistException, FileOrDirCreationException {
-        if (fileOrDirExist(filename)) {
+        String absolutePath = getAbsolutePathName(filename);
+        if (fileOrDirExist(absolutePath)) {
             throw new FileOrDirExistException(filename);
         }
 
-        File file = new File(filename);
+        File file = new File(absolutePath);
 
         if (!file.createNewFile()) {
             throw new FileOrDirCreationException(filename);
@@ -57,18 +59,20 @@ public final class FileSystemUtils {
     }
 
     /**
-     * Deletes a file in the current working directory
+     * Deletes a file or empty directory in the current working directory
      *
-     * @param filename  Name of file
+     * @param name  Name of file or directory
      */
-    public static void deleteFile(String filename) throws FileOrDirDoesNotExistException, FileOrDirDeletionException {
-        File file = new File(filename);
+    public static void deleteFileOrDir(String name) throws FileOrDirDoesNotExistException, FileOrDirDeletionException {
+        String absolutePath = getAbsolutePathName(name);
+        File file = new File(absolutePath);
         if (!file.exists()) {
-            throw new FileOrDirDoesNotExistException(filename);
+            throw new FileOrDirDoesNotExistException(name);
         }
 
         if (!file.delete()) {
-            throw new FileOrDirDeletionException(filename);
+            // Throws error if file is not deleted
+            throw new FileOrDirDeletionException(name);
         }
     }
 
@@ -78,33 +82,16 @@ public final class FileSystemUtils {
      * @param dirname  Name of directory
      */
     public static void createEmptyDir(String dirname) throws FileOrDirExistException, FileOrDirCreationException, IOException {
-        if (fileOrDirExist(dirname)) {
+        String absolutePath = getAbsolutePathName(dirname);
+        if (fileOrDirExist(absolutePath)) {
             throw new FileOrDirExistException(dirname);
         }
 
-        File file = new File(dirname);
+        File file = new File(absolutePath);
 
         if (!file.mkdir()) {
             throw new FileOrDirCreationException(dirname);
         }
-    }
-
-    /**
-     * Deletes an empty directory in the current working directory.
-     *
-     * @param dirname  Name of directory
-     */
-    public static void deleteEmptyDir(String dirname) {
-        // TODO: Implement method
-    }
-
-    /**
-     * Recursively deletes a directory's content and the directory itself in the current working directory.
-     *
-     * @param dirname  Name of directory
-     */
-    public static void deleteDirRecursively(String dirname) {
-        // TODO: Implement method
     }
 
     /**
@@ -114,10 +101,11 @@ public final class FileSystemUtils {
      * @return content of the file
      */
     public static String readFileContent(String filename) throws FileOrDirExistException, IOException {
-        if (fileOrDirExist(filename)) {
+        String absolutePath = getAbsolutePathName(filename);
+        if (fileOrDirExist(absolutePath)) {
             throw new FileOrDirExistException(filename);
         }
-        return Files.readString(Paths.get(Environment.currentDirectory + CHAR_FILE_SEP + filename));
+        return Files.readString(Paths.get(absolutePath));
     }
 
     /**
@@ -127,10 +115,39 @@ public final class FileSystemUtils {
      * @param str  String to be appended to content of file
      */
     public static void appendStrToFile(String filename, String str) throws FileOrDirExistException, IOException {
-        if (fileOrDirExist(filename)) {
+        String absolutePath = getAbsolutePathName(filename);
+        if (fileOrDirExist(absolutePath)) {
             throw new FileOrDirExistException(filename);
         }
-        Files.write(Paths.get(Environment.currentDirectory + CHAR_FILE_SEP + filename), str.getBytes(), StandardOpenOption.APPEND);
+        Files.write(Paths.get(absolutePath), str.getBytes(), StandardOpenOption.APPEND);
+    }
+
+    /**
+     * Checks if file is a directory.
+     *
+     * @param dirname Directory name.
+     * @return true if file is a directory.
+     */
+    public static boolean isDir(String dirname) throws FileOrDirDoesNotExistException {
+        String absolutePath = getAbsolutePathName(dirname);
+        if (!fileOrDirExist(absolutePath)) {
+            throw new FileOrDirDoesNotExistException(dirname);
+        }
+        return new File(absolutePath).isDirectory();
+    }
+
+    /**
+     * Checks if file is an empty directory.
+     *
+     * @param dirname Directory name.
+     * @return true if file is an empty directory.
+     */
+    public static boolean isEmptyDir(String dirname) throws FileOrDirDoesNotExistException {
+        if (!isDir(dirname)) {
+            return false;
+        }
+        String absolutePath = getAbsolutePathName(dirname);
+        return Objects.requireNonNull(new File(absolutePath).listFiles()).length == 0;
     }
 
     /**
@@ -144,6 +161,30 @@ public final class FileSystemUtils {
         Path parentPath = Paths.get(FileSystemUtils.getAbsolutePathName(parentFolder)).normalize();
         Path childPath = Paths.get(FileSystemUtils.getAbsolutePathName(childFolder)).normalize();
         return childPath.startsWith(parentPath) && !childPath.equals(parentPath);
+    }
+
+    /**
+     * Return list of filenames in directory.
+     *
+     * @param dirname Name of directory.
+     * @return list of filenames in directory
+     */
+    public static String[] getFilesInFolder(String dirname) throws FileOrDirDoesNotExistException {
+        if (!isDir(dirname)) {
+            throw new FileOrDirDoesNotExistException(dirname);
+        }
+        String absolutePath = getAbsolutePathName(dirname);
+
+        List<String> filenames = new ArrayList<>();
+
+        if (isEmptyDir(dirname)) {
+            return filenames.toArray(new String[0]);
+        }
+
+        for (File file : Objects.requireNonNull(new File(absolutePath).listFiles())) {
+            filenames.add(file.getName());
+        }
+        return filenames.toArray(new String[0]);
     }
 
     /**
@@ -171,25 +212,25 @@ public final class FileSystemUtils {
 
     private static class FileOrDirExistException extends Exception {
         public FileOrDirExistException(String name) {
-            super("File or directory already exist: " + name);
+            super(String.format("File or directory %s already exist", name));
         }
     }
 
     private static class FileOrDirDoesNotExistException extends Exception {
         public FileOrDirDoesNotExistException(String name) {
-            super("File or directory does not exist: " + name);
+            super(String.format("File or directory %s does not exist", name));
         }
     }
 
     private static class FileOrDirCreationException extends Exception {
         public FileOrDirCreationException(String name) {
-            super("Failed to create file or directory: " + name);
+            super(String.format("Failed to create file or directory %s", name));
         }
     }
 
     private static class FileOrDirDeletionException extends Exception {
         public FileOrDirDeletionException(String name) {
-            super("Failed to delete file or directory: " + name);
+            super(String.format("Failed to delete file or directory %s", name));
         }
     }
 }

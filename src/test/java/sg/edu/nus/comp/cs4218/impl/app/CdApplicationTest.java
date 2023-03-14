@@ -7,19 +7,26 @@ import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.CdException;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_NOT_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 
 public class CdApplicationTest {
     CdApplication cdApplication;
+    InputStream stdin;
+    OutputStream stdout;
 
     @BeforeEach
     void setup() {
         cdApplication = new CdApplication();
+        stdin = System.in;
+        stdout = System.out;
     }
 
     @AfterEach
@@ -76,6 +83,22 @@ public class CdApplicationTest {
         assertDoesNotThrow(() -> {
             cdApplication.changeToDirectory(string);
             assertEquals(initialDirectory, Environment.currentDirectory);
+        });
+    }
+
+    @Test
+    void cd_RunWithNullArguments_ThrowsException() {
+        CdException cdException = assertThrows(CdException.class, () -> cdApplication.run(null, stdin, stdout));
+        assertEquals("cd: " + ERR_NULL_ARGS, cdException.getMessage());
+    }
+
+    @Test
+    void cd_Run_ShouldCdCorrectly() {
+        String [] array = {"src" + File.separator + "test"};
+        String initialDirectory = Environment.currentDirectory;
+        assertDoesNotThrow(() -> {
+            cdApplication.run(array, stdin, stdout);
+            assertEquals(initialDirectory + File.separator + array[0], Environment.currentDirectory);
         });
     }
 }
