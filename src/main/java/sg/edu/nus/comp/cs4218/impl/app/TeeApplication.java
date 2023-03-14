@@ -1,7 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
 import sg.edu.nus.comp.cs4218.app.TeeInterface;
-import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import sg.edu.nus.comp.cs4218.exception.TeeException;
 import sg.edu.nus.comp.cs4218.impl.parser.TeeArgsParser;
@@ -43,7 +42,7 @@ public class TeeApplication implements TeeInterface {
     }
 
     public void run(String[] args, InputStream stdin, OutputStream stdout)
-            throws AbstractApplicationException {
+            throws TeeException {
         if (args == null) {
             throw new TeeException(ERR_NULL_ARGS);
         }
@@ -73,8 +72,7 @@ public class TeeApplication implements TeeInterface {
 
     private List<String> getTeeLinesFromInputStream(InputStream stdin) throws TeeException {
         try {
-            List<String> results = IOUtils.getLinesFromInputStream(stdin);
-            return results;
+            return IOUtils.getLinesFromInputStream(stdin);
         } catch (Exception e) {
             throw new TeeException(e.getMessage());
         }
