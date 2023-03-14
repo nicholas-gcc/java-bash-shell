@@ -117,7 +117,7 @@ public final class FileSystemUtils {
      * @param filename  Name of file
      * @param str  String to be appended to content of file
      */
-    public static void writeStrToFile(boolean isAppend, String filename, String str) throws FileOrDirDoesNotExistException, WriteToFileException {
+    public static void writeStrToFile(boolean isAppend, String str, String filename) throws FileOrDirDoesNotExistException, WriteToFileException {
         String absolutePath = getAbsolutePathName(filename);
         if (!fileOrDirExist(absolutePath)) {
             throw new FileOrDirDoesNotExistException(filename);

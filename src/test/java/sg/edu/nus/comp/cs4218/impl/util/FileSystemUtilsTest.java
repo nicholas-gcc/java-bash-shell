@@ -187,7 +187,7 @@ public class FileSystemUtilsTest { //NOPMD
         String notRelevant = "";
         boolean isAppend = false;
         try {
-            FileSystemUtils.writeStrToFile(isAppend, FAKE_FILE, notRelevant);
+            FileSystemUtils.writeStrToFile(isAppend, notRelevant, FAKE_FILE);
         } catch (Exception e) {
             assertEquals(expectedMessage, e.getMessage());
         }
@@ -199,7 +199,7 @@ public class FileSystemUtilsTest { //NOPMD
         String notRelevant = "";
         boolean isAppend = false;
         try {
-            FileSystemUtils.writeStrToFile(isAppend, SAMPLE_DIR, notRelevant);
+            FileSystemUtils.writeStrToFile(isAppend, notRelevant, SAMPLE_DIR);
         } catch (Exception e) {
             assertEquals(expectedMessage, e.getMessage());
         }
@@ -213,7 +213,7 @@ public class FileSystemUtilsTest { //NOPMD
         boolean isAppend = false;
         assertDoesNotThrow(() -> {
             file.createNewFile();
-            FileSystemUtils.writeStrToFile(isAppend, NEW_FILE, textToAppend);
+            FileSystemUtils.writeStrToFile(isAppend, textToAppend, NEW_FILE);
             assertEquals(textToAppend, Files.readString(Paths.get(absolutePath)));
             file.delete();
         });
@@ -231,7 +231,7 @@ public class FileSystemUtilsTest { //NOPMD
             Path path = Paths.get(absolutePath);
             Files.write(path, textToWrite.getBytes(), StandardOpenOption.APPEND);
 
-            FileSystemUtils.writeStrToFile(isAppend, NEW_FILE, textToAppend);
+            FileSystemUtils.writeStrToFile(isAppend, textToAppend, NEW_FILE);
             assertEquals(textToWrite + textToAppend, Files.readString(path));
             file.delete();
         });
