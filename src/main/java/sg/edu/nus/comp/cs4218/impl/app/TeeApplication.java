@@ -74,7 +74,7 @@ public class TeeApplication implements TeeInterface {
         try {
             return IOUtils.getLinesFromInputStream(stdin);
         } catch (Exception e) {
-            throw new TeeException(e.getMessage());
+            throw new TeeException(e.getMessage());//NOPMD
         }
     }
 
@@ -82,7 +82,7 @@ public class TeeApplication implements TeeInterface {
         try {
             FileSystemUtils.writeStrToFile(isAppend, content, filename);
         } catch (Exception e) {
-            throw new TeeException(e.getMessage());
+            throw new TeeException(e.getMessage());//NOPMD
         }
     }
 
