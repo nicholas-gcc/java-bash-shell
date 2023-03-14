@@ -29,8 +29,12 @@ class SortApplicationTest {
 
     @Test
     void sortFromFiles_ValidTextFile_CorrectOutput() throws Exception {
-        String input = "abc\nzzz\nccc\nbbb\naaa";
-        String expectedOutput = "aaa\nabc\nbbb\nccc\nzzz";
+        String input = "abc" + System.lineSeparator() + "zzz" + System.lineSeparator()
+                + "ccc" + System.lineSeparator() + "bbb" + System.lineSeparator() + "aaa";
+
+        String expectedOutput = "aaa" + System.lineSeparator() + "abc" + System.lineSeparator() +
+                "bbb" + System.lineSeparator() + "ccc" + System.lineSeparator() + "zzz";
+
         Path inputFile = createTempFileWithContent(input);
         String[] fileNames = new String[]{inputFile.toString()};
 
@@ -59,8 +63,12 @@ class SortApplicationTest {
 
     @Test
     void sortFromStdin_ValidInput_CorrectOutput() throws Exception {
-        String input = "abc\nzzz\nccc\nbbb\naaa";
-        String expectedOutput = "aaa\nabc\nbbb\nccc\nzzz";
+        String input = "abc" + System.lineSeparator() + "zzz" + System.lineSeparator()
+                + "ccc" + System.lineSeparator() + "bbb" + System.lineSeparator() + "aaa";
+
+        String expectedOutput = "aaa" + System.lineSeparator() + "abc" + System.lineSeparator() +
+                "bbb" + System.lineSeparator() + "ccc" + System.lineSeparator() + "zzz";
+
         InputStream inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
 
         String result = sortApp.sortFromStdin(false, false, false, inputStream);
@@ -70,8 +78,12 @@ class SortApplicationTest {
 
     @Test
     void sortFromStdin_ValidInputReverse_CorrectOutput() throws Exception {
-        String input = "abc\nzzz\nccc\nbbb\naaa";
-        String expectedOutput = "zzz\nccc\nbbb\nabc\naaa";
+        String input = "abc" + System.lineSeparator() + "zzz" + System.lineSeparator()
+                + "ccc" + System.lineSeparator() + "bbb" + System.lineSeparator() + "aaa";
+
+        String expectedOutput = "zzz" + System.lineSeparator() + "ccc" + System.lineSeparator()
+                + "bbb" + System.lineSeparator() + "abc" + System.lineSeparator() + "aaa";
+
         InputStream inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
 
         String result = sortApp.sortFromStdin(false, true, false, inputStream);
@@ -99,9 +111,16 @@ class SortApplicationTest {
     @Test
     void run_ValidInputFilesAndOutputStream_CorrectOutput() throws Exception {
         // should combine the items of two files and sort them after merging
-        String input1 = "abc\nzzz\nccc\nbbb\naaa";
-        String input2 = "def\nefg\nbcd\naaa";
-        String expectedOutput = "aaa\naaa\nabc\nbbb\nbcd\nccc\ndef\nefg\nzzz";
+        String input1 = "abc" + System.lineSeparator() + "zzz" + System.lineSeparator()
+                + "ccc" + System.lineSeparator() + "bbb" + System.lineSeparator() + "aaa";
+
+        String input2 = "def" + System.lineSeparator() + "efg" + System.lineSeparator()
+                + "bcd" + System.lineSeparator() + "aaa";
+
+        String expectedOutput = "aaa" + System.lineSeparator() + "aaa" + System.lineSeparator()
+                + "abc" + System.lineSeparator() + "bbb" + System.lineSeparator() + "bcd" +
+                System.lineSeparator() + "ccc" + System.lineSeparator() + "def" + System.lineSeparator()
+                + "efg" + System.lineSeparator() + "zzz";
 
         // create the files
         InputStream inputStream = new ByteArrayInputStream(input1.getBytes(StandardCharsets.UTF_8));
@@ -118,10 +137,15 @@ class SortApplicationTest {
 
     @Test
     void run_ValidInputFilesAndOutputStreamReverse_CorrectOutput() throws Exception {
-        // should combine the items of two files and sort them after merging
-        String input1 = "abc\nzzz\nccc\nbbb\naaa";
-        String input2 = "def\nefg\nbcd\naaa";
-        String expectedOutput = "zzz\nefg\ndef\nccc\nbcd\nbbb\nabc\naaa\naaa";
+        String input1 = "abc" + System.lineSeparator() + "zzz" + System.lineSeparator()
+                + "ccc" + System.lineSeparator() + "bbb" + System.lineSeparator() + "aaa";
+
+        String input2 = "def" + System.lineSeparator() + "efg" + System.lineSeparator()
+                + "bcd" + System.lineSeparator() + "aaa";
+
+        String expectedOutput = "zzz" + System.lineSeparator() + "efg" + System.lineSeparator()
+                + "def" + System.lineSeparator() + "ccc" + System.lineSeparator() + "bcd" + System.lineSeparator()
+                + "bbb" + System.lineSeparator() + "abc" + System.lineSeparator() + "aaa" + System.lineSeparator() + "aaa";
 
         // create the files
         InputStream inputStream = new ByteArrayInputStream(input1.getBytes(StandardCharsets.UTF_8));
