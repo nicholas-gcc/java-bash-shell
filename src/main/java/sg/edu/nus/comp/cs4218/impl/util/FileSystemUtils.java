@@ -127,7 +127,7 @@ public final class FileSystemUtils {
             if (isAppend) {
                 Files.write(path, str.getBytes(), StandardOpenOption.APPEND);
             } else {
-                Files.write(path, str.getBytes(), StandardOpenOption.WRITE);
+                Files.write(path, str.getBytes());
             }
         } catch (IOException e) {
             throw new WriteToFileException(filename); //NOPMD
