@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
 import java.io.*;
@@ -45,22 +46,114 @@ public class IORedirectionHandlerTest {
     }
 
     @Test
-    @Disabled
-    void extract_Arguments_ShouldNotThrowException() {
-        assertDoesNotThrow(() -> {
-            handler.extractRedirOptions();
-            assertEquals(Arrays.asList("paste"), handler.getNoRedirArgsList());
-            assertEquals(Files.readString(Path.of(filename)),
-                    new String(handler.getInputStream().readAllBytes()));
-        });
+    void extract_Arguments_ShouldNotThrowException() throws IOException, AbstractApplicationException, ShellException {
+        assertDoesNotThrow(() -> handler.extractRedirOptions());
     }
-    @Disabled
+
+    @Test
+    void extract_Arguments_NoRedirArgShouldBePopulatedCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        handler.extractRedirOptions();
+        assertEquals(Arrays.asList("paste"), handler.getNoRedirArgsList());
+    }
+
+    @Test
+    void extract_Arguments_InputStreamShouldBeAlteredCorrectly() throws IOException, AbstractApplicationException, ShellException {
+        handler.extractRedirOptions();
+        assertEquals(Files.readString(Path.of(filename)),
+                new String(handler.getInputStream().readAllBytes()));
+    }
+
+    @Test
+    void extract_Arguments_OutputStreamShouldBeAlteredCorrectly() throws IOException, AbstractApplicationException, ShellException {
+        List<String> argList1 = Arrays.asList("ls", ">", filename);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        handler1.extractRedirOptions();
+        assertEquals(Files.readString(Path.of(filename)),
+                new String(handler1.getInputStream().readAllBytes()));
+    }
+
+    @Test
+    void extract_ArgumentsAppend_OutputStreamShouldBeAlteredCorrectly() throws IOException, AbstractApplicationException, ShellException {
+        List<String> argList1 = Arrays.asList("ls", ">", ">", filename);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        handler1.extractRedirOptions();
+        assertEquals(Files.readString(Path.of(filename)),
+                new String(handler1.getInputStream().readAllBytes()));
+    }
+
+    @Test
+    void extract_ArgumentsNoAppend_IsAppendIsFalse() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        handler.extractRedirOptions();
+        assertEquals(false, handler.isAppend());
+    }
+
+    @Test
+    void extract_ArgumentsAppend_IsAppendIsTrue() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        List<String> argList1 = Arrays.asList("ls", ">", ">", filename);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        handler1.extractRedirOptions();
+        assertEquals(true, handler1.isAppend());
+    }
     @Test
     void extract_EmptyArguments_ShouldThrowShellException() {
         IORedirectionHandler handler1 = new IORedirectionHandler(new ArrayList(), origInputStream,
                 origOutputStream, argumentResolver);
         assertThrows(ShellException.class, () -> {
             handler1.extractRedirOptions();
+        });
+    }
+
+    @Test
+    void extract_WrongRedirArg_ShouldThrowShellException() {
+        List<String> argList1 = Arrays.asList("ls", "<", ">", filename);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        assertThrows(ShellException.class, () -> {
+            handler1.extractRedirOptions();
+        });
+
+        List<String> argList2 = Arrays.asList("ls", "<", "<", filename);
+        IORedirectionHandler handler2 = new IORedirectionHandler(argList2, origInputStream,
+                origOutputStream, argumentResolver);
+        assertThrows(ShellException.class, () -> {
+            handler2.extractRedirOptions();
+        });
+
+        List<String> argList3 = Arrays.asList("ls", ">", "<", filename);
+        IORedirectionHandler handler3 = new IORedirectionHandler(argList3, origInputStream,
+                origOutputStream, argumentResolver);
+        assertThrows(ShellException.class, () -> {
+            handler3.extractRedirOptions();
+        });
+    }
+
+    @Test
+    void extract_TooManyFiles_ShouldThrowShellException() {
+        List<String> argList1 = Arrays.asList("ls", ">", filename, filename);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        assertThrows(ShellException.class, () -> {
+            handler1.extractRedirOptions();
+        });
+    }
+
+    @Test
+    void extract_TooFewFiles_ShouldThrowShellException() {
+        List<String> argList1 = Arrays.asList("ls", ">");
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        assertThrows(ShellException.class, () -> {
+            handler1.extractRedirOptions();
+        });
+
+        List<String> argList2 = Arrays.asList("ls", ">", ">");
+        IORedirectionHandler handler2 = new IORedirectionHandler(argList2, origInputStream,
+                origOutputStream, argumentResolver);
+        assertThrows(ShellException.class, () -> {
+            handler2.extractRedirOptions();
         });
     }
 }

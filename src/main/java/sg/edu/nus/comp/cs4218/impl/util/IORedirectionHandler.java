@@ -55,6 +55,10 @@ public class IORedirectionHandler {
 
             String file = "";
             // if current arg is < or >, fast-forward to the next arg to extract the specified file
+            if (!argsIterator.hasNext()) {
+                //no file is supplied
+                throw new ShellException(ERR_MISSING_ARG);
+            }
             String nextArg = argsIterator.next();
             if (isRedirOperator(nextArg)) {
                 if (isOutputRedirOperator(nextArg)) {
