@@ -7,7 +7,6 @@ import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,49 +30,40 @@ public class RmArgsParserTest {
     }
 
     @Test
-    void isRecursive_hasRecursiveArg_returnsTrue() {
+    void isRecursive_hasRecursiveArg_returnsTrue() throws InvalidArgsException {
         String[] args = {"-r"};
-        assertDoesNotThrow(() -> {
-            rmArgsParser.parse(args);
-            assertTrue(rmArgsParser.isRecursive());
-        });
+        rmArgsParser.parse(args);
+        assertTrue(rmArgsParser.isRecursive());
+
     }
 
     @Test
-    void isRecursive_hasNoRecursiveArg_returnsFalse() {
+    void isRecursive_hasNoRecursiveArg_returnsFalse() throws InvalidArgsException {
         String[] args = {"-d", "r"};
-        assertDoesNotThrow(() -> {
-            rmArgsParser.parse(args);
-            assertFalse(rmArgsParser.isRecursive());
-        });
+        rmArgsParser.parse(args);
+        assertFalse(rmArgsParser.isRecursive());
     }
 
     @Test
-    void isRmEmptyDir_hasEmptyFolderArg_returnsTrue() {
+    void isRmEmptyDir_hasEmptyFolderArg_returnsTrue() throws InvalidArgsException {
         String[] args = {"-d"};
-        assertDoesNotThrow(() -> {
-            rmArgsParser.parse(args);
-            assertTrue(rmArgsParser.isRmEmptyDir());
-        });
+        rmArgsParser.parse(args);
+        assertTrue(rmArgsParser.isRmEmptyDir());
     }
 
     @Test
-    void isRmEmptyDir_hasNoEmptyFolderDirArg_returnsFalse() {
+    void isRmEmptyDir_hasNoEmptyFolderDirArg_returnsFalse() throws InvalidArgsException {
         String[] args = {"d", "-r"};
-        assertDoesNotThrow(() -> {
-            rmArgsParser.parse(args);
-            assertFalse(rmArgsParser.isRmEmptyDir());
-        });
+        rmArgsParser.parse(args);
+        assertFalse(rmArgsParser.isRmEmptyDir());
     }
 
     @Test
-    void getFilesOrDirNames_hasFileAndDirNames_returnsFilesAndDirNames() {
+    void getFilesOrDirNames_hasFileAndDirNames_returnsFilesAndDirNames() throws InvalidArgsException {
         String[] args = {"-d", "-r", "dir", "file1.txt", "file2.txt"};
         List<String> expectedList = Arrays.asList("dir", "file1.txt", "file2.txt");
-        assertDoesNotThrow(() -> {
-            rmArgsParser.parse(args);
-            assertEquals(expectedList, rmArgsParser.getFilesOrDirNames());
-        });
+        rmArgsParser.parse(args);
+        assertEquals(expectedList, rmArgsParser.getFilesOrDirNames());
     }
 
 }
