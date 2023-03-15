@@ -52,6 +52,8 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_Arguments_NoRedirArgShouldBePopulatedCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        IORedirectionHandler handler = new IORedirectionHandler( argsList, origInputStream,
+                origOutputStream, argumentResolver);
         handler.extractRedirOptions();
         assertEquals(Arrays.asList("paste"), handler.getNoRedirArgsList());
     }
