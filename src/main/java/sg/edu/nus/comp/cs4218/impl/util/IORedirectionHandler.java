@@ -35,65 +35,47 @@ public class IORedirectionHandler {
         this.argumentResolver = argumentResolver;
     }
 
+    private String getFileName(ListIterator<String> argsIterator, String arg) throws ShellException {
+        if (!argsIterator.hasNext()) {
+            throw new ShellException(ERR_MISSING_ARG);//no file is supplied
+        }
+        String nextArg = argsIterator.next();
+        if (isRedirOperator(nextArg)) {
+            if (!isOutputRedirOperator(nextArg) || !isOutputRedirOperator(arg)) {
+                throw new ShellException(ERR_SYNTAX);
+            }
+            this.append = true;
+            if (!argsIterator.hasNext()) { //no file is supplied
+                throw new ShellException(ERR_MISSING_ARG);
+            }
+            nextArg = argsIterator.next();
+        }
+        String file = nextArg;
+        if (argsIterator.hasNext()) {// more than 1 file is supplied
+            throw new ShellException((ERR_TOO_MANY_ARGS));
+        }
+        return file;
+    }
     public void extractRedirOptions() throws AbstractApplicationException, ShellException, FileNotFoundException {
         if (argsList == null || argsList.isEmpty()) {
             throw new ShellException(ERR_SYNTAX);
         }
-
         noRedirArgsList = new LinkedList<>();
-
-        // extract redirection operators (with their corresponding files) from argsList
         ListIterator<String> argsIterator = argsList.listIterator();
         while (argsIterator.hasNext()) {
             String arg = argsIterator.next();
-
-            // leave the other args untouched
-            if (!isRedirOperator(arg)) {
+            if (!isRedirOperator(arg)) {// leave the other args untouched
                 noRedirArgsList.add(arg);
                 continue;
             }
-
-            String file = "";
-            // if current arg is < or >, fast-forward to the next arg to extract the specified file
-            if (!argsIterator.hasNext()) {
-                //no file is supplied
-                throw new ShellException(ERR_MISSING_ARG);
-            }
-            String nextArg = argsIterator.next();
-            if (isRedirOperator(nextArg)) {
-                if (isOutputRedirOperator(nextArg)) {
-                    if (!isOutputRedirOperator(arg)) { // if "<>" is supplied
-                        throw new ShellException(ERR_SYNTAX);
-                    }
-                    //if >> is supplied
-                    this.append = true;
-                }
-                if (isInputRedirOperator(nextArg)){
-                    //both >< and << are wrong syntax
-                    throw new ShellException(ERR_SYNTAX);
-                }
-                if (!argsIterator.hasNext()) {
-                    //no file is supplied
-                    throw new ShellException(ERR_MISSING_ARG);
-                }
-                nextArg = argsIterator.next();
-            }
-            file = nextArg;
-            if (argsIterator.hasNext()) {
-                // more than 1 file is supplied
-                throw new ShellException((ERR_TOO_MANY_ARGS));
-            }
-
-            // handle quoting + globing + command substitution in file arg
-            List<String> fileSegment = argumentResolver.resolveOneArgument(file);
-            if (fileSegment.size() > 1) {
-                // ambiguous redirect if file resolves to more than one parsed arg
+            // if current arg is < or >
+            String file = getFileName(argsIterator, arg);
+            List<String> fileSegment = argumentResolver.resolveOneArgument(file);// handle quoting + globing + command substitution in file arg
+            if (fileSegment.size() > 1) {// ambiguous redirect if file resolves to more than one parsed arg
                 throw new ShellException(ERR_SYNTAX);
             }
             file = fileSegment.get(0);
-
-            // replace existing inputStream / outputStream
-            if (arg.equals(String.valueOf(CHAR_REDIR_INPUT))) {
+            if (arg.equals(String.valueOf(CHAR_REDIR_INPUT))) {// replace existing inputStream / outputStream
                 IOUtils.closeInputStream(inputStream);
                 if (!inputStream.equals(origInputStream)) { // Already have a stream
                     throw new ShellException(ERR_MULTIPLE_STREAMS);

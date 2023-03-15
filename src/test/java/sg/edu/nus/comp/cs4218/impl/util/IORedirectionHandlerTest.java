@@ -33,8 +33,6 @@ public class IORedirectionHandlerTest {
         argumentResolver = new ArgumentResolver();
         origInputStream = new ByteArrayInputStream(new byte[0]);
         origOutputStream = new ByteArrayOutputStream();
-        handler = new IORedirectionHandler( argsList, origInputStream,
-                origOutputStream, argumentResolver);
     }
 
     @AfterAll
@@ -47,6 +45,8 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_Arguments_ShouldNotThrowException() throws IOException, AbstractApplicationException, ShellException {
+        IORedirectionHandler handler = new IORedirectionHandler( argsList, origInputStream,
+                origOutputStream, argumentResolver);
         assertDoesNotThrow(() -> handler.extractRedirOptions());
     }
 
@@ -58,6 +58,8 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_Arguments_InputStreamShouldBeAlteredCorrectly() throws IOException, AbstractApplicationException, ShellException {
+        IORedirectionHandler handler = new IORedirectionHandler( argsList, origInputStream,
+                origOutputStream, argumentResolver);
         handler.extractRedirOptions();
         assertEquals(Files.readString(Path.of(filename)),
                 new String(handler.getInputStream().readAllBytes()));
@@ -85,6 +87,8 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_ArgumentsNoAppend_IsAppendIsFalse() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        IORedirectionHandler handler = new IORedirectionHandler( argsList, origInputStream,
+                origOutputStream, argumentResolver);
         handler.extractRedirOptions();
         assertEquals(false, handler.isAppend());
     }
