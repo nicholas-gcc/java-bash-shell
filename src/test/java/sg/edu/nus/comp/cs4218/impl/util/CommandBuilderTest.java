@@ -1,7 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Command;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
@@ -14,7 +13,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class CommandBuilderTest {
     ApplicationRunner applicationRunner;
@@ -25,58 +23,38 @@ public class CommandBuilderTest {
     }
 
     @Test
-    void parseCommand_SimpleCallArgs_ReturnsCallCommand() {
+    void parseCommand_SimpleCallArgs_ReturnsCallCommand() throws ShellException {
         String args = "echo hello";
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            assertEquals(command.getClass(), CallCommand.class);
-        } catch (ShellException ignored) {
-
-        }
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        assertEquals(command.getClass(), CallCommand.class);
     }
 
     @Test
-    void parseCommand_ComplexCallArgs_ReturnsCallCommand() {
+    void parseCommand_ComplexCallArgs_ReturnsCallCommand() throws ShellException {
         String args = "grep “Interesting String” < text1.txt > result.txt";
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            assertEquals(command.getClass(), CallCommand.class);
-        } catch (ShellException ignored) {
-
-        }
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        assertEquals(command.getClass(), CallCommand.class);
     }
 
     @Test
-    void parseCommand_ComplexSymbolArgs_ReturnsCallCommand() {
-        String args = "echo ‡…™©~Œ{}[]\\^_':,+*&%$#=";
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            assertEquals(command.getClass(), CallCommand.class);
-        } catch (ShellException ignored) {
-
-        }
+    void parseCommand_ComplexSymbolArgs_ReturnsCallCommand() throws ShellException {
+        String args = "echo ‡…™©~Œ{}[]\\^_:,+*&%$#=";
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        assertEquals(command.getClass(), CallCommand.class);
     }
 
     @Test
-    void parseCommand_CallArgsWithPipeOperator_ReturnsPipeCommand() {
+    void parseCommand_CallArgsWithPipeOperator_ReturnsPipeCommand() throws ShellException {
         String args = "paste articles/text1.txt | grep “Interesting String”";
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            assertEquals(command.getClass(), PipeCommand.class);
-        } catch (ShellException ignored) {
-
-        }
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        assertEquals(command.getClass(), PipeCommand.class);
     }
 
     @Test
-    void parseCommand_CallArgsWithSequenceOperator_ReturnsSequenceCommand() {
+    void parseCommand_CallArgsWithSequenceOperator_ReturnsSequenceCommand() throws ShellException {
         String args = "cd articles; paste text1.txt";
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            assertEquals(command.getClass(), SequenceCommand.class);
-        } catch (ShellException ignored) {
-
-        }
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        assertEquals(command.getClass(), SequenceCommand.class);
     }
 
     @Test
@@ -121,140 +99,110 @@ public class CommandBuilderTest {
     }
 
     @Test
-    void parseCommand_CallArgsWithRedirections_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithRedirections_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo hi < text1.txt > result.txt";
         List<String> expectedTokens = Arrays.asList("echo", "hi", "<", "text1.txt", ">", "result.txt"); //NOPMD
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithNoQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithNoQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo hello world";
         List<String> expectedTokens = Arrays.asList("echo", "hello", "world"); //NOPMD
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
     @Test
-    void parseCommand_CallArgsWithSimpleSingleQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSimpleSingleQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo 'hello world'";
         List<String> expectedTokens = Arrays.asList("echo", "'hello world'");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithComplexSingleQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithComplexSingleQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo 'Travel time Singapore -> Paris is 13h and 15`'";
         List<String> expectedTokens = Arrays.asList("echo", "'Travel time Singapore -> Paris is 13h and 15`'");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithSpecialCharsInSingleQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSpecialCharsInSingleQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo '-> ` | ;'";
         List<String> expectedTokens = Arrays.asList("echo", "'-> ` | ;'");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithSimpleDoubleQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSimpleDoubleQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo \"hello world\"";
         List<String> expectedTokens = Arrays.asList("echo", "\"hello world\"");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithComplexDoubleQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithComplexDoubleQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo \"'This is space `echo \" \"`'\"";
         List<String> expectedTokens = Arrays.asList("echo", "\"'This is space `echo \" \"`'\"");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithSpecialCharsInDoubleQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSpecialCharsInDoubleQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo \"-> ` | ;\"";
         List<String> expectedTokens = Arrays.asList("echo", "\"-> ` | ;\"");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithSimpleBackQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSimpleBackQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo `hello world`";
         List<String> expectedTokens = Arrays.asList("echo", "`hello world`");
-        assertDoesNotThrow(() -> {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        });
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithSubstitution_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSubstitution_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo `echo hello world`";
         List<String> expectedTokens = Arrays.asList("echo", "`echo hello world`");
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        } catch (ShellException ignored) {
-
-        }
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
     @Test
-    void parseCommand_CallArgsWithSubstitutionAndQuotes_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSubstitutionAndQuotes_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "echo `echo \"‘quote is not interpreted as special character’\"`";
         List<String> expectedTokens = Arrays.asList("echo", "`echo \"‘quote is not interpreted as special character’\"`");
-        try {
             Command command = CommandBuilder.parseCommand(args, applicationRunner);
             List<String> argTokens = ((CallCommand) command).getArgsList();
             assertEquals(expectedTokens, argTokens);
-        } catch (ShellException ignored) {
-
-        }
     }
 
     @Test
-    void parseCommand_CallArgsWithSubstitutionAndRedirection_ReturnsCallCommandWithCorrectArgTokens() {
+    void parseCommand_CallArgsWithSubstitutionAndRedirection_ReturnsCallCommandWithCorrectArgTokens() throws ShellException {
         String args = "paste `ls x*` > all.txt";
         List<String> expectedTokens = Arrays.asList("paste", "`ls x*`", ">", "all.txt");
-        try {
-            Command command = CommandBuilder.parseCommand(args, applicationRunner);
-            List<String> argTokens = ((CallCommand) command).getArgsList();
-            assertEquals(expectedTokens, argTokens);
-        } catch (ShellException ignored) {
-
-        }
+        Command command = CommandBuilder.parseCommand(args, applicationRunner);
+        List<String> argTokens = ((CallCommand) command).getArgsList();
+        assertEquals(expectedTokens, argTokens);
     }
 
 }
