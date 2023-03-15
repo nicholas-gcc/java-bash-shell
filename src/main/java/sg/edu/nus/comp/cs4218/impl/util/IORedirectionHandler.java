@@ -10,8 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MULTIPLE_STREAMS;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_SYNTAX;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_REDIR_INPUT;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_REDIR_OUTPUT;
 
@@ -24,7 +23,7 @@ public class IORedirectionHandler {
     private InputStream inputStream;
     private OutputStream outputStream;
 
-    private boolean isAppend = false;
+    private boolean append = false;
 
     public IORedirectionHandler(List<String> argsList, InputStream origInputStream,
                                 OutputStream origOutputStream, ArgumentResolver argumentResolver) {
@@ -37,7 +36,6 @@ public class IORedirectionHandler {
     }
 
     public void extractRedirOptions() throws AbstractApplicationException, ShellException, FileNotFoundException {
-        // TODO: Fix this?
         if (argsList == null || argsList.isEmpty()) {
             throw new ShellException(ERR_SYNTAX);
         }
@@ -58,15 +56,28 @@ public class IORedirectionHandler {
             String file = "";
             // if current arg is < or >, fast-forward to the next arg to extract the specified file
             String nextArg = argsIterator.next();
-            if (isOutputRedirOperator(nextArg)) {
-                if (!isOutputRedirOperator(arg)) { // if "<>" is supplied
+            if (isRedirOperator(nextArg)) {
+                if (isOutputRedirOperator(nextArg)) {
+                    if (!isOutputRedirOperator(arg)) { // if "<>" is supplied
+                        throw new ShellException(ERR_SYNTAX);
+                    }
+                    //if >> is supplied
+                    this.append = true;
+                }
+                if (isInputRedirOperator(nextArg)){
+                    //both >< and << are wrong syntax
                     throw new ShellException(ERR_SYNTAX);
                 }
-                //if >> is supplied
-                this.isAppend = true;
-                file = argsIterator.next();
-            } else {
-                file = nextArg;
+                if (!argsIterator.hasNext()) {
+                    //no file is supplied
+                    throw new ShellException(ERR_MISSING_ARG);
+                }
+                nextArg = argsIterator.next();
+            }
+            file = nextArg;
+            if (argsIterator.hasNext()) {
+                // more than 1 file is supplied
+                throw new ShellException((ERR_TOO_MANY_ARGS));
             }
 
             // handle quoting + globing + command substitution in file arg
@@ -89,7 +100,7 @@ public class IORedirectionHandler {
                 if (!outputStream.equals(origOutputStream)) { // Already have a stream
                     throw new ShellException(ERR_MULTIPLE_STREAMS);
                 }
-                outputStream = IOUtils.openOutputStream(file, isAppend);
+                outputStream = IOUtils.openOutputStream(file, append);
             }
         }
     }
@@ -106,11 +117,17 @@ public class IORedirectionHandler {
         return outputStream;
     }
 
+    public boolean isAppend() { return append; }
+
     private boolean isRedirOperator(String str) {
         return str.equals(String.valueOf(CHAR_REDIR_INPUT)) || str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
     }
 
     private boolean isOutputRedirOperator(String str) {
         return str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
+    }
+
+    private boolean isInputRedirOperator(String str) {
+        return str.equals(String.valueOf(CHAR_REDIR_INPUT));
     }
 }
