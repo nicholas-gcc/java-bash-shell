@@ -35,6 +35,12 @@ public class IORedirectionHandler {
         this.argumentResolver = argumentResolver;
     }
 
+    /**
+     * @param argsIterator from extractRedirOptions, iterator of remaining args
+     * @param arg current arg, from extractRedirOption
+     * @return filename of the file
+     * @throws ShellException
+     */
     private String getFileName(ListIterator<String> argsIterator, String arg) throws ShellException {
         if (!argsIterator.hasNext()) {
             throw new ShellException(ERR_MISSING_ARG);//no file is supplied
@@ -56,6 +62,13 @@ public class IORedirectionHandler {
         }
         return file;
     }
+
+    /**
+     * @throws AbstractApplicationException
+     * @throws ShellException
+     * @throws FileNotFoundException
+     * extract redirction options and substitute input or output stream accordingly
+     */
     public void extractRedirOptions() throws AbstractApplicationException, ShellException, FileNotFoundException {
         if (argsList == null || argsList.isEmpty()) {
             throw new ShellException(ERR_SYNTAX);
@@ -69,7 +82,12 @@ public class IORedirectionHandler {
                 continue;
             }
             // if current arg is < or >
-            String file = getFileName(argsIterator, arg);
+            String file = "";
+            try {
+                file = getFileName(argsIterator, arg);
+            } catch (ShellException e) {
+                throw e;
+            }
             List<String> fileSegment = argumentResolver.resolveOneArgument(file);// handle quoting + globing + command substitution in file arg
             if (fileSegment.size() > 1) {// ambiguous redirect if file resolves to more than one parsed arg
                 throw new ShellException(ERR_SYNTAX);
