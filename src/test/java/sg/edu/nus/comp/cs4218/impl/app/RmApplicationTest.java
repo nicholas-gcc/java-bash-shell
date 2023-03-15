@@ -58,7 +58,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_NullArguments_ThrowsRmException(){
+    void run_NullArguments_ThrowsRmExceptionWithCorrectMessage(){
         RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(null, System.in, outputStream);
         });
@@ -67,7 +67,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_NullOutputStream_ThrowsRmException(){
+    void run_NullOutputStream_ThrowsRmExceptionWithCorrectMessage(){
         String[] args = {TEXT_FILE_NAME1};
         RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(args, System.in, null);
@@ -77,7 +77,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_OnlyInvalidArgs_ThrowsRmException() {
+    void run_OnlyInvalidArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {"-b", "-c", TEXT_FILE_NAME1};
         RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(args, System.in, outputStream);
@@ -87,7 +87,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_InvalidAndValidArgs_ThrowsRmException() {
+    void run_InvalidAndValidArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {"-r", "-d", "-R", "-D", TEXT_FILE_NAME1};
         RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(args, System.in, outputStream);
@@ -106,7 +106,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_ValidArgsWithNoFiles_ThrowsRmException() {
+    void run_ValidArgsWithNoFiles_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {"-r", "-d"};
         RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(args, System.in, outputStream);
@@ -116,17 +116,15 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_OneFileArgs_CorrectOutputStream() {
+    void run_OneFileArgs_CorrectOutputStream() throws Exception {
         String[] args = {TEXT_FILE_NAME1};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
-        });
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
     }
 
     @Test
-    void run_NonExistingFileArgs_CorrectOutputStream() {
+    void run_NonExistingFileArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {FAKE_FILE};
         RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(args, System.in, outputStream);
@@ -136,74 +134,71 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_MultipleFilesArgs_CorrectOutputStream() {
+    void run_MultipleFilesArgs_CorrectOutputStream() throws Exception {
         String[] args = {TEXT_FILE_NAME1, TEXT_FILE_NAME2};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
-            assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2));
-        });
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
+        assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2));
     }
 
     @Test
-    void run_DirWithoutEmptyDirArg_ThrowsRmException() {
+    void run_DirWithoutEmptyDirArg_ThrowsRmExceptionWithCorrectMessage() throws Exception {
         String[] args = {EMPTY_DIR_NAME};
         RmException exception = assertThrows(RmException.class, () -> {
             FileSystemUtils.createEmptyDir(EMPTY_DIR_NAME);
             rmApplication.run(args, System.in, outputStream);
         });
-        assertDoesNotThrow(() -> FileSystemUtils.deleteFileOrDir(EMPTY_DIR_NAME));
+        FileSystemUtils.deleteFileOrDir(EMPTY_DIR_NAME);
 
         String expectedMessage = String.format(String.format("rm: Cannot remove %s: Is a directory", EMPTY_DIR_NAME));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void run_OneDirWithRecursiveArgs_CorrectOutputStream() {
+    void run_OneDirWithRecursiveArgs_CorrectOutputStream() throws Exception {
         String[] args = {DIR_NAME1, RECURSIVE_ARG};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            String prevDir = Environment.currentDirectory;
-            // Moves current working directory to the directory created
-            Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
-            // Reset current working directory to working directory prior to moving
-            Environment.currentDirectory = prevDir;
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        String prevDir = Environment.currentDirectory;
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+        FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
+        // Reset current working directory to working directory prior to moving
+        Environment.currentDirectory = prevDir;
 
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-        });
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
+
     }
 
     @Test
-    void run_MultipleDirsWithRecursiveArgs_CorrectOutputStream() {
+    void run_MultipleDirsWithRecursiveArgs_CorrectOutputStream() throws Exception {
         String[] args = {DIR_NAME1, DIR_NAME2, RECURSIVE_ARG};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            String prevDir = Environment.currentDirectory;
-            // Moves current working directory to the directory created
-            Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
-            // Reset current working directory to working directory prior to moving
-            Environment.currentDirectory = prevDir;
 
-            FileSystemUtils.createEmptyDir(DIR_NAME2);
-            // Moves current working directory to the directory created
-            Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME2;
-            FileSystemUtils.createEmptyDir(SUB_DIR_NAME2);
-            // Reset current working directory to working directory prior to moving
-            Environment.currentDirectory = prevDir;
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        String prevDir = Environment.currentDirectory;
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+        FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
+        // Reset current working directory to working directory prior to moving
+        Environment.currentDirectory = prevDir;
 
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
-        });
+        FileSystemUtils.createEmptyDir(DIR_NAME2);
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME2;
+        FileSystemUtils.createEmptyDir(SUB_DIR_NAME2);
+        // Reset current working directory to working directory prior to moving
+        Environment.currentDirectory = prevDir;
+
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
+
     }
 
     @Test
-    void run_OneDirOneNonExistingFileWithRecursiveArgs_ThrowsRmException() {
+    void run_OneDirOneNonExistingFileWithRecursiveArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {DIR_NAME1, FAKE_FILE, RECURSIVE_ARG};
         RmException exception = assertThrows(RmException.class, () -> {
             FileSystemUtils.createEmptyDir(DIR_NAME1);
@@ -220,7 +215,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_NonExistingDirWithRecursiveArgs_ThrowsRmException() {
+    void run_NonExistingDirWithRecursiveArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {FAKE_DIR, RECURSIVE_ARG};
          RmException exception = assertThrows(RmException.class, () -> {
             rmApplication.run(args, System.in, outputStream);
@@ -231,43 +226,37 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_OneDirWithIsEmptyDirArgs_CorrectOutputStream() {
+    void run_OneDirWithIsEmptyDirArgs_CorrectOutputStream() throws Exception {
         String[] args = {DIR_NAME1, RM_EMPTY_DIR_ARG};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-        });
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
     }
 
     @Test
-    void run_MultipleDirsWithIsEmptyDirArgs_CorrectOutputStream() {
+    void run_MultipleDirsWithIsEmptyDirArgs_CorrectOutputStream() throws Exception {
         String[] args = {DIR_NAME1, DIR_NAME2, RM_EMPTY_DIR_ARG};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            FileSystemUtils.createEmptyDir(DIR_NAME2);
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
-        });
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        FileSystemUtils.createEmptyDir(DIR_NAME2);
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
     }
 
     @Test
-    void run_MultipleDirsAndFilesWithIsEmptyDirArgs_CorrectOutputStream() {
+    void run_MultipleDirsAndFilesWithIsEmptyDirArgs_CorrectOutputStream() throws Exception {
         String[] args = {DIR_NAME1, DIR_NAME2, TEXT_FILE_NAME1, TEXT_FILE_NAME2, RM_EMPTY_DIR_ARG};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            FileSystemUtils.createEmptyDir(DIR_NAME2);
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
-        });
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        FileSystemUtils.createEmptyDir(DIR_NAME2);
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
     }
 
     @Test
-    void run_NonEmptyDirIsEmptyDirArgs_ThrowRmException() {
+    void run_NonEmptyDirIsEmptyDirArgs_ThrowsRmExceptionWithCorrectMessage() throws Exception {
         String[] args = {DIR_NAME1, RM_EMPTY_DIR_ARG};
         String relativeTestPath = "." + CHAR_FILE_SEP + DIR_NAME1 + CHAR_FILE_SEP + TEXT_FILE_NAME1;
         RmException exception = assertThrows(RmException.class, () -> {
@@ -275,51 +264,48 @@ public class RmApplicationTest {
             FileSystemUtils.createEmptyFile(relativeTestPath);
             rmApplication.run(args, System.in, outputStream);
         });
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.deleteFileOrDir(relativeTestPath);
-            FileSystemUtils.deleteFileOrDir(DIR_NAME1);
-        });
+        FileSystemUtils.deleteFileOrDir(relativeTestPath);
+        FileSystemUtils.deleteFileOrDir(DIR_NAME1);
+
         String expectedMessage = String.format("rm: Cannot remove %s: directory is not empty", DIR_NAME1);
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void run_MultipleDirWithRecursiveAndIsEmptyDirArgs_CorrectOutputStream() {
+    void run_MultipleDirWithRecursiveAndIsEmptyDirArgs_CorrectOutputStream() throws Exception  {
         String[] args = {DIR_NAME1, DIR_NAME2, RECURSIVE_ARG, RM_EMPTY_DIR_ARG};
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            String prevDir = Environment.currentDirectory;
-            // Moves current working directory to the directory created
-            Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
-            // Reset current working directory to working directory prior to moving
-            Environment.currentDirectory = prevDir;
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        String prevDir = Environment.currentDirectory;
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+        FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
+        // Reset current working directory to working directory prior to moving
+        Environment.currentDirectory = prevDir;
 
-            // Create empty directory
-            FileSystemUtils.createEmptyDir(DIR_NAME2);
+        // Create empty directory
+        FileSystemUtils.createEmptyDir(DIR_NAME2);
 
-            rmApplication.run(args, System.in, outputStream);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
-        });
+        rmApplication.run(args, System.in, outputStream);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
+
     }
 
     @Test
-    void remove_TwoFiles_RemovesFiles() {
+    void remove_TwoFiles_RemovesFiles() throws Exception {
         boolean isEmptyFolder = false;
         boolean isRecursive = false;
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME2);
 
-            rmApplication.remove(isEmptyFolder, isRecursive, TEXT_FILE_NAME1, TEXT_FILE_NAME2);
-            assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
-            assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2));
-        });
+        rmApplication.remove(isEmptyFolder, isRecursive, TEXT_FILE_NAME1, TEXT_FILE_NAME2);
+        assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1));
+        assertFalse(FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2));
+
     }
 
     @Test
-    void remove_OneFileOneNonExistingFile_ThrowRmException() {
+    void remove_OneFileOneNonExistingFile_ThrowsRmExceptionWithCorrectMessage() {
         boolean isEmptyFolder = false;
         boolean isRecursive = false;
         assertThrows(RmException.class, () -> {
@@ -329,7 +315,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void remove_OneFileOneDir_ThrowRmException() {
+    void remove_OneFileOneDir_ThrowsRmExceptionWithCorrectMessage() throws Exception {
         boolean isEmptyFolder = false;
         boolean isRecursive = false;
         RmException exception = assertThrows(RmException.class, () -> {
@@ -338,40 +324,36 @@ public class RmApplicationTest {
             rmApplication.remove(isEmptyFolder, isRecursive, TEXT_FILE_NAME1, DIR_NAME1);
         });
 
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.deleteFileOrDir(DIR_NAME1);
-        });
+        FileSystemUtils.deleteFileOrDir(DIR_NAME1);
 
         String expectedMessage = String.format("rm: Cannot remove %s: Is a directory", DIR_NAME1);
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void remove_OneFileOneDirIsEmptyFolderArg_RemovesFiles() {
+    void remove_OneFileOneDirIsEmptyFolderArg_RemovesFiles() throws Exception {
         boolean isEmptyFolder = true;
         boolean isRecursive = false;
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            rmApplication.remove(isEmptyFolder, isRecursive, TEXT_FILE_NAME1, DIR_NAME1);
-        });
+        FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        rmApplication.remove(isEmptyFolder, isRecursive, TEXT_FILE_NAME1, DIR_NAME1);
+
     }
 
     @Test
-    void remove_OneDirRecursive_RemovesFiles() {
+    void remove_OneDirRecursive_RemovesFiles() throws Exception {
         boolean isEmptyFolder = false;
         boolean isRecursive = true;
-        assertDoesNotThrow(() -> {
-            FileSystemUtils.createEmptyDir(DIR_NAME1);
-            String prevDir = Environment.currentDirectory;
-            // Moves current working directory to the directory created
-            Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
-            FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
-            // Reset current working directory to working directory prior to moving
-            Environment.currentDirectory = prevDir;
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        String prevDir = Environment.currentDirectory;
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+        FileSystemUtils.createEmptyDir(SUB_DIR_NAME1);
+        // Reset current working directory to working directory prior to moving
+        Environment.currentDirectory = prevDir;
 
-            rmApplication.remove(isEmptyFolder, isRecursive, DIR_NAME1);
-            assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
-        });
+        rmApplication.remove(isEmptyFolder, isRecursive, DIR_NAME1);
+        assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
+
     }
 }
