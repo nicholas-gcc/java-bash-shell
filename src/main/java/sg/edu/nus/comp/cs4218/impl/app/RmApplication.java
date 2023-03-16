@@ -28,7 +28,7 @@ public class RmApplication implements RmInterface {
                 removeRecursive("", fileNames);
                 return;
             } catch (Exception e) {
-                throw new RmException(e.getMessage()); //NOPMD
+                throw new RmException(e.getMessage(), e);
             }
         }
 
@@ -41,7 +41,7 @@ public class RmApplication implements RmInterface {
                       throw new Exception(String.format("Cannot remove %s: Is a directory", name));
                     }
                 } catch (Exception e) {
-                    throw new RmException(e.getMessage()); //NOPMD
+                    throw new RmException(e.getMessage(), e);
                 }
             }
 
@@ -52,7 +52,7 @@ public class RmApplication implements RmInterface {
                 }
                 FileSystemUtils.deleteFileOrDir(name);
             } catch (Exception e) {
-                throw new RmException(e.getMessage()); //NOPMD
+                throw new RmException(e.getMessage(), e);
             }
         }
     }
@@ -72,7 +72,7 @@ public class RmApplication implements RmInterface {
         try {
             parser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new RmException(e.getMessage());//NOPMD
+            throw new RmException(e.getMessage(), e);
         }
         boolean isEmptyFolder = parser.isRmEmptyDir();
         boolean isRecursive = parser.isRecursive();

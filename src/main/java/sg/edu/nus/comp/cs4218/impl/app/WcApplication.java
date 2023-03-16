@@ -51,13 +51,13 @@ public class WcApplication implements WcInterface {
             }
         } catch (Exception e) {
             // Will never happen, actually happens though
-            throw new WcException(e.getMessage()); //NOPMD
+            throw new WcException(e.getMessage(), e);
         }
         try {
             stdout.write(result.getBytes());
             stdout.write(STRING_NEWLINE.getBytes());
         } catch (IOException e) {
-            throw new WcException(ERR_WRITE_STREAM);//NOPMD
+            throw new WcException(ERR_WRITE_STREAM, e);
         }
     }
 

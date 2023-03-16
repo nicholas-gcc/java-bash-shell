@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+
+@SuppressWarnings("PMD.GodClass")
 public final class FileSystemUtils {
 
     private FileSystemUtils() {}
@@ -107,7 +110,7 @@ public final class FileSystemUtils {
         try {
             return Files.readString(Paths.get(absolutePath));
         } catch (IOException e) {
-            throw new ReadFileException(filename); //NOPMD
+            throw new ReadFileException(filename, e);
         }
     }
 
@@ -130,7 +133,7 @@ public final class FileSystemUtils {
                 Files.write(path, str.getBytes());
             }
         } catch (IOException e) {
-            throw new WriteToFileException(filename); //NOPMD
+            throw new WriteToFileException(filename, e);
         }
     }
 
@@ -226,6 +229,35 @@ public final class FileSystemUtils {
         return joinedPath;
     }
 
+    /**
+     * Converts a String into a java.nio.Path objects. Also resolves if the current path provided
+     * is an absolute path.
+     *
+     * @param directory
+     * @return
+     */
+    public static Path resolvePath(String directory) {
+        // To account for absolute paths for Mac/Linux systems
+        if (directory.charAt(0) == CHAR_FILE_SEP ||
+                // To account for absolute paths for Windows systems
+                (directory.length() > 1 && directory.charAt(1) == ':')) {
+            // This is an absolute path
+            return Paths.get(directory).normalize();
+        }
+
+        return Paths.get(Environment.currentDirectory, directory).normalize();
+    }
+
+    /**
+     * Converts a path to a relative path to the current directory.
+     *
+     * @param path
+     * @return
+     */
+    public static Path getRelativeToCwd(Path path) {
+        return Paths.get(Environment.currentDirectory).relativize(path);
+    }
+
     private static class FileOrDirExistException extends Exception {
         public FileOrDirExistException(String name) {
             super(String.format("File or directory %s already exist", name));
@@ -254,11 +286,19 @@ public final class FileSystemUtils {
         public WriteToFileException(String name) {
             super(String.format("Failed to write to file %s", name));
         }
+
+        public WriteToFileException(String name, Throwable cause) {
+            super(String.format("Failed to write to file %s", name));
+        }
     }
 
     private static class ReadFileException extends Exception {
         public ReadFileException(String name) {
             super(String.format("Failed to read file %s", name));
+        }
+
+        public ReadFileException(String name, Throwable cause) {
+            super(String.format("Failed to read file %s", name), cause);
         }
     }
 

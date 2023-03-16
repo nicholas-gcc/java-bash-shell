@@ -43,8 +43,7 @@ public class UniqApplication implements UniqInterface {
                 }
             }
         } catch (Exception exception) {
-            throw new UniqException(exception.getMessage()); //NOPMD - suppressed PreserveStackTrace - the proper way
-                                                             // is to throw UniqException
+            throw new UniqException(exception.getMessage(), exception);
         }
 
     }

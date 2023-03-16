@@ -10,7 +10,7 @@ import java.io.OutputStream;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 
-
+@SuppressWarnings("PMD.ExcessiveMethodLength")
 public class ApplicationRunner {
     public final static String APP_LS = "ls";
     public final static String APP_WC = "wc";

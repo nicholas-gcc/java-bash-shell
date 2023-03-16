@@ -12,7 +12,6 @@ import java.util.List;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_CLOSING_STREAMS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
 
-@SuppressWarnings("PMD.PreserveStackTrace")
 public final class IOUtils {
     private IOUtils() {
     }
@@ -31,7 +30,7 @@ public final class IOUtils {
         try {
             fileInputStream = new FileInputStream(new File(resolvedFileName));
         } catch (FileNotFoundException e) {
-            throw new ShellException(ERR_FILE_NOT_FOUND);
+            throw new ShellException(ERR_FILE_NOT_FOUND, e);
         }
 
         return fileInputStream;
@@ -61,14 +60,14 @@ public final class IOUtils {
      * @throws ShellException If inputStream cannot be closed successfully.
      */
     public static void closeInputStream(InputStream inputStream) throws ShellException {
-        if (inputStream == System.in || inputStream == null) {
+        if (inputStream == null || inputStream.equals(System.in)) {
             return;
         }
 
         try {
             inputStream.close();
         } catch (IOException e) {
-            throw new ShellException(ERR_CLOSING_STREAMS);
+            throw new ShellException(ERR_CLOSING_STREAMS, e);
         }
     }
 
@@ -79,14 +78,14 @@ public final class IOUtils {
      * @throws ShellException If outputStream cannot be closed successfully.
      */
     public static void closeOutputStream(OutputStream outputStream) throws ShellException {
-        if (outputStream == System.out || outputStream == null) {
+        if (outputStream == null || outputStream.equals(System.out)) {
             return;
         }
 
         try {
             outputStream.close();
         } catch (IOException e) {
-            throw new ShellException(ERR_CLOSING_STREAMS);
+            throw new ShellException(ERR_CLOSING_STREAMS, e);
         }
     }
 

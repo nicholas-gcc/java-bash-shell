@@ -66,7 +66,7 @@ public class CallCommandTest {
     void evaluate_simpleCommandArgList_OutputsCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("echo", "hello world");
         callCommand = new CallCommand(args, applicationRunner, argumentResolver);
-        String expectedOutput = "hello world" + System.lineSeparator();
+        String expectedOutput = "hello world";
         callCommand.evaluate(stdin, stdout);
         assertEquals(expectedOutput, stdout.toString());
     }

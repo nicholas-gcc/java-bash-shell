@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -57,7 +56,9 @@ public final class RegexArgument {
 
     public void appendAsterisk() {
         plaintext.append(CHAR_ASTERISK);
-        regex.append("[^" + StringUtils.fileSeparator() + "]*");
+        regex.append("[^");
+        regex.append(StringUtils.fileSeparator());
+        regex.append("]*");
         isRegex = true;
     }
 
@@ -153,10 +154,6 @@ public final class RegexArgument {
             matches.addAll(traverseAndFilter(regexPattern, nextNode, isAbsolute, onlyDirectories));
         }
         return matches;
-    }
-
-    public boolean isRegex() {
-        return isRegex;
     }
 
     public boolean isEmpty() {
