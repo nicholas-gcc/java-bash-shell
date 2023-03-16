@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+
+@SuppressWarnings("PMD.GodClass")
 public final class FileSystemUtils {
 
     private FileSystemUtils() {}
@@ -220,6 +223,35 @@ public final class FileSystemUtils {
             joinedPath += separator;
         }
         return joinedPath;
+    }
+
+    /**
+     * Converts a String into a java.nio.Path objects. Also resolves if the current path provided
+     * is an absolute path.
+     *
+     * @param directory
+     * @return
+     */
+    public static Path resolvePath(String directory) {
+        // To account for absolute paths for Mac/Linux systems
+        if (directory.charAt(0) == CHAR_FILE_SEP ||
+                // To account for absolute paths for Windows systems
+                (directory.length() > 1 && directory.charAt(1) == ':')) {
+            // This is an absolute path
+            return Paths.get(directory).normalize();
+        }
+
+        return Paths.get(Environment.currentDirectory, directory).normalize();
+    }
+
+    /**
+     * Converts a path to a relative path to the current directory.
+     *
+     * @param path
+     * @return
+     */
+    public static Path getRelativeToCwd(Path path) {
+        return Paths.get(Environment.currentDirectory).relativize(path);
     }
 
     private static class FileOrDirExistException extends Exception {

@@ -24,6 +24,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_SPACE;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_CURR_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.sortFilenamesByExt;
+import static sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils.resolvePath;
+import static sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils.getRelativeToCwd;
 
 public class LsApplication implements LsInterface {
 
@@ -268,43 +270,10 @@ public class LsApplication implements LsInterface {
         return paths;
     }
 
-    /**
-     * Converts a String into a java.nio.Path objects. Also resolves if the current path provided
-     * is an absolute path.
-     *
-     * @param directory
-     * @return
-     */
-    private Path resolvePath(String directory) {
-        // To account for absolute paths for Mac/Linux systems
-        if (directory.charAt(0) == CHAR_FILE_SEP ||
-                // To account for absolute paths for Windows systems
-                (directory.length() > 1 && directory.charAt(1) == ':')) {
-            // This is an absolute path
-            return Paths.get(directory).normalize();
-        }
 
-        return Paths.get(Environment.currentDirectory, directory).normalize();
-    }
-
-    /**
-     * Converts a path to a relative path to the current directory.
-     *
-     * @param path
-     * @return
-     */
-    private Path getRelativeToCwd(Path path) {
-        return Paths.get(Environment.currentDirectory).relativize(path);
-    }
-
-    public class InvalidFileOrDirectoryException extends Exception {
+    private class InvalidFileOrDirectoryException extends Exception {
         InvalidFileOrDirectoryException(String fileOrDir) {
             super(String.format("ls: cannot access '%s': No such file or directory", fileOrDir));
-        }
-
-        InvalidFileOrDirectoryException(String directory, Throwable cause) {
-            super(String.format("ls: cannot access '%s': No such file or directory", directory),
-                    cause);
         }
     }
 }

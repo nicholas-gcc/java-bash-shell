@@ -18,6 +18,7 @@ import java.util.List;
  * <p>
  * Command format: <Call> | <Call> or <Pipe> | <Call>
  */
+@SuppressWarnings({"PMD.CloseResource"})
 public class PipeCommand implements Command {
     private final List<CallCommand> callCommands;
 
@@ -45,8 +46,9 @@ public class PipeCommand implements Command {
             try {
                 if (i < callCommands.size() - 1) {
                     nextOutputStream = new ByteArrayOutputStream();
-                } else nextOutputStream = stdout;
-
+                } else {
+                    nextOutputStream = stdout;
+                }
                 callCommand.evaluate(nextInputStream, nextOutputStream);
                 if (i < callCommands.size() - 1) {
                     nextInputStream = new ByteArrayInputStream(((ByteArrayOutputStream) nextOutputStream).toByteArray());
