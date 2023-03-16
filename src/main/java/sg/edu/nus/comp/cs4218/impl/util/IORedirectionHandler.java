@@ -23,6 +23,8 @@ public class IORedirectionHandler {
     private InputStream inputStream;
     private OutputStream outputStream;
 
+    private String outputFilePath;
+
     private boolean append = false;
 
     public IORedirectionHandler(List<String> argsList, InputStream origInputStream,
@@ -106,6 +108,7 @@ public class IORedirectionHandler {
                 if (!outputStream.equals(origOutputStream)) { // Already have a stream
                     throw new ShellException(ERR_MULTIPLE_STREAMS);
                 }
+                this.outputFilePath = file;
                 outputStream = IOUtils.openOutputStream(file, append);
             }
         }
@@ -127,6 +130,10 @@ public class IORedirectionHandler {
 
     private boolean isRedirOperator(String str) {
         return str.equals(String.valueOf(CHAR_REDIR_INPUT)) || str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
+    }
+
+    public String getOutputFilePath() {
+        return outputFilePath;
     }
 
     private boolean isOutputRedirOperator(String str) {

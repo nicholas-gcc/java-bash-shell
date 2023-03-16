@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class IORedirectionHandlerTest {
     private static String filename = "file.txt";
+
+    private static String filename2 = "file2.txt";
     private static List<String> argsList = Arrays.asList("paste", "<", filename);
     private static ArgumentResolver argumentResolver;
     private static InputStream origInputStream;
@@ -30,6 +32,9 @@ public class IORedirectionHandlerTest {
         if (!file.exists()) {
             file.createNewFile();
         }
+        FileWriter myWriter = new FileWriter(filename);
+        myWriter.write("Test Message");
+        myWriter.close();
         argumentResolver = new ArgumentResolver();
         origInputStream = new ByteArrayInputStream(new byte[0]);
         origOutputStream = new ByteArrayOutputStream();
@@ -40,6 +45,10 @@ public class IORedirectionHandlerTest {
         File file = new File(filename);
         if (file.exists()) {
             file.delete();
+        }
+        File file2 = new File(filename2);
+        if (file2.exists()) {
+            file2.delete();
         }
     }
 
@@ -73,8 +82,8 @@ public class IORedirectionHandlerTest {
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
-        assertEquals(Files.readString(Path.of(filename)),
-                new String(handler1.getInputStream().readAllBytes()));
+        assertEquals(filename,
+                handler1.getOutputFilePath());
     }
 
     @Test
@@ -83,8 +92,8 @@ public class IORedirectionHandlerTest {
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
-        assertEquals(Files.readString(Path.of(filename)),
-                new String(handler1.getInputStream().readAllBytes()));
+        assertEquals(filename,
+                handler1.getOutputFilePath());
     }
 
     @Test
@@ -161,5 +170,26 @@ public class IORedirectionHandlerTest {
         assertThrows(ShellException.class, () -> {
             handler2.extractRedirOptions();
         });
+    }
+
+    @Test
+    void extract_BothRedirChar_BothInputOutputStreamShouldBeAlteredCorrectly() throws IOException, AbstractApplicationException, ShellException {
+        List<String> argList1 = Arrays.asList("ls", "<", filename, ">", filename2);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        handler1.extractRedirOptions();
+        assertEquals(Files.readString(Path.of(filename)),
+                new String(handler1.getInputStream().readAllBytes()));
+        assertEquals(filename2,
+                handler1.getOutputFilePath());
+
+        List<String> argList2 = Arrays.asList("ls", ">", filename2, "<", filename);
+        IORedirectionHandler handler2 = new IORedirectionHandler(argList2, origInputStream,
+                origOutputStream, argumentResolver);
+        handler2.extractRedirOptions();
+        assertEquals(Files.readString(Path.of(filename)),
+                new String(handler2.getInputStream().readAllBytes()));
+        assertEquals(filename2,
+                handler2.getOutputFilePath());
     }
 }
