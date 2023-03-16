@@ -58,8 +58,7 @@ public class IORedirectionHandler {
             }
             nextArg = argsIterator.next();
         }
-        String file = nextArg;
-        return file;
+        return nextArg;
     }
 
     /**

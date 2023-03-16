@@ -33,8 +33,15 @@ public class IORedirectionHandlerTest {
             file.createNewFile();
         }
         FileWriter myWriter = new FileWriter(filename);
-        myWriter.write("Test Message");
-        myWriter.close();
+        try {
+            myWriter.write("Test Message");
+            myWriter.close();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            myWriter.close();
+        }
+
         argumentResolver = new ArgumentResolver();
         origInputStream = new ByteArrayInputStream(new byte[0]);
         origOutputStream = new ByteArrayOutputStream();
