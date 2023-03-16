@@ -45,7 +45,7 @@ public class TestEnvironmentUtil {
         List<Class<?>> classes = new ArrayList<>();
         String[] classPathEntries = System.getProperty("java.class.path").split(
                 System.getProperty("path.separator")
-                                                                               );
+        );
         String name;
         for (String classpathEntry : classPathEntries) {
             if (classpathEntry.endsWith(".jar")) {
