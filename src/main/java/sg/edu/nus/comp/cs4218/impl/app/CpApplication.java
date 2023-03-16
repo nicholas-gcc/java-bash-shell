@@ -1,104 +1,74 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
-import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.app.CpInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
-import sg.edu.nus.comp.cs4218.impl.app.args.CpArguments;
 import sg.edu.nus.comp.cs4218.exception.CpException;
+import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
+import sg.edu.nus.comp.cs4218.impl.parser.CpArgsParser;
+import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_ARG;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MISSING_ARG;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
+
+
 
 import java.io.*;
-import java.util.ArrayList;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 
 public class CpApplication implements CpInterface {
-    private static final char RECURSIVE = 'r';
-
-    /**
-     * Converts filename to absolute path, if initially was relative path
-     *
-     * @param fileName supplied by user
-     * @return a String of the absolute path of the filename
-     */
-    private String convertToAbsolutePath(String fileName) {
-        String home = System.getProperty("user.home").trim();
-        String currentDir = Environment.currentDirectory.trim();
-        String convertedPath = convertPathToSystemPath(fileName);
-
-        String newPath;
-        if (convertedPath.length() >= home.length() && convertedPath.substring(0, home.length()).trim().equals(home)) {
-            newPath = convertedPath;
-        } else {
-            newPath = currentDir + CHAR_FILE_SEP + convertedPath;
-        }
-        return newPath;
-    }
-
-    /**
-     * Converts path provided by user into path recognised by the system
-     *
-     * @param path supplied by user
-     * @return a String of the converted path
-     */
-    private String convertPathToSystemPath(String path) {
-        String convertedPath = path;
-        String pathIdentifier = "\\" + Character.toString(CHAR_FILE_SEP);
-        convertedPath = convertedPath.replaceAll("(\\\\)+", pathIdentifier);
-        convertedPath = convertedPath.replaceAll("/+", pathIdentifier);
-
-        if (convertedPath.length() != 0 && convertedPath.charAt(convertedPath.length() - 1) == CHAR_FILE_SEP) {
-            convertedPath = convertedPath.substring(0, convertedPath.length() - 1);
-        }
-
-        return convertedPath;
-    }
-
-    /**
-     * for file path/name containing "*" wildcard
-     * retrieve filenames that qualify for the wildcard
-     * 
-     * @param srcFile String of source file
-     * @return array of Files that fulfills pattern
-     */
-    private File[] getFilenamesWithPattern(String srcFile) {
-        String[] arr = srcFile.split("\\*");
-        String pattern = arr[1];
-        String filename = arr[0];
-        File src = new File(filename);
-
-        return src.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(pattern);
-            }
-        });
-    }
-
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
+        if (args == null) {
+            throw new CpException(ERR_NULL_ARGS);
+        }
+
+        CpArgsParser parser = new CpArgsParser();
+
         try {
-            CpArguments cpArgs = new CpArguments();
-            ArrayList<String> files = new ArrayList<>();
-            boolean isRecursive = cpArgs.getArguments(args, files);
+            parser.parse(args);
+        } catch (InvalidArgsException e) {
+            throw new CpException(e.getMessage());
+        }
 
-            String srcFileName = convertToAbsolutePath(files.get(0));
-            String destFileName = convertToAbsolutePath(files.get(1));
-            File srcFile = new File(srcFileName);
-            File destFile = new File(destFileName);
+        boolean isRecursive = parser.isRecursive();
+        String[] filesToCopy = parser.getSourceFiles();
+        String dest = parser.getDestFileOrFolder();
 
-            cpArgs.checkFilesValidity(srcFile, destFile, isRecursive);
+        try {
+            // no source file identified
+            if (filesToCopy.length < 1) {
+                throw new CpException(ERR_MISSING_ARG);
+            } else if (filesToCopy.length == 1) {
+                // case: only one source and one destination
+                String sourceFileName = filesToCopy[0];
 
-            if (destFile.isDirectory()) {
-                cpFilesToFolder(isRecursive, destFileName, srcFileName);
+                Path sourcePath = FileSystemUtils.resolvePath(sourceFileName);
+                Path destinationPath = FileSystemUtils.resolvePath(dest);
+
+                // check if copying file to folder
+                if (Files.isDirectory(sourcePath) || Files.isDirectory(destinationPath)) {
+                    cpFilesToFolder(isRecursive, dest, sourceFileName);
+                } else { // check if copying file contents to another file
+                    cpSrcFileToDestFile(isRecursive, sourceFileName, dest);
+                }
             } else {
-                cpSrcFileToDestFile(isRecursive, srcFileName, destFileName);
+                // case: copy contents of multiple files to a folder
+                cpFilesToFolder(isRecursive, dest, filesToCopy);
             }
-        } catch (CpException cpException) {
-            throw cpException;
+        } catch (CpException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CpException(e.getMessage());
         }
 
     }
@@ -106,87 +76,94 @@ public class CpApplication implements CpInterface {
     @Override
     public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
             throws CpException, IOException {
-        File src = new File(srcFile);
-        File dest = new File(destFile);
-        if (srcFile.contains("*.")) {
-            throw new CpException(destFile + " is " + ERR_IS_NOT_DIR);
+        if (srcFile == null || srcFile.isEmpty()) {
+            throw new CpException(ERR_NULL_ARGS);
+        }
+        if (srcFile.equals(destFile)) {
+            throw new CpException(ERR_INVALID_ARG + ": Cannot copy file to itself");
         }
 
-        if (!dest.exists()) {
-            dest.createNewFile();
+        Path srcFilePath = FileSystemUtils.resolvePath(srcFile);
+        Path destFilePath = FileSystemUtils.resolvePath(destFile);
+
+        if (Files.notExists(srcFilePath)) {
+            throw new CpException(ERR_FILE_NOT_FOUND);
+        }
+        if (!Files.isRegularFile(srcFilePath)) {
+            throw new CpException(ERR_INVALID_ARG + ": source file is a directory");
         }
 
-        if (!src.exists()) {
-
-            throw new CpException(srcFile + ": " + ERR_FILE_NOT_FOUND);
-        }
-
-        FileInputStream inputStream = new FileInputStream(src);
-        FileOutputStream outputStream = new FileOutputStream(dest);
-
-        int line;
-
-        try {
-            while ((line = inputStream.read()) != -1) {
-                outputStream.write(line);
-            }
-        } catch (IOException ioexception) {
-            throw ioexception;
-        } finally {
-            inputStream.close();
-            outputStream.close();
-        }
+        Files.copy(srcFilePath, destFilePath, StandardCopyOption.REPLACE_EXISTING);
 
         return null;
     }
 
     @Override
-    public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileName) throws Exception {
-        String srcName = fileName[0];
-        File dest = new File(destFolder);
-        File src = new File(srcName);
+    public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileNames) throws Exception {
+        try {
+            Path destFolderPath = FileSystemUtils.resolvePath(destFolder);
+            if (!Files.isDirectory(destFolderPath)) {
+                throw new CpException(ERR_INVALID_ARG + ": destination file should be a directory");
+            }
 
-        CpArguments cpArgs = new CpArguments();
-        cpArgs.checkFilesValidity(src, dest, isRecursive);
+            // Copy each file to the destination folder
+            for (String fileName : fileNames) {
+                if (fileName == null || fileName.isEmpty()) {
+                    throw new CpException(ERR_NULL_ARGS);
+                }
 
-        if (srcName.contains("*.")) {
-            File[] filenames = getFilenamesWithPattern(srcName);
-            for (File f : filenames) {
-                cpFilesToFolder(isRecursive, destFolder, f.getPath());
+                Path srcFilePath = FileSystemUtils.resolvePath(fileName);
+                if (Files.notExists(srcFilePath)) {
+                    throw new CpException(ERR_FILE_NOT_FOUND + ": " + fileName);
+                }
+
+                // Do not copy recursively to subdirectories if -r flag is absent and file encountered is directory
+                if (Files.isDirectory(srcFilePath) && !isRecursive) {
+                    throw new CpException(ERR_IS_DIR + ": " + fileName);
+                }
+
+                Path destFilePath = destFolderPath.resolve(srcFilePath.getFileName());
+                if (Files.isRegularFile(srcFilePath) || isRecursive) {
+                    Files.copy(srcFilePath, destFilePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                // If recursive copy is enabled, copy any subdirectories and files within the source directory
+                if (isRecursive) {
+                    Files.walkFileTree(srcFilePath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+                            new FileVisitor<Path>() {
+                                // Create the target directory in the destination folder
+                                @Override
+                                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                                    Path targetDir = destFilePath.resolve(srcFilePath.relativize(dir));
+                                    Files.createDirectories(targetDir);
+                                    return FileVisitResult.CONTINUE;
+                                }
+
+                                // Copy each file to the destination folder. Called for each file in the file tree
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    Files.copy(file, destFilePath.resolve(srcFilePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                                    return FileVisitResult.CONTINUE;
+                                }
+
+                                @Override
+                                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                                    throw exc;
+                                }
+
+                                @Override
+                                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                                    if (exc != null) {
+                                        throw exc;
+                                    }
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+                }
             }
             return null;
+        } catch (Exception e) {
+            throw new CpException(e.getMessage());
         }
-
-        if (!src.exists()) {
-            throw new CpException(srcName + ": " + ERR_FILE_NOT_FOUND);
-        }
-
-        if (!dest.exists()) {
-            dest.mkdir();
-        }
-        if (dest.isFile()) {
-            throw new CpException(destFolder + ": " + ERR_IS_NOT_DIR);
-        }
-        dest = new File(destFolder + "/" + src.getName());
-
-        if (src.isFile()) {
-            cpSrcFileToDestFile(isRecursive, srcName, dest.getPath());
-            return null;
-        }
-        if (!dest.exists()) {
-            dest.mkdir();
-        }
-        for (String f : src.list()) {
-            File source = new File(src, f);
-            File destination = new File(dest, f);
-
-            if (source.isDirectory()) {
-                cpFilesToFolder(true, destination.getPath(), source.getPath());
-            } else {
-                cpSrcFileToDestFile(true, source.getPath(), destination.getPath());
-            }
-        }
-        return null;
     }
-
 }

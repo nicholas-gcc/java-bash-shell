@@ -83,14 +83,13 @@ public class MvApplication implements MvInterface {
                 Files.move(Paths.get(fileName), Paths.get(destFilePath));
             }
         } catch (FileAlreadyExistsException e) {
-            throw (MvException) new MvException("Cannot move file: a file with the same name already exists in destination folder")
-                    .initCause(e);
+            throw new MvException("Cannot move file: a file with the same name already exists in destination folder");
         } catch (AccessDeniedException e) {
             throw (MvException) new MvException(ErrorConstants.ERR_NO_PERM + ":" + e.getFile()).initCause(e);
         } catch (NoSuchFileException e) {
             throw (MvException) new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage()).initCause(e);
         } catch (IOException e) {
-            throw (MvException) new MvException(e.getMessage()).initCause(e);
+            throw new MvException(e.getMessage());
         }
         return destFilePath;
     }
@@ -123,14 +122,14 @@ public class MvApplication implements MvInterface {
         } catch (Exception e) {
             try {
                 if (stdout == null) {
-                    throw (MvException) new MvException("OutputStream cannot be null").initCause(e);
+                    throw new MvException("OutputStream cannot be null");
                 }
                 else {
                     stdout.write(e.getMessage().getBytes());
                     throw new MvException(e.getMessage(), e);
                 }
             } catch (IOException ex) {
-                throw (MvException) new MvException("Could not write to output stream").initCause(ex);
+                throw new MvException("Could not write to output stream");
             }
         }
     }

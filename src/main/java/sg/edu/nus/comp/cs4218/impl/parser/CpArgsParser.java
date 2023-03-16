@@ -1,13 +1,20 @@
 package sg.edu.nus.comp.cs4218.impl.parser;
 
-public class MvArgsParser extends ArgsParser {
-    private static final char FLAG_NO_OVERWRITE = 'n';
+
+public class CpArgsParser extends ArgsParser {
+    private final static char RECURSIVE_FLAG_LOWERCASE = 'r';
+    private final static char RECURSIVE_FLAG_UPPERCASE = 'R';
     private String[] sourceFiles;
     private String destFile;
 
-    public MvArgsParser() {
+    public CpArgsParser() {
         super();
-        legalFlags.add(FLAG_NO_OVERWRITE);
+        legalFlags.add(RECURSIVE_FLAG_LOWERCASE);
+        legalFlags.add(RECURSIVE_FLAG_UPPERCASE);
+    }
+
+    public boolean isRecursive() {
+        return flags.contains(RECURSIVE_FLAG_UPPERCASE) || flags.contains(RECURSIVE_FLAG_LOWERCASE);
     }
 
     public String[] getSourceFiles() {
@@ -18,17 +25,12 @@ public class MvArgsParser extends ArgsParser {
         return sourceFiles;
     }
 
-    public String getDestFile() {
+    public String getDestFileOrFolder() {
         // if dest files not initialised, get them from nonFlagArgs
         if (destFile == null) {
             splitArgs();
         }
         return destFile;
-    }
-
-
-    public boolean shouldOverwrite() {
-        return !flags.contains(FLAG_NO_OVERWRITE);
     }
 
     private void splitArgs() {
