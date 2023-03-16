@@ -218,10 +218,15 @@ public class FileSystemUtilsTest {
         String textToWrite = "Initial text" + STRING_NEWLINE + "Testing";
         String textToAppend = "This is a text to append to the new file." + STRING_NEWLINE + "This is the second line.";
         boolean isAppend = true;
+
+        // Creates file and writes initial text to the file
         file.createNewFile();
         Path path = Paths.get(absolutePath);
         Files.write(path, textToWrite.getBytes(), StandardOpenOption.APPEND);
+
+        // Appends new text to the file
         FileSystemUtils.writeStrToFile(isAppend, textToAppend, NEW_FILE);
+
         assertEquals(textToWrite + textToAppend, Files.readString(path));
         file.delete();
     }
