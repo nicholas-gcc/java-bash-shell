@@ -46,7 +46,7 @@ public class IORedirectionHandler {
             throw new ShellException(ERR_MISSING_ARG);//no file is supplied
         }
         String nextArg = argsIterator.next();
-        if (isRedirOperator(nextArg)) {
+        if (isRedirOperator(nextArg)) { // to account for >>
             if (!isOutputRedirOperator(nextArg) || !isOutputRedirOperator(arg)) {
                 throw new ShellException(ERR_SYNTAX);
             }
@@ -57,9 +57,6 @@ public class IORedirectionHandler {
             nextArg = argsIterator.next();
         }
         String file = nextArg;
-        if (argsIterator.hasNext()) {// more than 1 file is supplied
-            throw new ShellException((ERR_TOO_MANY_ARGS));
-        }
         return file;
     }
 
@@ -75,8 +72,12 @@ public class IORedirectionHandler {
         }
         noRedirArgsList = new LinkedList<>();
         ListIterator<String> argsIterator = argsList.listIterator();
+        boolean redirExpected = false;
         while (argsIterator.hasNext()) {
             String arg = argsIterator.next();
+            if (redirExpected && !isRedirOperator(arg)) {
+                throw new ShellException((ERR_TOO_MANY_ARGS)); //more than 1 file is supplied after redir char
+            }
             if (!isRedirOperator(arg)) {// leave the other args untouched
                 noRedirArgsList.add(arg);
                 continue;
@@ -85,6 +86,7 @@ public class IORedirectionHandler {
             String file = "";
             try {
                 file = getFileName(argsIterator, arg);
+                redirExpected = true; //next arg must be > or <
             } catch (ShellException e) {
                 throw e;
             }
