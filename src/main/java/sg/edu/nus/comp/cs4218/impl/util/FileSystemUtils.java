@@ -107,7 +107,7 @@ public final class FileSystemUtils {
         try {
             return Files.readString(Paths.get(absolutePath));
         } catch (IOException e) {
-            throw new ReadFileException(filename); //NOPMD
+            throw new ReadFileException(filename, e);
         }
     }
 
@@ -126,7 +126,7 @@ public final class FileSystemUtils {
         try {
             Files.write(Paths.get(absolutePath), str.getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {
-            throw new WriteToFileException(filename); //NOPMD
+            throw new WriteToFileException(filename, e);
         }
     }
 
@@ -250,11 +250,19 @@ public final class FileSystemUtils {
         public WriteToFileException(String name) {
             super(String.format("Failed to write to file %s", name));
         }
+
+        public WriteToFileException(String name, Throwable cause) {
+            super(String.format("Failed to write to file %s", name));
+        }
     }
 
     private static class ReadFileException extends Exception {
         public ReadFileException(String name) {
             super(String.format("Failed to read file %s", name));
+        }
+
+        public ReadFileException(String name, Throwable cause) {
+            super(String.format("Failed to read file %s", name), cause);
         }
     }
 

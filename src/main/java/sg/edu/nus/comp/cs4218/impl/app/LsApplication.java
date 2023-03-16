@@ -68,7 +68,7 @@ public class LsApplication implements LsInterface {
         try {
             parser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new LsException(e.getMessage());//NOPMD
+            throw new LsException(e.getMessage(), e);
         }
 
         Boolean recursive = parser.isRecursive();
@@ -81,7 +81,7 @@ public class LsApplication implements LsInterface {
             stdout.write(result.getBytes());
             stdout.write(STRING_NEWLINE.getBytes());
         } catch (Exception e) {
-            throw new LsException(ERR_WRITE_STREAM);//NOPMD
+            throw new LsException(ERR_WRITE_STREAM, e);
         }
     }
 
@@ -97,7 +97,7 @@ public class LsApplication implements LsInterface {
         try {
             return formatContents(getContents(Paths.get(cwd)), isSortByExt);
         } catch (InvalidFileOrDirectoryException e) {
-            throw new LsException("Unexpected error occurred!");//NOPMD
+            throw new LsException("Unexpected error occurred!", e);
         }
     }
 

@@ -49,7 +49,7 @@ public class GrepArguments {
         try {
             Pattern.compile(pattern); // Test if valid regex
         } catch (PatternSyntaxException e) {
-            throw new Exception(ERR_INVALID_REGEX);//NOPMD
+            throw new Exception(ERR_INVALID_REGEX, e);
         }
     }
 

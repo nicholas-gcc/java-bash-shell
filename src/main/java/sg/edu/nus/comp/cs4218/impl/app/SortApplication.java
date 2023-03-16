@@ -46,7 +46,7 @@ public class SortApplication implements SortInterface {
                 output.append(sortFromFiles(sortArgs.isFirstWordNumber(), sortArgs.isReverseOrder(), sortArgs.isCaseIndependent(), sortArgs.getFiles().toArray(new String[0])));
             }
         } catch (Exception e) {
-            throw new SortException(e.getMessage());//NOPMD
+            throw new SortException(e.getMessage(), e);
         }
         try {
             if (!output.toString().isEmpty()) {
@@ -54,7 +54,7 @@ public class SortApplication implements SortInterface {
                 stdout.write(STRING_NEWLINE.getBytes());
             }
         } catch (IOException e) {
-            throw new SortException(ERR_WRITE_STREAM);//NOPMD
+            throw new SortException(ERR_WRITE_STREAM, e);
         }
     }
 

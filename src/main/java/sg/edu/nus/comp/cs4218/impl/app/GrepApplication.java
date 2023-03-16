@@ -109,7 +109,7 @@ public class GrepApplication implements GrepInterface {
                 }
                 reader.close();
             } catch (PatternSyntaxException pse) {
-                throw new GrepException(ERR_INVALID_REGEX);
+                throw new GrepException(ERR_INVALID_REGEX, pse);
             } finally {
                 if (reader != null) {
                     reader.close();
@@ -143,9 +143,9 @@ public class GrepApplication implements GrepInterface {
             }
             reader.close();
         } catch (PatternSyntaxException pse) {
-            throw new GrepException(ERR_INVALID_REGEX);
+            throw new GrepException(ERR_INVALID_REGEX, pse);
         } catch (NullPointerException npe) {
-            throw new GrepException(ERR_FILE_NOT_FOUND);
+            throw new GrepException(ERR_FILE_NOT_FOUND, npe);
         }
 
         String results = "";
@@ -196,7 +196,7 @@ public class GrepApplication implements GrepInterface {
         } catch (GrepException grepException) {
             throw grepException;
         } catch (Exception e) {
-            throw new GrepException(e.getMessage());
+            throw new GrepException(e.getMessage(), e);
         }
     }
 

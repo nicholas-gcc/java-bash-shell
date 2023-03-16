@@ -58,7 +58,7 @@ public class CatApplication implements CatInterface {
         try {
             catArgsParser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new CatException(e.getMessage());//NOPMD
+            throw new CatException(e.getMessage(), e);
         }
 
         boolean isLineNo = catArgsParser.hasLineNumbers();
@@ -80,7 +80,7 @@ public class CatApplication implements CatInterface {
         try {
             stdout.write(output.getBytes());
         } catch (Exception e) {
-            throw new CatException(ERR_WRITE_STREAM);//NOPMD
+            throw new CatException(ERR_WRITE_STREAM, e);
         }
 
     }
@@ -110,7 +110,7 @@ public class CatApplication implements CatInterface {
             try (InputStream inputStream = new FileInputStream(file)){
                 buildSB(inputStream, sb, isLineNumber);
             } catch (Exception e) {
-                throw new CatException(e.getMessage());//NOPMD
+                throw new CatException(e.getMessage(), e);
             }
         }
 
@@ -169,7 +169,7 @@ public class CatApplication implements CatInterface {
             try (InputStream inputStream = new FileInputStream(file)){
                 buildSB(inputStream, sb, isLineNumber);
             } catch (Exception e) {
-                throw new CatException(e.getMessage());//NOPMD
+                throw new CatException(e.getMessage(), e);
             }
 
         }
@@ -192,7 +192,7 @@ public class CatApplication implements CatInterface {
                 }
             }
         } catch (Exception e) {
-            throw new CatException(e.getMessage());//NOPMD
+            throw new CatException(e.getMessage(), e);
         }
     }
 }
