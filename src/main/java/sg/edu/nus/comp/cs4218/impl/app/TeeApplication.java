@@ -55,7 +55,7 @@ public class TeeApplication implements TeeInterface {
         try {
             parser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new TeeException(e.getMessage());//NOPMD
+            throw new TeeException(e.getMessage(), e);
         }
 
         boolean isAppend = parser.isAppend();
@@ -66,7 +66,7 @@ public class TeeApplication implements TeeInterface {
         try {
             stdout.write(output.getBytes());
         } catch (Exception e) {
-            throw new TeeException(ERR_WRITE_STREAM);//NOPMD
+            throw new TeeException(ERR_WRITE_STREAM, e);
         }
     }
 
@@ -74,7 +74,7 @@ public class TeeApplication implements TeeInterface {
         try {
             return IOUtils.getLinesFromInputStream(stdin);
         } catch (Exception e) {
-            throw new TeeException(e.getMessage());//NOPMD
+            throw new TeeException(e.getMessage(), e);
         }
     }
 
@@ -82,7 +82,7 @@ public class TeeApplication implements TeeInterface {
         try {
             FileSystemUtils.writeStrToFile(isAppend, content, filename);
         } catch (Exception e) {
-            throw new TeeException(e.getMessage());//NOPMD
+            throw new TeeException(e.getMessage(), e);
         }
     }
 
