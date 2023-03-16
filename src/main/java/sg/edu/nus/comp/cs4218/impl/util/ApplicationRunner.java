@@ -27,6 +27,8 @@ public class ApplicationRunner {
     public final static String APP_RM = "rm";
 
 
+    public final static String APP_SORT = "sort";
+
     /**
      * Run the application as specified by the application command keyword and arguments.
      *
@@ -81,6 +83,8 @@ public class ApplicationRunner {
             case APP_CUT:
                 application = new CutApplication();
                 break;
+            case APP_SORT:
+                application = new SortApplication();
             case APP_RM:
                 application = new RmApplication();
                 break;

@@ -110,4 +110,14 @@ public final class IOUtils {
         reader.close();
         return output;
     }
+
+    public static String convertStreamToString(InputStream inputStream) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            stringBuilder.append(line).append(System.lineSeparator());
+        }
+        return stringBuilder.toString();
+    }
 }
