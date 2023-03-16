@@ -175,7 +175,7 @@ public class FileSystemUtilsTest {
             assertEquals(expectedMessage, e.getMessage());
         }
     }
-
+    @Test
     void writeStrToFile_NonExistingFile_ThrowsException() {
         String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE);
         String notRelevant = "";
