@@ -208,4 +208,14 @@ public class IORedirectionHandlerTest {
         assertEquals(filename2,
                 handler2.getOutputFilePath());
     }
+
+    @Test
+    void getNoRedirArgsList_extractSuccessful_ShouldReturnCorrectResult () throws FileNotFoundException, AbstractApplicationException, ShellException {
+        List<String> argList1 = Arrays.asList("ls", "<", filename, ">", filename2);
+        IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
+                origOutputStream, argumentResolver);
+        handler1.extractRedirOptions();
+        assertEquals(Arrays.asList("ls"), handler1.getNoRedirArgsList());
+    }
 }
+
