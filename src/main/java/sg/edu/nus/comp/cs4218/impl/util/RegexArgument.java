@@ -15,7 +15,6 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_ASTERISK;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 
-
 @SuppressWarnings("PMD.AvoidStringBufferField")
 public final class RegexArgument {
     private StringBuilder plaintext;
@@ -97,9 +96,7 @@ public final class RegexArgument {
         if (currentDir.exists()) {
             for (File file : currentDir.listFiles()) {
                 String filePathName = dir + file.getName();
-                if (Files.isRegularFile(Paths.get(filePathName))) {
-                    continue;
-                }
+
                 if (isOnlyDirectories && file.isDirectory()) {
                     filePathName += File.separator;
                 }
@@ -120,6 +117,7 @@ public final class RegexArgument {
 
         return globbedFiles;
     }
+
 
 
     /**

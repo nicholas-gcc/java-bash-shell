@@ -16,9 +16,10 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 
 
 import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -102,8 +103,16 @@ public class CpApplication implements CpInterface {
     public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileNames) throws Exception {
         try {
             Path destFolderPath = FileSystemUtils.resolvePath(destFolder);
-            if (!Files.isDirectory(destFolderPath)) {
-                throw new CpException(ERR_INVALID_ARG + ": destination file should be a directory");
+
+            // Check if the destination path exists
+            if (Files.exists(destFolderPath)) {
+                // Check if the destination path is a directory
+                if (!Files.isDirectory(destFolderPath)) {
+                    throw new CpException(ERR_INVALID_ARG + ": destination file should be a directory");
+                }
+            } else {
+                // Create the destination directory if it doesn't exist
+                Files.createDirectories(destFolderPath);
             }
 
             // Copy each file to the destination folder
@@ -130,40 +139,71 @@ public class CpApplication implements CpInterface {
                 // If recursive copy is enabled, copy any subdirectories and files within the source directory
                 if (isRecursive) {
                     Files.walkFileTree(srcFilePath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
-                            new FileVisitor<Path>() {
-                                // Create the target directory in the destination folder
-                                @Override
-                                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                                    Path targetDir = destFilePath.resolve(srcFilePath.relativize(dir));
-                                    Files.createDirectories(targetDir);
-                                    return FileVisitResult.CONTINUE;
-                                }
-
-                                // Copy each file to the destination folder. Called for each file in the file tree
-                                @Override
-                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                                    Files.copy(file, destFilePath.resolve(srcFilePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
-                                    return FileVisitResult.CONTINUE;
-                                }
-
-                                @Override
-                                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                                    throw exc;
-                                }
-
-                                @Override
-                                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                                    if (exc != null) {
-                                        throw exc;
-                                    }
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
+                            new CopyFileVisitor(srcFilePath, destFilePath));
                 }
             }
             return null;
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new CpException(e.getMessage());
         }
     }
+
+    private static class CopyFileVisitor extends SimpleFileVisitor<Path> {
+        private final Path srcPath;
+        private final Path destPath;
+
+        public CopyFileVisitor(Path srcPath, Path destPath) {
+            this.srcPath = srcPath;
+            this.destPath = destPath;
+        }
+
+        /**
+         * Invoked for a directory before entries in the directory are visited.
+         * This method copies the directory to the destination path and creates any missing directories along the way.
+         *
+         * @param dir  The directory being visited
+         * @param attrs The basic attributes of the directory
+         * @return FileVisitResult.CONTINUE to continue visiting the directory
+         * @throws IOException If there was an error copying the directory or creating missing directories
+         */
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+            Path targetDir = destPath.resolve(srcPath.relativize(dir));
+            try {
+                // Copy the current directory to the destination
+                Files.copy(dir, targetDir, StandardCopyOption.REPLACE_EXISTING);
+            } catch (FileAlreadyExistsException e) { // If the copied file already exists, check if it's a directory and continue
+                if (!Files.isDirectory(targetDir)) {
+                    throw e;
+                }
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        /**
+         * Invoked for a file in a directory.
+         * This method copies the file to the destination directory.
+         *
+         * @param file The file being visited
+         * @param attrs The basic attributes of the file
+         * @return FileVisitResult.CONTINUE to continue visiting the file
+         * @throws IOException If there was an error copying the file
+         */
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+            Path targetFile = destPath.resolve(srcPath.relativize(file));
+            Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc)
+                throws IOException {
+            // log or throw an exception, depending on the requirements
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
 }

@@ -1,284 +1,284 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.CpException;
+import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.nio.file.Paths;
+import java.util.Comparator;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CpApplicationTest {
-    CpApplication cpApplication;
+    private static final String BASE_URL = Environment.currentDirectory;
+    private static final String FLAG_IS_RECURSIVE = "-r";
 
-    static String inTestFileName = "input_test.txt";
-    static String outTestFileName = "output_test.txt";
-    static String inTestDirectory = "input";
-    static String outTestDirectory = "output";
-    static String fileContent = "Snowflakes fall gently from the sky," + System.lineSeparator() +
-            "Blanketing the world in white." + System.lineSeparator() +
-            "A winter wonderland appears," + System.lineSeparator() +
-            "A magical and peaceful sight." + System.lineSeparator() +
-            System.lineSeparator() +
-            "The air is crisp, the ground is still," + System.lineSeparator() +
-            "As snowflakes dance in the chill." + System.lineSeparator() +
-            "The trees are dressed in snowy lace," + System.lineSeparator() +
-            "A serene and wondrous place." + System.lineSeparator() +
-            System.lineSeparator() +
-            "Children play and build snowmen," + System.lineSeparator() +
-            "Sledding down the hills again and again." + System.lineSeparator() +
-            "Families gather by the fire," + System.lineSeparator() +
-            "Enjoying warmth and holiday cheer." + System.lineSeparator() +
-            System.lineSeparator() +
-            "Oh, snow, you bring us joy and peace," + System.lineSeparator() +
-            "A blanket of calm in winter's freeze." + System.lineSeparator() +
-            "A wonder of nature, a sight to see," + System.lineSeparator() +
-            "Snowflakes falling, free and light as can be.";
+    private static final Path CWD = Paths.get(BASE_URL);
+    private Path tempFileA;
+    private Path tempFileB;
+    private Path tempDirA;
+    private Path tempDirB;
+    private Path tempDirC;
+    private Path tempFileC;
+    private Path tempFileD;
 
-    boolean isContentEqual (String path1, String path2) throws IOException {
-        Path file1 = new File(path1).toPath();
-        Path file2 = new File(path2).toPath();
+    private InputStream inputStream;
+    private ByteArrayOutputStream outputStream;
 
-        byte[] first = Files.readAllBytes(file1);
-        byte[] second = Files.readAllBytes(file1);
-        return Arrays.equals(first, second);
-    }
-    void rewriteFileContent() throws IOException {
-        File outFile = new File(outTestFileName);
-        if (outFile.isFile()) {
-            FileWriter inputWriter = null;
-            try {
-                inputWriter = new FileWriter(outTestFileName);
-                inputWriter.write("new content");
-            } catch (IOException ioException) {
-                throw ioException;
-            } finally {
-                inputWriter.close();
-            }
-        }
-    }
-    @BeforeAll
-    static void populateFiles() throws IOException {
-        File inputTestFile = new File (inTestFileName);
-
-        if(!inputTestFile.exists()) {
-            inputTestFile.createNewFile();
-            FileWriter inputWriter = null;
-            try {
-                inputWriter = new FileWriter(inTestFileName);
-                inputWriter.write(fileContent);
-            } catch (IOException ioException) {
-                throw ioException;
-            } finally {
-                inputWriter.close();
-            }
-        }
-
-        File inDir = new File(inTestDirectory);
-        if (!inDir.exists()) {
-            inDir.mkdir();
-        }
-
-        String dirFileName = inTestDirectory + "/" + inTestFileName;
-        File dirFile =  new File(dirFileName);
-
-        if(!dirFile.exists()) {
-            dirFile.createNewFile();
-            FileWriter inputWriter = null;
-            try {
-                inputWriter = new FileWriter(dirFileName);
-                inputWriter.write(fileContent);
-            } catch (IOException ioException) {
-                throw ioException;
-            } finally {
-                inputWriter.close();
-            }
-        }
-    }
-
-    @AfterAll
-    static void deleteFiles() {
-        File inTestFile = new File(inTestFileName);
-        File dirTestFile = new File(inTestDirectory + "/" + inTestFileName);
-        File outTestFile = new File(outTestFileName);
-        File dirOutFile1 = new File(outTestDirectory + "/" + outTestFileName);
-        File dirOutFile2 = new File(outTestDirectory + "/" + inTestFileName);
-        File dirOutDirFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
-        File dirOutDir = new File(outTestDirectory + "/" + inTestDirectory);
-        File inDir = new File(inTestDirectory);
-        File outDir = new File(outTestDirectory);
-
-        if (inTestFile.exists()) {
-            inTestFile.delete();
-        }
-        if (dirTestFile.exists()) {
-            dirTestFile.delete();
-        }
-        if (outTestFile.exists()) {
-            outTestFile.delete();
-        }
-        if (dirOutFile1.exists()) {
-            dirOutFile1.delete();
-        }
-        if (dirOutFile2.exists()) {
-            dirOutFile2.delete();
-        }
-        if (dirOutDirFile.exists()) {
-            dirOutDirFile.delete();
-        }
-        if (dirOutDir.exists()) {
-            dirOutDir.delete();
-        }
-        if (inDir.exists()) {
-            inDir.delete();
-        }
-        if (outDir.exists()) {
-            outDir.delete();
-        }
-    }
+    private CpApplication cpApplication;
 
     @BeforeEach
-    void setup() {
+    void setUp() throws IOException {
+        /*
+         * stubDirA
+         *   - stubA.txt
+         * stubDirB
+         *   - stubDirC
+         *       - stubC.txt
+         *   - stubB.txt
+         * stubD.txt
+         * */
+        tempDirA = Files.createTempDirectory(CWD, "stubDirA");
+        tempFileA = Files.createTempFile(tempDirA, "stubA", ".txt");
+        Files.writeString(tempFileA, "This is stubA.txt");
+        tempDirB = Files.createTempDirectory(CWD, "stubDirB");
+        tempDirC = Files.createTempDirectory(tempDirB, "stubDirC");
+        tempFileC = Files.createTempFile(tempDirC, "stubC", ".txt");
+        Files.writeString(tempFileC, "This is stubC.txt");
+        tempFileB = Files.createTempFile(tempDirB, "stubB", ".txt");
+        Files.writeString(tempFileB, "This is stubB.txt");
+        tempFileD = Files.createTempFile(CWD, "stubD", ".txt");
+        Files.writeString(tempFileD, "This is stubD.txt");
+
         cpApplication = new CpApplication();
+        inputStream = new ByteArrayInputStream(new byte[0]);
+        outputStream = new ByteArrayOutputStream();
+    }
 
+    @AfterEach
+    void tearDown() throws IOException {
+        delete(tempFileA, false);
+        delete(tempFileB, false);
+        delete(tempDirA, true);
+        delete(tempDirB, true);
+        delete(tempFileD, false);
     }
 
     @Test
-    void cp_FileToNonExistingFile_ShouldCpCorrectly() {
-        assertDoesNotThrow(() -> {
-            cpApplication.cpSrcFileToDestFile(false, inTestFileName, outTestFileName);
-        });
-        assertDoesNotThrow(() -> {
-            assertTrue(isContentEqual(inTestFileName, outTestFileName));
-        });
-
+    void run_NullArgs_ThrowsException() {
+        String expected = "cp: Null arguments";
+        Throwable err = assertThrows(CpException.class, () -> cpApplication.run(null, null, null));
+        assertEquals(expected, err.getMessage());
     }
 
     @Test
-    void cp_FileToExistingFile_ShouldCpCorrectly() throws IOException {
-        File outFile = new File(outTestFileName);
-        assertTrue(outFile.isFile());
-        rewriteFileContent();
-
-        assertDoesNotThrow(() -> {
-            cpApplication.cpSrcFileToDestFile(false, inTestFileName, outTestFileName);
-            assertTrue(isContentEqual(inTestFileName, outTestFileName));
-        });
-
+    void run_WithInvalidFlags_ThrowsException() {
+        String expected = "cp: illegal option -- x";
+        String[] args = {"-x", getFileName(tempFileB)};
+        Throwable err = assertThrows(CpException.class, () -> cpApplication.run(args, inputStream, outputStream));
+        assertEquals(expected, err.getMessage());
     }
 
     @Test
-    void cp_FileToExistingFolder_ShouldCpCorrectly() {
-        File outDir = new File(outTestDirectory);
-        if (!outDir.exists()) {
-            outDir.mkdir();
+    void run_WithMissingSourceFile_ThrowsException() {
+        String expected = "cp: Missing Argument";
+        String[] args = {};
+        Throwable err = assertThrows(CpException.class, () -> cpApplication.run(args, inputStream, outputStream));
+        assertEquals(expected, err.getMessage());
+    }
+
+    @Test
+    void run_MoveFileToDirectory_Success() throws IOException {
+        String[] args = {getFileName(tempFileD), getFileName(tempDirA)};
+
+        // check newly copied file exists
+        assertDoesNotThrow(() -> cpApplication.run(args, inputStream, outputStream));
+        Path copiedFile = tempDirA.resolve(tempFileD.getFileName());
+        assertTrue(Files.exists(copiedFile));
+
+        // check file contents are copied over
+        String expectedContent = "This is stubD.txt";
+        String actualContent = Files.readString(copiedFile);
+        assertEquals(expectedContent, actualContent);
+    }
+
+    @Test
+    void run_CopyFileToAnotherFile_Success() throws IOException {
+        String[] args = {getFileName(tempFileD), tempFileA.toString()};
+
+        // check newly copied file exists
+        assertDoesNotThrow(() -> cpApplication.run(args, inputStream, outputStream));
+        Path copiedFile = CWD.resolve(tempFileD.getFileName());
+        Path overwrittenFile = tempDirA.resolve(tempFileA.getFileName());
+        assertTrue(Files.exists(copiedFile) && Files.exists(overwrittenFile));
+
+        // check file contents are copied over correctly
+        String expectedContent = "This is stubD.txt";
+        String actualContent = Files.readString(overwrittenFile);
+        assertEquals(expectedContent, actualContent);
+    }
+
+    @Test
+    void run_CopyMultipleFilesIntoDir_Success() throws IOException {
+        // copy contents of tempFileD and tempFileB to tempDirA
+        String[] args = {getFileName(tempFileD), tempFileB.toString(), getFileName(tempDirA)};
+
+        // check newly copied file exists
+        assertDoesNotThrow(() -> cpApplication.run(args, inputStream, outputStream));
+        Path copiedFileD = tempDirA.resolve(tempFileD.getFileName());
+        Path copiedFileA = tempDirA.resolve(tempFileB.getFileName());
+        assertTrue(Files.exists(copiedFileD) && Files.exists(copiedFileA));
+
+        // check file contents are copied over
+        String expectedContentFileD = "This is stubD.txt";
+        String actualContentFileD = Files.readString(copiedFileD);
+        assertEquals(expectedContentFileD, actualContentFileD);
+
+        String expectedContentFileA = "This is stubB.txt";
+        String actualContentFileA = Files.readString(copiedFileA);
+        assertEquals(expectedContentFileA, actualContentFileA);
+    }
+
+    @Test
+    void run_CopyDirIntoDirWithoutRecursiveFlag_ThrowsException() {
+        String expected = "cp: This is a directory: " + getFileName(tempDirA);
+        String[] args = { getFileName(tempDirA), getFileName(tempDirB) };
+        Throwable err = assertThrows(CpException.class, () -> cpApplication.run(args, inputStream, outputStream));
+        assertEquals(expected, err.getMessage());
+    }
+
+    @Test
+    void run_CopyDirRecursivelyIntoChild_ThrowsException() {
+        /**
+         * Follows the behaviour from Unix - error will say file is too long due to unlimited recursion
+         * example: copy dirB into dirC when dirC is a child of dirB
+         * dirB
+         *  - dirC
+         *  - other files...
+         */
+        String[] args = { getFileName(tempDirB), tempDirC.toString() };
+        assertThrows(CpException.class, () -> cpApplication.run(args, inputStream, outputStream));
+    }
+
+    @Test
+    void run_RecursiveCopyDirIntoAnotherDir_Success() throws IOException {
+        String[] args = {FLAG_IS_RECURSIVE, getFileName(tempDirB), getFileName(tempDirA) };
+
+        assertDoesNotThrow(() -> cpApplication.run(args, inputStream, outputStream));
+
+        // check dirB is copied to dirA
+        Path copiedDirB = tempDirA.resolve(tempDirB.getFileName());
+
+        // check contents of dirB are also copied to dirA
+        Path copiedFileB = copiedDirB.resolve(tempFileB.getFileName()); // check B.txt is inside newly copied dirB
+        Path copiedDirC = copiedDirB.resolve(tempDirC.getFileName()); // check we copied dirC nested in dirB
+        Path copiedFileC = copiedDirC.resolve(tempFileC.getFileName()); // check we coped C.txt nested in dirC
+        assertTrue(Files.exists(copiedDirB) && Files.exists(copiedFileB) && Files.exists(copiedDirC) &&
+                Files.exists(copiedFileC));
+
+        // check file contents are copied over
+        String expectedContentB = "This is stubB.txt";
+        String actualContentB = Files.readString(copiedFileB);
+        assertEquals(expectedContentB, actualContentB);
+
+        String expectedContentC = "This is stubC.txt";
+        String actualContentC = Files.readString(copiedFileC);
+        assertEquals(expectedContentC, actualContentC);
+    }
+
+    @Test
+    void run_CopyDirAndFileIntoAnotherDir_Success() throws IOException {
+        String[] args = {FLAG_IS_RECURSIVE, getFileName(tempDirB), getFileName(tempFileD), getFileName(tempDirA) };
+
+        assertDoesNotThrow(() -> cpApplication.run(args, inputStream, outputStream));
+
+        // check dirB is copied to dirA
+        Path copiedDirB = tempDirA.resolve(tempDirB.getFileName());
+
+        // check D.txt is copied to dirA
+        Path copiedFileD = tempDirA.resolve(tempFileD.getFileName());
+
+        // check contents of dirB are also copied to dirA
+        Path copiedFileB = copiedDirB.resolve(tempFileB.getFileName()); // check B.txt is inside newly copied dirB
+        Path copiedDirC = copiedDirB.resolve(tempDirC.getFileName()); // check we copied dirC nested in dirB
+        Path copiedFileC = copiedDirC.resolve(tempFileC.getFileName()); // check we coped C.txt nested in dirC
+        assertTrue(Files.exists(copiedDirB) && Files.exists(copiedFileB) && Files.exists(copiedDirC) &&
+                Files.exists(copiedFileC) && Files.exists(copiedFileD));
+
+        // check file contents are copied over
+        String expectedContentB = "This is stubB.txt";
+        String actualContentB = Files.readString(copiedFileB);
+        assertEquals(expectedContentB, actualContentB);
+
+        String expectedContentC = "This is stubC.txt";
+        String actualContentC = Files.readString(copiedFileC);
+        assertEquals(expectedContentC, actualContentC);
+
+        String expectedContentD = "This is stubD.txt";
+        String actualContentD = Files.readString(copiedFileD);
+        assertEquals(expectedContentD, actualContentD);
+    }
+
+    @Test
+    void run_CopyDirIntoNonExistentDir_Success() throws IOException {
+        String newDir = "newDir";
+        String[] args = {FLAG_IS_RECURSIVE, getFileName(tempDirB), newDir };
+
+        assertDoesNotThrow(() -> cpApplication.run(args, inputStream, outputStream));
+
+        // check newDir is created
+        assertTrue(Files.exists(Path.of(newDir)));
+
+        Path newlyCreatedDir = FileSystemUtils.resolvePath(newDir);
+
+        // check dirB is copied to dirA
+        Path copiedDirB = newlyCreatedDir.resolve(tempDirB.getFileName());
+
+        // check contents of dirB are also copied to dirA
+        Path copiedFileB = copiedDirB.resolve(tempFileB.getFileName()); // check B.txt is inside newly copied dirB
+        Path copiedDirC = copiedDirB.resolve(tempDirC.getFileName()); // check we copied dirC nested in dirB
+        Path copiedFileC = copiedDirC.resolve(tempFileC.getFileName()); // check we coped C.txt nested in dirC
+        assertTrue(Files.exists(copiedDirB) && Files.exists(copiedFileB) && Files.exists(copiedDirC) &&
+                Files.exists(copiedFileC));
+
+        // check file contents are copied over
+        String expectedContentB = "This is stubB.txt";
+        String actualContentB = Files.readString(copiedFileB);
+        assertEquals(expectedContentB, actualContentB);
+
+        String expectedContentC = "This is stubC.txt";
+        String actualContentC = Files.readString(copiedFileC);
+        assertEquals(expectedContentC, actualContentC);
+
+        delete(newlyCreatedDir, true);
+    }
+
+
+    private String getFileName(Path path) {
+        return path.getFileName().toString();
+    }
+
+    // recursive filepath delete https://stackoverflow.com/questions/35988192/java-nio-most-concise-recursive-directory-delete
+    private void delete(Path path, boolean isFolder) throws IOException {
+        if (isFolder) {
+            if (path.toFile().exists()) {
+                try (Stream<Path> walk = Files.walk(path)) {
+                    walk.sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                }
+            }
+        } else {
+            path.toFile().delete();
         }
-        assertTrue(outDir.exists());
-
-        assertDoesNotThrow(() -> {
-            cpApplication.cpFilesToFolder(false, outTestDirectory, inTestFileName);
-            assertTrue(isContentEqual(outTestDirectory + "/" + inTestFileName, inTestFileName));
-        });
-
-
-        File file = new File(outTestDirectory + "/" + inTestFileName);
-        file.delete();
-        assertTrue(!file.exists());
-        outDir.delete();
-        assertTrue(!outDir.exists());
-    }
-
-    @Test
-    void cp_FolderToExistingFolder_ShouldCpCorrectly() {
-        File outDir = new File(outTestDirectory);
-        if (!outDir.exists()) {
-            outDir.mkdir();
-        }
-        assertTrue(outDir.exists());
-
-        assertDoesNotThrow(() -> {
-            cpApplication.cpFilesToFolder(true, outTestDirectory, inTestDirectory);
-        });
-
-        File outDirInDir = new File(outTestDirectory + "/" + inTestDirectory);
-        assertTrue(outDirInDir.isDirectory());
-        File outDirInDirInFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
-        assertTrue(outDirInDirInFile.isFile());
-        assertDoesNotThrow(()->{
-            assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDirInDirInFile.getPath()));
-        });
-        outDirInDirInFile.delete();
-        assertTrue(!outDirInDirInFile.exists());
-        outDirInDir.delete();
-        assertTrue(!outDirInDir.exists());
-        outDir.delete();
-        assertTrue(!outDir.exists());
-    }
-
-    @Test
-    void cp_FolderToNonExistingFolderRecursively_ShouldCpCorrectly() {
-        File outDir = new File(outTestDirectory);
-        if(outDir.exists()) {
-            outDir.delete();
-        }
-        assertTrue(!outDir.exists());
-
-        assertDoesNotThrow(() -> {
-            cpApplication.cpFilesToFolder(true, outTestDirectory, inTestDirectory);
-        });
-
-        File outDirInDir = new File(outTestDirectory + "/" + inTestDirectory);
-        assertTrue(outDirInDir.isDirectory());
-        File outDirInDirInFile = new File(outTestDirectory + "/" + inTestDirectory + "/" + inTestFileName);
-        assertTrue(outDirInDirInFile.isFile());
-        assertDoesNotThrow(() -> {
-            assertTrue(isContentEqual(inTestDirectory + "/" + inTestFileName, outDirInDirInFile.getPath()));
-        });
-        outDirInDirInFile.delete();
-        assertTrue(!outDirInDirInFile.exists());
-        outDirInDir.delete();
-        assertTrue(!outDirInDir.exists());
-        outDir.delete();
-        assertTrue(!outDir.exists());
-    }
-
-    @Test
-    void cp_FolderToNonExistingFolderNonRecursively_ShouldThrowCpException() {
-        File outDir = new File(outTestDirectory);
-        if(outDir.exists()) {
-            outDir.delete();
-        }
-        assertTrue(!outDir.exists());
-
-        assertThrows(CpException.class, () -> {
-            cpApplication.cpFilesToFolder(false, outTestDirectory, inTestDirectory);
-        });
-    }
-
-    @Test
-    void cp_FolderToExistingFile_ShouldThrowCpException() throws IOException {
-        File outFile = new File(outTestFileName);
-        if(!outFile.exists()) {
-            outFile.createNewFile();
-        }
-        assertTrue(outFile.exists());
-
-        assertThrows(CpException.class, () -> {
-            cpApplication.cpFilesToFolder(true, outTestFileName, inTestDirectory);
-        });
-    }
-
-    @Test
-    void cp_wildcardToFolder_ShouldCpCorrectly (){
-        String wildcard = inTestDirectory + "/*.txt";
-
-        assertDoesNotThrow(() -> {
-            cpApplication.cpFilesToFolder(true, outTestDirectory, wildcard);
-        });
     }
 
 }
