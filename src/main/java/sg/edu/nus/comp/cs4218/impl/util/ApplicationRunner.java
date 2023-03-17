@@ -86,6 +86,7 @@ public class ApplicationRunner {
                 break;
             case APP_SORT:
                 application = new SortApplication();
+                break;
             case APP_RM:
                 application = new RmApplication();
                 break;
