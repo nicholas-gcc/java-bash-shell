@@ -80,6 +80,15 @@ public final class IOUtils {
      */
     public static OutputStream openOutputStream(String fileName, boolean append) throws ShellException, FileNotFoundException {
         String resolvedFileName = resolveFilePath(fileName).toString();
+        File file = new File(resolvedFileName);
+
+        if (!file.exists()) {
+            throw new ShellException(ERR_FILE_NOT_FOUND);
+        }
+
+        if (file.isDirectory()) {
+            throw new ShellException(ERR_FILE_NOT_FOUND);
+        }
 
         FileOutputStream fileOutputStream;
 

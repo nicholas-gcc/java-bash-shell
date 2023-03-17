@@ -93,7 +93,7 @@ public class IOUtilsTest {
     }
 
     @Test
-    void openOutputStream_NonFile_ThrowsShellExceptionWithCorrectMessage() {
+    void openOutputStream_NonExistingFile_ThrowsShellExceptionWithCorrectMessage() {
         ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(FAKE_FILE));
         String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
@@ -102,6 +102,42 @@ public class IOUtilsTest {
     @Test
     void openOutputStream_ExistingDir_ThrowsShellExceptionWithCorrectMessage() {
         ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(SAMPLE_DIR));
+        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void openOutputStream_ExistingFileIsAppend_NoExceptionThrown() throws IOException {
+        File file = new File(Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE);
+        file.createNewFile();
+        assertDoesNotThrow(() -> {
+            OutputStream outputStream = IOUtils.openOutputStream(NEW_FILE, true);
+            outputStream.close();
+        });
+        file.delete();
+    }
+
+    @Test
+    void openOutputStream_ExistingFileIsNotAppend_NoExceptionThrown() throws IOException {
+        File file = new File(Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE);
+        file.createNewFile();
+        assertDoesNotThrow(() -> {
+            OutputStream outputStream = IOUtils.openOutputStream(NEW_FILE, false);
+            outputStream.close();
+        });
+        file.delete();
+    }
+
+    @Test
+    void openOutputStream_NonExistingFileIsAppend_ThrowsShellExceptionWithCorrectMessage() {
+        ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(FAKE_FILE, true));
+        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void openOutputStream_ExistingDirIsAppend_ThrowsShellExceptionWithCorrectMessage() {
+        ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(SAMPLE_DIR, true));
         String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }

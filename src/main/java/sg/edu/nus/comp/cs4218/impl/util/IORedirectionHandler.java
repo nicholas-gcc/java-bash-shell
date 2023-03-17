@@ -130,6 +130,11 @@ public class IORedirectionHandler {
 
     public boolean isAppend() { return append; }
 
+    public void closeAllStreams() throws ShellException {
+        IOUtils.closeInputStream(this.inputStream);
+        IOUtils.closeOutputStream(this.outputStream);
+    }
+
     private boolean isRedirOperator(String str) {
         return str.equals(String.valueOf(CHAR_REDIR_INPUT)) || str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
     }
