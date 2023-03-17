@@ -40,7 +40,8 @@ public class ArgumentResolverTest {
     @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
+        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt",
+                PATH_TO_TEST_FILES + File.separator + "testDir1",
                 PATH_TO_TEST_FILES + File.separator + "testDir2",
                 PATH_TO_TEST_FILES + File.separator + "testDir3");
         assertDoesNotThrow(() -> {
