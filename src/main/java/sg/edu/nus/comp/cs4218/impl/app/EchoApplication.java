@@ -2,13 +2,14 @@ package sg.edu.nus.comp.cs4218.impl.app;
 
 import sg.edu.nus.comp.cs4218.app.EchoInterface;
 import sg.edu.nus.comp.cs4218.exception.EchoException;
-import sg.edu.nus.comp.cs4218.impl.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IO_EXCEPTION;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 /**
@@ -31,7 +32,7 @@ public class EchoApplication implements EchoInterface {
         if (args.length == 0) {
             result = "";
         } else {
-            result = String.join(" ", args);
+            result = String.join(" ", args) + STRING_NEWLINE;
         }
         return result;
     }

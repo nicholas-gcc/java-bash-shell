@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IO_EXCEPTION;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class EchoApplicationTest {
 
@@ -36,14 +37,14 @@ public class EchoApplicationTest {
     void echo_WithSpaces_ShouldEchoCorrectly() throws EchoException {
         String[] array = {"A", "B", "C"};
         String result = echoApplication.constructResult(array);
-        assertEquals("A B C", result);
+        assertEquals("A B C" + STRING_NEWLINE, result);
     }
 
     @Test
     void echo_WithQuotes_ShouldEchoCorrectly() throws EchoException {
         String[] array = {"A*B*C"};
         String result = echoApplication.constructResult(array);
-        assertEquals("A*B*C", result);
+        assertEquals("A*B*C" + STRING_NEWLINE, result);
     }
 
     @Test
@@ -57,14 +58,14 @@ public class EchoApplicationTest {
     void echo_EmptyString_ShouldEchoCorrectly() throws EchoException {
         String [] array = {""};
         String result = echoApplication.constructResult(array);
-        assertEquals("", result);
+        assertEquals("" + STRING_NEWLINE, result);
     }
 
     @Test
     void echo_SpecialCharacters_ShouldEchoCorrectly() throws EchoException {
         String [] array = {"!@#$%^&*()"};
         String result = echoApplication.constructResult(array);
-        assertEquals("!@#$%^&*()", result);
+        assertEquals("!@#$%^&*()" + STRING_NEWLINE, result);
     }
 
     @Test
@@ -76,14 +77,14 @@ public class EchoApplicationTest {
                 "H4FwJAC85J6vvwFsMlUfxPoustRtGVukFtIIRKnL7omUOAxaSH515m043UT2ckSKSGbzcSc0bUy1V6X28rI6ZnnINV8J6uZ3X" +
                 "pc5DisJSEfm4WadhZC7fqPkPVj"};
         String result = echoApplication.constructResult(array);
-        assertEquals(array[0], result);
+        assertEquals(array[0] + STRING_NEWLINE, result);
     }
 
     @Test
     void echo_Run_ShouldEchoCorrectly() throws EchoException {
         String[] array = {"A*B*C"};
         echoApplication.run(array, stdin, stdout);
-        assertEquals(array[0], stdout.toString());
+        assertEquals(array[0] + STRING_NEWLINE, stdout.toString());
     }
 
     @Test
