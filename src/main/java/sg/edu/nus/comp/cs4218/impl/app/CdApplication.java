@@ -12,7 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_NOT_DIR;
 
 public class CdApplication implements CdInterface {
 
@@ -37,6 +40,9 @@ public class CdApplication implements CdInterface {
             throws CdException {
         if (args == null) {
             throw new CdException(ERR_NULL_ARGS);
+        }
+        if (args.length == 0) {
+            throw new CdException(ERR_NO_ARGS);
         }
         changeToDirectory(args[0]);
     }
