@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_NOT_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 
@@ -45,7 +45,7 @@ public class CdApplicationTest {
     void cd_PathDoesNotExist_ThrowsCdException() {
         String string = "blah";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_FILE_NOT_FOUND, cdException.getMessage());
+        assertEquals("cd: " + ERR_FILE_DIR_NOT_FOUND, cdException.getMessage());
     }
 
     @Test

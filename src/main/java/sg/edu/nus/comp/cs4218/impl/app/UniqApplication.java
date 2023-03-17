@@ -53,7 +53,7 @@ public class UniqApplication implements UniqInterface {
                                String outputFileName) throws Exception {
         File inputFile = new File(convertToAbsolutePath(inputFileName));
         if (!inputFile.isFile()) {
-            throw new UniqException(ERR_FILE_NOT_FOUND);
+            throw new UniqException(ERR_FILE_DIR_NOT_FOUND);
         }
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         String result;

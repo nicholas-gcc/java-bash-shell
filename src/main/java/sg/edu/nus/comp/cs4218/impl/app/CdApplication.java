@@ -52,7 +52,7 @@ public class CdApplication implements CdInterface {
         }
 
         if (!Files.exists(path)) {
-            throw new CdException(String.format(ERR_FILE_NOT_FOUND, pathStr));
+            throw new CdException(String.format(ERR_FILE_DIR_NOT_FOUND, pathStr));
         }
 
         if (!Files.isDirectory(path)) {
