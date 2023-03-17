@@ -25,6 +25,7 @@ public class EchoApplicationTest {
     EchoApplication echoApplication;
     InputStream stdin;
     OutputStream stdout;
+    private static final String ABC_TEST = "A*B*C";
 
     @BeforeEach
     void setup() {
@@ -42,9 +43,9 @@ public class EchoApplicationTest {
 
     @Test
     void echo_WithQuotes_ShouldEchoCorrectly() throws EchoException {
-        String[] array = {"A*B*C"};
+        String[] array = {ABC_TEST};
         String result = echoApplication.constructResult(array);
-        assertEquals("A*B*C" + STRING_NEWLINE, result);
+        assertEquals(ABC_TEST + STRING_NEWLINE, result);
     }
 
     @Test
@@ -82,21 +83,21 @@ public class EchoApplicationTest {
 
     @Test
     void echo_Run_ShouldEchoCorrectly() throws EchoException {
-        String[] array = {"A*B*C"};
+        String[] array = {ABC_TEST};
         echoApplication.run(array, stdin, stdout);
         assertEquals(array[0] + STRING_NEWLINE, stdout.toString());
     }
 
     @Test
     void echo_RunNullStdout_ThrowsException() {
-        String[] array = {"A*B*C"};
+        String[] array = {ABC_TEST};
         EchoException echoException = assertThrows(EchoException.class, () -> echoApplication.run(array, stdin, null));
         assertEquals("echo: " + ERR_NO_OSTREAM, echoException.getMessage());
     }
 
     @Test
     void echo_RunClosedStdout_ThrowsException() throws ShellException, IOException {
-        String[] array = {"A*B*C"};
+        String[] array = {ABC_TEST};
         stdout = new FileOutputStream("output.txt");
         IOUtils.closeOutputStream(stdout);
         EchoException echoException = assertThrows(EchoException.class, () -> echoApplication.run(array, stdin, stdout));

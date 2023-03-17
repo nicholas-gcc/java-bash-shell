@@ -21,6 +21,7 @@ public class CdApplicationTest {
     CdApplication cdApplication;
     InputStream stdin;
     OutputStream stdout;
+    private static final String CD_EX_PREFIX = "cd: ";
 
     @BeforeEach
     void setup() {
@@ -36,16 +37,16 @@ public class CdApplicationTest {
 
     @Test
     void cd_NoArgs_ThrowsCdException() {
-        String string = " ";
+        String string = "";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_NO_ARGS, cdException.getMessage());
+        assertEquals(CD_EX_PREFIX + ERR_NO_ARGS, cdException.getMessage());
     }
 
     @Test
     void cd_PathDoesNotExist_ThrowsCdException() {
         String string = "blah";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_FILE_NOT_FOUND, cdException.getMessage());
+        assertEquals(CD_EX_PREFIX + ERR_FILE_NOT_FOUND, cdException.getMessage());
     }
 
     @Test
@@ -62,7 +63,7 @@ public class CdApplicationTest {
     void cd_PathNotDirectory_ThrowsCdException() {
         String string = "README.md";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_IS_NOT_DIR, cdException.getMessage());
+        assertEquals(CD_EX_PREFIX + ERR_IS_NOT_DIR, cdException.getMessage());
     }
 
     @Test
@@ -89,7 +90,7 @@ public class CdApplicationTest {
     @Test
     void cd_RunWithNullArguments_ThrowsException() {
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.run(null, stdin, stdout));
-        assertEquals("cd: " + ERR_NULL_ARGS, cdException.getMessage());
+        assertEquals(CD_EX_PREFIX + ERR_NULL_ARGS, cdException.getMessage());
     }
 
     @Test
