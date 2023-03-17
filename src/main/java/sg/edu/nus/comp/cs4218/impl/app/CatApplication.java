@@ -4,25 +4,21 @@ import sg.edu.nus.comp.cs4218.app.CatInterface;
 import sg.edu.nus.comp.cs4218.exception.CatException;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import sg.edu.nus.comp.cs4218.impl.app.args.CatArguments;
-import sg.edu.nus.comp.cs4218.impl.app.args.CutArguments;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.List;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_INPUT;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class CatApplication implements CatInterface {
@@ -100,7 +96,7 @@ public class CatApplication implements CatInterface {
             }
             File file = IOUtils.resolveFilePath(name).toFile();
             if (!file.exists()) {
-                throw new CatException(ERR_FILE_NOT_FOUND + ": " + name + " does not exist.");
+                throw new CatException(ERR_FILE_DIR_NOT_FOUND + ": " + name + " does not exist.");
             }
 
             if (file.isDirectory()) {
@@ -161,7 +157,7 @@ public class CatApplication implements CatInterface {
             }
             File file = IOUtils.resolveFilePath(name).toFile();
             if (!file.exists()) {
-                throw new CatException(ERR_FILE_NOT_FOUND + ": " + name + " does not exist.");
+                throw new CatException(ERR_FILE_DIR_NOT_FOUND + ": " + name + " does not exist.");
             }
             if (file.isDirectory()) {
                 throw new CatException(ERR_IS_DIR + ": " + name);

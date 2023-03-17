@@ -20,7 +20,7 @@ public class LsArgsParser extends ArgsParser {
         return flags.contains(FLAG_SORT_BY_EXT);
     }
 
-    public List<String> getDirectories() {
+    public List<String> getFilesOrDirNames() {
         return nonFlagArgs;
     }
 }

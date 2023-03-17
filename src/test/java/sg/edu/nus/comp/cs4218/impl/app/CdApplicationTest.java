@@ -10,10 +10,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_NOT_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 
@@ -45,17 +46,15 @@ public class CdApplicationTest {
     void cd_PathDoesNotExist_ThrowsCdException() {
         String string = "blah";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals("cd: " + ERR_FILE_NOT_FOUND, cdException.getMessage());
+        assertEquals("cd: " + ERR_FILE_DIR_NOT_FOUND, cdException.getMessage());
     }
 
     @Test
     void cd_PathExist_ShouldCdCorrectly() throws CdException {
         String string = "src" + File.separator + "test";
         String initialDirectory = Environment.currentDirectory;
-        assertDoesNotThrow(() -> {
-            cdApplication.changeToDirectory(string);
-            assertEquals(initialDirectory + File.separator + string, Environment.currentDirectory);
-        });
+        cdApplication.changeToDirectory(string);
+        assertEquals(initialDirectory + File.separator + string, Environment.currentDirectory);
     }
 
     @Test
@@ -70,20 +69,16 @@ public class CdApplicationTest {
         String string = "..";
         String initialDirectory = Environment.currentDirectory;
         String parentDirectory = new File(initialDirectory).getParent();
-        assertDoesNotThrow(() -> {
-            cdApplication.changeToDirectory(string);
-            assertEquals(parentDirectory, Environment.currentDirectory);
-        });
+        cdApplication.changeToDirectory(string);
+        assertEquals(parentDirectory, Environment.currentDirectory);
     }
 
     @Test
     void cd_PathCurrentDirectory_ShouldCdCorrectly() throws CdException {
         String string = ".";
         String initialDirectory = Environment.currentDirectory;
-        assertDoesNotThrow(() -> {
-            cdApplication.changeToDirectory(string);
-            assertEquals(initialDirectory, Environment.currentDirectory);
-        });
+        cdApplication.changeToDirectory(string);
+        assertEquals(initialDirectory, Environment.currentDirectory);
     }
 
     @Test
@@ -93,12 +88,17 @@ public class CdApplicationTest {
     }
 
     @Test
-    void cd_Run_ShouldCdCorrectly() {
+    void cd_Run_ShouldCdCorrectly() throws CdException {
         String [] array = {"src" + File.separator + "test"};
         String initialDirectory = Environment.currentDirectory;
-        assertDoesNotThrow(() -> {
-            cdApplication.run(array, stdin, stdout);
-            assertEquals(initialDirectory + File.separator + array[0], Environment.currentDirectory);
-        });
+        cdApplication.run(array, stdin, stdout);
+        assertEquals(initialDirectory + File.separator + array[0], Environment.currentDirectory);
+    }
+
+    @Test
+    void cd_RunNoArgs_ThrowsException() throws CdException {
+        String [] array = {};
+        CdException cdException = assertThrows(CdException.class, () -> cdApplication.run(array, stdin, stdout));
+        assertEquals("cd: " + ERR_NO_ARGS, cdException.getMessage());
     }
 }

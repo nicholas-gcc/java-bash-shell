@@ -66,7 +66,7 @@ public class CutApplication implements CutInterface {
         for (String fileString : fileName) {
             File file = IOUtils.resolveFilePath(fileString).toFile();
             if (!file.exists()) {
-                throw new CutException(ERR_FILE_NOT_FOUND);
+                throw new CutException(ERR_FILE_DIR_NOT_FOUND);
             }
             if (file.isDirectory()) {
                 throw new CutException(ERR_IS_DIR);

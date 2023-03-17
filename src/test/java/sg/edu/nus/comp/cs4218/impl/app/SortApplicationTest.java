@@ -15,7 +15,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
@@ -67,7 +67,7 @@ class SortApplicationTest {
             sortApp.sortFromFiles(false, false, false, fileNames);
         });
 
-        assertEquals(SORT_ERR_PREFIX + ERR_FILE_NOT_FOUND, err.getMessage());
+        assertEquals(SORT_ERR_PREFIX + ERR_FILE_DIR_NOT_FOUND, err.getMessage());
 
     }
 

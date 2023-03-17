@@ -10,8 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MISSING_ARG;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MULTIPLE_STREAMS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_SYNTAX;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_TOO_MANY_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_REDIR_INPUT;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_REDIR_OUTPUT;
 
@@ -24,6 +26,10 @@ public class IORedirectionHandler {
     private InputStream inputStream;
     private OutputStream outputStream;
 
+    private String outputFilePath;
+
+    private boolean append = false;
+
     public IORedirectionHandler(List<String> argsList, InputStream origInputStream,
                                 OutputStream origOutputStream, ArgumentResolver argumentResolver) {
         this.argsList = argsList;
@@ -34,41 +40,66 @@ public class IORedirectionHandler {
         this.argumentResolver = argumentResolver;
     }
 
+    /**
+     * @param argsIterator from extractRedirOptions, iterator of remaining args
+     * @param arg current arg, from extractRedirOption
+     * @return filename of the file
+     * @throws ShellException
+     */
+    private String getFileName(ListIterator<String> argsIterator, String arg) throws ShellException {
+        if (!argsIterator.hasNext()) {
+            throw new ShellException(ERR_MISSING_ARG);//no file is supplied
+        }
+        String nextArg = argsIterator.next();
+        if (isRedirOperator(nextArg)) { // to account for >>
+            if (!isOutputRedirOperator(nextArg) || !isOutputRedirOperator(arg)) {
+                throw new ShellException(ERR_SYNTAX);
+            }
+            this.append = true;
+            if (!argsIterator.hasNext()) { //no file is supplied
+                throw new ShellException(ERR_MISSING_ARG);
+            }
+            nextArg = argsIterator.next();
+        }
+        return nextArg;
+    }
+
+    /**
+     * @throws AbstractApplicationException
+     * @throws ShellException
+     * @throws FileNotFoundException
+     * extract redirction options and substitute input or output stream accordingly
+     */
     public void extractRedirOptions() throws AbstractApplicationException, ShellException, FileNotFoundException {
-        // TODO: Fix this?
-        if (argsList == null && argsList.isEmpty()) {
+        if (argsList == null || argsList.isEmpty()) {
             throw new ShellException(ERR_SYNTAX);
         }
-
         noRedirArgsList = new LinkedList<>();
-
-        // extract redirection operators (with their corresponding files) from argsList
         ListIterator<String> argsIterator = argsList.listIterator();
+        boolean redirExpected = false;
         while (argsIterator.hasNext()) {
             String arg = argsIterator.next();
-
-            // leave the other args untouched
-            if (!isRedirOperator(arg)) {
+            if (redirExpected && !isRedirOperator(arg)) {
+                throw new ShellException((ERR_TOO_MANY_ARGS)); //more than 1 file is supplied after redir char
+            }
+            if (!isRedirOperator(arg)) {// leave the other args untouched
                 noRedirArgsList.add(arg);
                 continue;
             }
-
-            // if current arg is < or >, fast-forward to the next arg to extract the specified file
-            String file = argsIterator.next();
-
-            if (isRedirOperator(file)) {
+            // if current arg is < or >
+            String file = "";
+            try {
+                file = getFileName(argsIterator, arg);
+                redirExpected = true; //next arg must be > or <
+            } catch (ShellException e) {
+                throw e;
             }
-
-            // handle quoting + globing + command substitution in file arg
-            List<String> fileSegment = argumentResolver.resolveOneArgument(file);
-            if (fileSegment.size() > 1) {
-                // ambiguous redirect if file resolves to more than one parsed arg
+            List<String> fileSegment = argumentResolver.resolveOneArgument(file);// handle quoting + globing + command substitution in file arg
+            if (fileSegment.size() > 1) {// ambiguous redirect if file resolves to more than one parsed arg
                 throw new ShellException(ERR_SYNTAX);
             }
             file = fileSegment.get(0);
-
-            // replace existing inputStream / outputStream
-            if (arg.equals(String.valueOf(CHAR_REDIR_INPUT))) {
+            if (arg.equals(String.valueOf(CHAR_REDIR_INPUT))) {// replace existing inputStream / outputStream
                 IOUtils.closeInputStream(inputStream);
                 if (!inputStream.equals(origInputStream)) { // Already have a stream
                     throw new ShellException(ERR_MULTIPLE_STREAMS);
@@ -79,7 +110,8 @@ public class IORedirectionHandler {
                 if (!outputStream.equals(origOutputStream)) { // Already have a stream
                     throw new ShellException(ERR_MULTIPLE_STREAMS);
                 }
-                outputStream = IOUtils.openOutputStream(file);
+                this.outputFilePath = file;
+                outputStream = IOUtils.openOutputStream(file, append);
             }
         }
     }
@@ -96,7 +128,21 @@ public class IORedirectionHandler {
         return outputStream;
     }
 
+    public boolean isAppend() { return append; }
+
     private boolean isRedirOperator(String str) {
+        return str.equals(String.valueOf(CHAR_REDIR_INPUT)) || str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
+    }
+
+    public String getOutputFilePath() {
+        return outputFilePath;
+    }
+
+    private boolean isOutputRedirOperator(String str) {
+        return str.equals(String.valueOf(CHAR_REDIR_OUTPUT));
+    }
+
+    private boolean isInputRedirOperator(String str) {
         return str.equals(String.valueOf(CHAR_REDIR_INPUT));
     }
 }
