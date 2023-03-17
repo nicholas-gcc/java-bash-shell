@@ -82,7 +82,7 @@ public class ApplicationRunnerTest {
 
     @Test
     void runApp_CpAppArg_NoExceptionThrown() {
-        String[] argsArray = {SAMPLE_FILE, SAMPLE_FILE};
+        String[] argsArray = {SAMPLE_FILE, NEW_FILE};
         assertDoesNotThrow(() -> applicationRunner.runApp(APP_CP, argsArray, System.in, outputStream));
     }
 
