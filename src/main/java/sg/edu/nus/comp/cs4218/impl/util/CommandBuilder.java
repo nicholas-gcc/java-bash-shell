@@ -99,7 +99,8 @@ public final class CommandBuilder {
                         throw new ShellException(ERR_SYNTAX);
                     } else if (callCmdsForPipe.isEmpty()) {
                         // add CallCommand as part of a SequenceCommand
-                        cmdsForSequence.add(new CallCommand(tokens, appRunner, argumentResolver));
+                        cmdsForSequence.add(new CallCommand((List<String>) ((LinkedList<String>) tokens).clone(), appRunner, argumentResolver));
+                        tokens.clear();
                     } else {
                         // add CallCommand as part of ongoing PipeCommand
                         callCmdsForPipe.add(new CallCommand(tokens, appRunner, argumentResolver));
