@@ -1,69 +1,74 @@
 package sg.edu.nus.comp.cs4218.impl.parser;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RmArgsParserTest {
-    RmArgsParser rmArgsParser;
+    static final String FLAG_IS_RECURSIVE = "-r";
+    static final String FLAG_EMPTY_FOLDER = "-d";
+    static final String FAKE_FLAG = "-C";
+    static final String FILE1 = "file1.txt";
+    static final String FILE2 = "dir";
+    RmArgsParser rmArgsParser = new RmArgsParser();
 
-    @BeforeEach
-    void setup() {
-        rmArgsParser = new RmArgsParser();
+    @Test
+    void parse_ValidArguments_NoExceptionThrown() {
+        String[] args = {FLAG_IS_RECURSIVE, FLAG_EMPTY_FOLDER, FILE1, FILE2};
+        assertDoesNotThrow(() -> rmArgsParser.parse(args));
     }
 
     @Test
-    void parse_illegalArgs_throwsInvalidArgsException() {
-        String[] args = {"-X", "-r", "-d"};
-        assertThrows(InvalidArgsException.class, () -> {
-            rmArgsParser.parse(args);
-            assertFalse(rmArgsParser.isRecursive());
-        });
+    void parse_IllegalArgs_ThrowsInvalidArgsExceptionWithCorrectMessage() {
+        String[] args = {FLAG_IS_RECURSIVE, FLAG_EMPTY_FOLDER, FAKE_FLAG};
+        InvalidArgsException exception = assertThrows(InvalidArgsException.class, () -> rmArgsParser.parse(args));
+        String expectedMessage = ArgsParser.ILLEGAL_FLAG_MSG + "C";
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void isRecursive_hasRecursiveArg_returnsTrue() throws InvalidArgsException {
-        String[] args = {"-r"};
+    void isRecursive_HasRecursiveArg_ReturnsTrue() throws InvalidArgsException {
+        String[] args = {FLAG_IS_RECURSIVE};
         rmArgsParser.parse(args);
         assertTrue(rmArgsParser.isRecursive());
-
     }
 
     @Test
-    void isRecursive_hasNoRecursiveArg_returnsFalse() throws InvalidArgsException {
-        String[] args = {"-d", "r"};
+    void isRecursive_HasNoRecursiveArg_ReturnsFalse() throws InvalidArgsException {
+        String[] args = {FLAG_EMPTY_FOLDER, "r"};
         rmArgsParser.parse(args);
         assertFalse(rmArgsParser.isRecursive());
     }
 
     @Test
-    void isRmEmptyDir_hasEmptyFolderArg_returnsTrue() throws InvalidArgsException {
-        String[] args = {"-d"};
+    void isRmEmptyDir_HasEmptyFolderArg_ReturnsTrue() throws InvalidArgsException {
+        String[] args = {FLAG_EMPTY_FOLDER};
         rmArgsParser.parse(args);
         assertTrue(rmArgsParser.isRmEmptyDir());
     }
 
     @Test
-    void isRmEmptyDir_hasNoEmptyFolderDirArg_returnsFalse() throws InvalidArgsException {
-        String[] args = {"d", "-r"};
+    void isRmEmptyDir_HasNoEmptyFolderDirArg_ReturnsFalse() throws InvalidArgsException {
+        String[] args = {"d", FLAG_IS_RECURSIVE};
         rmArgsParser.parse(args);
         assertFalse(rmArgsParser.isRmEmptyDir());
     }
 
     @Test
-    void getFilesOrDirNames_hasFileAndDirNames_returnsFilesAndDirNames() throws InvalidArgsException {
-        String[] args = {"-d", "-r", "dir", "file1.txt", "file2.txt"};
-        List<String> expectedList = Arrays.asList("dir", "file1.txt", "file2.txt");
+    void getFilesOrDirNames_HasFileAndDirNames_ReturnsFilesAndDirNames() throws InvalidArgsException {
+        String[] args = {FLAG_IS_RECURSIVE, FLAG_EMPTY_FOLDER, FILE1, FILE2};
         rmArgsParser.parse(args);
-        assertEquals(expectedList, rmArgsParser.getFilesOrDirNames());
+        List<String> filenames = rmArgsParser.getFilesOrDirNames();
+        String[] expectedFilenames = {FILE1, FILE2};
+        assertEquals(new HashSet<>(List.of(expectedFilenames)), new HashSet<>(filenames));
     }
 
 }
