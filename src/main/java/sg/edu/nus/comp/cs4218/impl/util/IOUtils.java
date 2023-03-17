@@ -3,7 +3,15 @@ package sg.edu.nus.comp.cs4218.impl.util;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -28,7 +36,7 @@ public final class IOUtils {
 
         FileInputStream fileInputStream;
         try {
-            fileInputStream = new FileInputStream(new File(resolvedFileName));
+            fileInputStream = new FileInputStream(resolvedFileName);
         } catch (FileNotFoundException e) {
             throw new ShellException(ERR_FILE_NOT_FOUND, e);
         }
@@ -45,6 +53,15 @@ public final class IOUtils {
      */
     public static OutputStream openOutputStream(String fileName) throws ShellException, FileNotFoundException {
         String resolvedFileName = resolveFilePath(fileName).toString();
+        File file = new File(resolvedFileName);
+
+        if (!file.exists()) {
+            throw new ShellException(ERR_FILE_NOT_FOUND);
+        }
+
+        if (file.isDirectory()) {
+            throw new ShellException(ERR_FILE_NOT_FOUND);
+        }
 
         FileOutputStream fileOutputStream;
 

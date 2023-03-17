@@ -81,7 +81,7 @@ public class WcApplication implements WcInterface {
         for (String file : fileName) {
             File node = IOUtils.resolveFilePath(file).toFile();
             if (!node.exists()) {
-                result.add("wc: " + ERR_FILE_NOT_FOUND);
+                result.add("wc: " + ERR_FILE_DIR_NOT_FOUND);
                 continue;
             }
             if (node.isDirectory()) {

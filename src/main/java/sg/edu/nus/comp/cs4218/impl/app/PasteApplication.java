@@ -5,7 +5,6 @@ import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import sg.edu.nus.comp.cs4218.exception.PasteException;
 import sg.edu.nus.comp.cs4218.impl.parser.PasteArgsParser;
-import sg.edu.nus.comp.cs4218.exception.PasteException;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
 import java.io.BufferedReader;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_INPUT;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ISTREAM;
@@ -234,7 +233,7 @@ public class PasteApplication implements PasteInterface {
 
             Path filePath = IOUtils.resolveFilePath(fileName);
             if (Files.notExists(filePath)) {
-                throw new FileNotFoundException(fileName + ": " + ERR_FILE_NOT_FOUND);
+                throw new FileNotFoundException(fileName + ": " + ERR_FILE_DIR_NOT_FOUND);
             }
             if (Files.isDirectory(filePath)) {
                 throw new FileNotFoundException(fileName + ": " + ERR_IS_DIR);

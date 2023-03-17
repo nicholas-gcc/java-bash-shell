@@ -1,6 +1,5 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.exception.CatException;
 
@@ -11,7 +10,7 @@ import java.io.OutputStream;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
@@ -35,7 +34,7 @@ public class CatApplicationTest {
     void catFiles_FileDoesNotExist_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
                 () -> catApplication.catFiles(false, FILE_DOES_NOT_EXIST));
-        assertEquals(CAT_EX_PREFIX + ERR_FILE_NOT_FOUND +
+        assertEquals(CAT_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND +
                 ": " + FILE_DOES_NOT_EXIST + " does not exist.", thrown.getMessage());
     }
 
@@ -179,7 +178,7 @@ public class CatApplicationTest {
         Throwable thrown = assertThrows(CatException.class,
                 () -> catApplication.catFileAndStdin(false, System.in,
                         TEST_FOLDER + CHAR_FILE_SEP + FILE_DOES_NOT_EXIST, null));
-        assertEquals(CAT_EX_PREFIX + ERR_FILE_NOT_FOUND +
+        assertEquals(CAT_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND +
                 ": " + TEST_FOLDER + CHAR_FILE_SEP + FILE_DOES_NOT_EXIST + " does not exist.", thrown.getMessage());
     }
 

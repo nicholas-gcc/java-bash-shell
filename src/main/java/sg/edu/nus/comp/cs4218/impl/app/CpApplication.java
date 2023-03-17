@@ -8,7 +8,6 @@ import sg.edu.nus.comp.cs4218.exception.CpException;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -118,7 +117,7 @@ public class CpApplication implements CpInterface {
 
         if (!src.exists()) {
 
-            throw new CpException(srcFile + ": " + ERR_FILE_NOT_FOUND);
+            throw new CpException(srcFile + ": " + ERR_FILE_DIR_NOT_FOUND);
         }
 
         FileInputStream inputStream = new FileInputStream(src);
@@ -158,7 +157,7 @@ public class CpApplication implements CpInterface {
         }
 
         if (!src.exists()) {
-            throw new CpException(srcName + ": " + ERR_FILE_NOT_FOUND);
+            throw new CpException(srcName + ": " + ERR_FILE_DIR_NOT_FOUND);
         }
 
         if (!dest.exists()) {
