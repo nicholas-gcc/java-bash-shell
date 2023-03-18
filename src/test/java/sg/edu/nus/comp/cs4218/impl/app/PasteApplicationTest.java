@@ -1,6 +1,7 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
 import org.junit.jupiter.api.Test;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.PasteException;
 
 import java.io.ByteArrayInputStream;
@@ -12,7 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.app.GrepApplication.IS_DIRECTORY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
@@ -20,171 +23,145 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class PasteApplicationTest {
     private final PasteApplication pasteApplication = new PasteApplication();
-    private static String fileNameA = "A.txt";
-    private static String fileNameB = "B.txt";
-    private static String fileNameC = "C.txt";
-    private static String fileEmpty1 = "Empty1.txt";
-    private static String fileEmpty2 = "Empty2.txt";
-    private static String fileNameAB = "AB.txt";
-    private static String folderName = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "paste";
-    private static String fileNonExistent = "NonExistent.txt";
-
-
+    private static final String FILE_NAME_A = "A.txt";
+    private static final String FILE_NAME_B = "B.txt";
+    private static final String FILE_NAME_C = "C.txt";
+    private static final String FILE_EMPTY_1 = "Empty1.txt";
+    private static final String FILE_EMPTY_2 = "Empty2.txt";
+    private static final String FILE_NAME_AB = "AB.txt";
+    private static final String FOLDER_NAME = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "paste";
+    private static final String FILE_NON_EXISTENT = "NonExistent.txt";
+    private static final String PASTE_EX_PREFIX = "paste: ";
     @Test
-    void testMergeFile_OnlyOneFile_ReturnsCorrectString() {
+    void mergeFile_OnlyOneFile_ReturnsCorrectString() throws Exception {
         String expected = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileNameA);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A);
+        assertEquals(expected, actual);
     }
     
     @Test
-    void testMergeFile_MergeTwoEmptyFilesNotSerial_ReturnsEmptyString() {
+    void mergeFile_MergeTwoEmptyFilesNotSerial_ReturnsEmptyString() throws Exception {
         String expected = "";
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileEmpty1,
-                    folderName + CHAR_FILE_SEP + fileEmpty2);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_EMPTY_1,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_EMPTY_2);
+        assertEquals(expected, actual);
+
     }
 
     @Test
-    void testMergeFile_MergeEmptyWithNonEmptyFileNotSerial_ReturnsNonEmptyString() {
+    void mergeFile_MergeEmptyWithNonEmptyFileNotSerial_ReturnsNonEmptyString() throws Exception {
         String expected = CHAR_TAB + "A" + STRING_NEWLINE + CHAR_TAB + "B" +
                 STRING_NEWLINE + CHAR_TAB + "C" + STRING_NEWLINE + CHAR_TAB + "D" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileEmpty1,
-                    folderName + CHAR_FILE_SEP + fileNameA);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_EMPTY_1,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeFile_MergeNonEmptyWithEmptyFileNotSerial_ReturnsNonEmptyString() {
+    void mergeFile_MergeNonEmptyWithEmptyFileNotSerial_ReturnsNonEmptyString() throws Exception {
         String expected = "A" + CHAR_TAB + STRING_NEWLINE + "B" + CHAR_TAB + STRING_NEWLINE + "C" + CHAR_TAB +
                 STRING_NEWLINE + "D" + CHAR_TAB + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileNameA,
-                    folderName + CHAR_FILE_SEP + fileEmpty1);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_EMPTY_1);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeFile_MergeTwoNonEmptyFilesNotSerial_ReturnsNonEmptyString() {
+    void mergeFile_MergeTwoNonEmptyFilesNotSerial_ReturnsNonEmptyString() throws Exception {
         String expected = "A" + CHAR_TAB + "1" + STRING_NEWLINE +
                 "B" + CHAR_TAB + "2" + STRING_NEWLINE +
                 "C" + CHAR_TAB + "3" + STRING_NEWLINE +
                 "D" + CHAR_TAB + "4" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileNameA,
-                    folderName + CHAR_FILE_SEP + fileNameB);
-            System.out.println(actual.length());
-            System.out.println(expected.length());
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_B);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeFile_MergeTwoNonEmptyFilesIsSerial_ReturnsNonEmptyString() {
+    void mergeFile_MergeTwoNonEmptyFilesIsSerial_ReturnsNonEmptyString() throws Exception {
         String expected = "A" + CHAR_TAB + "B" + CHAR_TAB + "C" + CHAR_TAB + "D" + STRING_NEWLINE +
                 "1" + CHAR_TAB + "2" + CHAR_TAB + "3" + CHAR_TAB + "4" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(true, folderName + CHAR_FILE_SEP + fileNameA,
-                    folderName + CHAR_FILE_SEP + fileNameB);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(true, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_B);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeFile_MergeTwoNonEmptyFilesWithDiffLineCountNotSerial_ReturnsCorrectString() {
+    void mergeFile_MergeTwoNonEmptyFilesWithDiffLineCountNotSerial_ReturnsCorrectString() throws Exception {
         String expected = "A" + CHAR_TAB + "1" + STRING_NEWLINE +
                 "B" + CHAR_TAB + "2" + STRING_NEWLINE +
                 "C" + CHAR_TAB + "3" + STRING_NEWLINE +
                 "D" + CHAR_TAB + "4" + STRING_NEWLINE +
                 CHAR_TAB + "5" + STRING_NEWLINE +
                 CHAR_TAB + "6" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileNameA,
-                    folderName + CHAR_FILE_SEP + fileNameC);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_C);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeFile_MergeThreeNonEmptyFilesNotSerial_ReturnsCorrectString() {
+    void mergeFile_MergeThreeNonEmptyFilesNotSerial_ReturnsCorrectString() throws Exception {
         String expected = "A" + CHAR_TAB + "1" + CHAR_TAB + "1" + STRING_NEWLINE +
                 "B" + CHAR_TAB + "2" + CHAR_TAB + "2" + STRING_NEWLINE +
                 "C" + CHAR_TAB + "3" + CHAR_TAB + "3" + STRING_NEWLINE +
                 "D" + CHAR_TAB + "4" + CHAR_TAB + "4" + STRING_NEWLINE +
                 CHAR_TAB + CHAR_TAB + "5" + STRING_NEWLINE +
                 CHAR_TAB + CHAR_TAB + "6" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFile(false, folderName + CHAR_FILE_SEP + fileNameA,
-                    folderName + CHAR_FILE_SEP + fileNameB,
-                    folderName + CHAR_FILE_SEP + fileNameC);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFile(false, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_B,
+                FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_C);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeStdin_OnlyOneStdinNotSerial_ReturnsCorrect() {
+    void mergeStdin_OnlyOneStdinNotSerial_ReturnsCorrect() throws Exception {
         String inputString = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
         InputStream stdin = new ByteArrayInputStream(inputString.getBytes());
         String expected = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeStdin(false, stdin);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeStdin(false, stdin);
+        assertEquals(expected, actual);
     }
 
     @Test
-    void testMergeFileAndStdin_StdInAndOneFile_ReturnsCorrect() {
+    void mergeFileAndStdin_StdInAndOneFile_ReturnsCorrect() throws Exception {
         String inputString = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
         InputStream stdin = new ByteArrayInputStream(inputString.getBytes());
         String expected = "A" + CHAR_TAB + "1" + STRING_NEWLINE +
                 "B" + CHAR_TAB + "2" + STRING_NEWLINE +
                 "C" + CHAR_TAB + "3" + STRING_NEWLINE +
                 "D" + CHAR_TAB + "4" + STRING_NEWLINE;
-        assertDoesNotThrow(() -> {
-            String actual = pasteApplication.mergeFileAndStdin(false, stdin, folderName +
-                    CHAR_FILE_SEP + fileNameB);
-            assertEquals(expected, actual);
-        });
+        String actual = pasteApplication.mergeFileAndStdin(false, stdin, FOLDER_NAME +
+                CHAR_FILE_SEP + FILE_NAME_B);
+        assertEquals(expected, actual);
     }
 
     // If the FILE arg is -, paste reads from standard input.
     @Test
-    void testRun_OnlyStdInWithDashFlag_ReturnsCorrect() {
+    void run_OnlyStdInWithDashFlag_ReturnsCorrect() throws AbstractApplicationException {
         String[] args = {"-"};
         String inputString = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
         InputStream stdin = new ByteArrayInputStream(inputString.getBytes());
         String expected = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> {
-            pasteApplication.run(args, stdin, outputStream);
-            assertEquals(expected, outputStream.toString());
-        });
+        pasteApplication.run(args, stdin, outputStream);
+        assertEquals(expected, outputStream.toString());
     }
 
     @Test
-    void testRun_WithOnlyFiles_ReturnsCorrect() {
-        String[] args = {folderName + CHAR_FILE_SEP + fileNameA, folderName + CHAR_FILE_SEP + fileNameB};
+    void run_WithOnlyFiles_ReturnsCorrect() throws AbstractApplicationException {
+        String[] args = {FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_B};
         String expected = "A" + CHAR_TAB + "1" + STRING_NEWLINE +
                 "B" + CHAR_TAB + "2" + STRING_NEWLINE +
                 "C" + CHAR_TAB + "3" + STRING_NEWLINE +
                 "D" + CHAR_TAB + "4" + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> {
-            pasteApplication.run(args, null, outputStream);
-            assertEquals(expected, outputStream.toString());
-        });
+        pasteApplication.run(args, null, outputStream);
+        assertEquals(expected, outputStream.toString());
     }
 
     @Test
-    void testRun_WithStdinAndFiles_ReturnsCorrect() {
-        String[] args = {"-", folderName + CHAR_FILE_SEP + fileNameB, folderName + CHAR_FILE_SEP + fileNameC};
+    void run_WithStdinAndFiles_ReturnsCorrect() throws AbstractApplicationException {
+        String[] args = {"-", FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_B, FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_C};
         String inputString = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
         InputStream stdin = new ByteArrayInputStream(inputString.getBytes());
         String expected = "A" + CHAR_TAB + "1" + CHAR_TAB + "1" + STRING_NEWLINE +
@@ -194,16 +171,14 @@ public class PasteApplicationTest {
                 CHAR_TAB + CHAR_TAB + "5" + STRING_NEWLINE +
                 CHAR_TAB + CHAR_TAB + "6" + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> {
-            pasteApplication.run(args, stdin, outputStream);
-            assertEquals(expected, outputStream.toString());
-        });
+        pasteApplication.run(args, stdin, outputStream);
+        assertEquals(expected, outputStream.toString());
     }
 
     // if this example is confusing, refer to project documentation example for paste
     @Test
-    void testRun_WithStdinAndFileAndStdin_ReturnsCorrect() {
-        String[] args = {"-", folderName + CHAR_FILE_SEP + fileNameB, "-"};
+    void run_WithStdinAndFileAndStdin_ReturnsCorrect() throws AbstractApplicationException {
+        String[] args = {"-", FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_B, "-"};
         String inputString = "A" + STRING_NEWLINE + "B" + STRING_NEWLINE + "C" + STRING_NEWLINE + "D" + STRING_NEWLINE;
         InputStream stdin = new ByteArrayInputStream(inputString.getBytes());
         String expected = "A" + CHAR_TAB + "1" + CHAR_TAB + "B" + STRING_NEWLINE +
@@ -211,31 +186,29 @@ public class PasteApplicationTest {
                 CHAR_TAB + "3" + CHAR_TAB + STRING_NEWLINE +
                 CHAR_TAB + "4" + CHAR_TAB + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> {
-            pasteApplication.run(args, stdin, outputStream);
-            assertEquals(expected, outputStream.toString());
-        });
+        pasteApplication.run(args, stdin, outputStream);
+        assertEquals(expected, outputStream.toString());
     }
 
     @Test
-    void testRun_WithDirAsFileName_ThrowsException() {
-        String[] args = {folderName};
-        String expected = "paste: " + folderName + ":" + IS_DIRECTORY;
+    void run_WithDirAsFileName_ThrowsException() throws AbstractApplicationException {
+        String[] args = {FOLDER_NAME};
+        String expected = PASTE_EX_PREFIX + FOLDER_NAME + ": " + ERR_IS_DIR;
         OutputStream outputStream = new ByteArrayOutputStream();
-        assertThrows(PasteException.class, () -> {
+        Throwable thrown = assertThrows(PasteException.class, () -> {
             pasteApplication.run(args, null, outputStream);
-            assertEquals(expected, outputStream.toString());
         });
+        assertEquals(expected, thrown.getMessage());
     }
 
     @Test
-    void testRun_WithNonExistingFile_ThrowsException() {
-        String[] args = {folderName + CHAR_FILE_SEP + fileNonExistent};
+    void run_WithNonExistingFile_ThrowsException() {
+        String[] args = {FOLDER_NAME + CHAR_FILE_SEP + FILE_NON_EXISTENT};
         OutputStream outputStream = new ByteArrayOutputStream();
         Throwable thrown = assertThrows(PasteException.class,
                 () -> pasteApplication.run(args, System.in, outputStream));
         assertEquals(thrown.getMessage(),
-                "paste: " + folderName + CHAR_FILE_SEP + fileNonExistent + ": " + ERR_FILE_NOT_FOUND);
+                PASTE_EX_PREFIX + FOLDER_NAME + CHAR_FILE_SEP + FILE_NON_EXISTENT + ": " + ERR_FILE_DIR_NOT_FOUND);
     }
 
     @Test
@@ -243,6 +216,14 @@ public class PasteApplicationTest {
         OutputStream outputStream = new ByteArrayOutputStream();
         Throwable thrown = assertThrows(PasteException.class,
                 () -> pasteApplication.run(null, System.in, outputStream));
-        assertEquals("paste: " + ERR_NULL_ARGS, thrown.getMessage());
+        assertEquals(PASTE_EX_PREFIX + ERR_NULL_ARGS, thrown.getMessage());
+    }
+
+    @Test
+    void run_StdoutNull_ThrowsException() {
+        String[] args = {FOLDER_NAME + CHAR_FILE_SEP + FILE_NAME_A};
+        Throwable thrown = assertThrows(PasteException.class,
+                () -> pasteApplication.run(args, System.in, null));
+        assertEquals(PASTE_EX_PREFIX + ERR_NO_OSTREAM, thrown.getMessage());
     }
 }

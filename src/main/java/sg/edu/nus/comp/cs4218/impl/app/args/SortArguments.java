@@ -3,7 +3,10 @@ package sg.edu.nus.comp.cs4218.impl.app.args;
 import java.util.ArrayList;
 import java.util.List;
 
+import sg.edu.nus.comp.cs4218.exception.SortException;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
+
 
 public class SortArguments {
 
@@ -26,7 +29,7 @@ public class SortArguments {
      * @param args Array of arguments to parse
      * @throws Exception
      */
-    public void parse(String... args) {
+    public void parse(String... args) throws SortException {
         boolean parsingFlag = true, skip = false;
         // Parse arguments
         if (args != null && args.length > 0) {
@@ -47,8 +50,7 @@ public class SortArguments {
                         break;//NOPMD
                     }
                     if (skip) {
-                        skip = false;
-                        continue;
+                        throw new SortException(ERR_INVALID_FLAG + ": " + arg);
                     }
 
                     for (char c : arg.toCharArray()) {

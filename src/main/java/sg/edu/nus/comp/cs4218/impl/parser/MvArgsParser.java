@@ -41,6 +41,4 @@ public class MvArgsParser extends ArgsParser {
         sourceFiles = nonFlagArgs.subList(0, argsSize - 1).toArray(new String[0]);
         destFile = nonFlagArgs.get(argsSize - 1);
     }
-
-
 }

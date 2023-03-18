@@ -28,34 +28,31 @@ public class CutApplication implements CutInterface {
         try {
             cutArgs.parse(args);
         } catch (Exception e) {
-            throw new CutException(e.getMessage()); //NOPMD
+            throw new CutException(e.getMessage(), e);
         }
 
         StringBuilder result = new StringBuilder();
-        try {
-            if (cutArgs.getFiles().isEmpty()) {
-                result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
-                result.append(STRING_NEWLINE);
-            } else {
-                for (String fileName : cutArgs.getFiles()) {
-                    //  If a FILE is ‘-’, read standard input instead of file
-                    if ("-".equals(fileName)) {
-                        result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
-                    } else {
-                        result.append(cutFromFiles(cutArgs.isCharPo(), cutArgs.isBytePo(),
-                                cutArgs.getRanges(), fileName));
-                    }
-                    result.append(STRING_NEWLINE);
+        if (cutArgs.getFiles().isEmpty()) {
+            if (stdin == null) {
+                throw new CutException(ERR_NULL_STREAMS);
+            }
+            result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
+        } else {
+            for (String fileName : cutArgs.getFiles()) {
+                //  If a FILE is ‘-’, read standard input instead of file
+                if ("-".equals(fileName)) {
+                    result.append(cutFromStdin(cutArgs.isCharPo(), cutArgs.isBytePo(), cutArgs.getRanges(), stdin));
+                } else {
+                    result.append(cutFromFiles(cutArgs.isCharPo(), cutArgs.isBytePo(),
+                            cutArgs.getRanges(), fileName));
                 }
             }
-        } catch (Exception e) {
-            throw new CutException(e.getMessage());//NOPMD
         }
 
         try {
             stdout.write(result.toString().getBytes());
         } catch (Exception e) {
-            throw new CutException(ERR_WRITE_STREAM);//NOPMD
+            throw new CutException(ERR_WRITE_STREAM, e);
         }
     }
 
@@ -69,7 +66,7 @@ public class CutApplication implements CutInterface {
         for (String fileString : fileName) {
             File file = IOUtils.resolveFilePath(fileString).toFile();
             if (!file.exists()) {
-                throw new CutException(ERR_FILE_NOT_FOUND);
+                throw new CutException(ERR_FILE_DIR_NOT_FOUND);
             }
             if (file.isDirectory()) {
                 throw new CutException(ERR_IS_DIR);
@@ -81,7 +78,7 @@ public class CutApplication implements CutInterface {
                 lines.addAll(IOUtils.getLinesFromInputStream(fileStream));
                 IOUtils.closeInputStream(fileStream);
             } catch (Exception e) {
-                throw new CutException(ERR_IO_EXCEPTION);//NOPMD
+                throw new CutException(ERR_IO_EXCEPTION, e);
             }
         }
         return cutString(isCharPo, isBytePo, ranges, lines);
@@ -89,12 +86,16 @@ public class CutApplication implements CutInterface {
 
     @Override
     public String cutFromStdin(Boolean isCharPo, Boolean isBytePo, List<int[]> ranges, InputStream stdin)
-            throws Exception {
+            throws CutException {
         if (stdin == null) {
             throw new CutException(ERR_NULL_STREAMS);
         }
-        List<String> lines = IOUtils.getLinesFromInputStream(stdin);
-        return cutString(isCharPo, isBytePo, ranges, lines);
+        try {
+            List<String> lines = IOUtils.getLinesFromInputStream(stdin);
+            return cutString(isCharPo, isBytePo, ranges, lines);
+        } catch (Exception e) {
+            throw new CutException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -120,6 +121,6 @@ public class CutApplication implements CutInterface {
             }
             result.append(STRING_NEWLINE);
         }
-        return result.toString().trim(); // trim removes the last newline
+        return result.toString();
     }
 }

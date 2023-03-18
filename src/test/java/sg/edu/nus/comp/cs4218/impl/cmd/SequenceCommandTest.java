@@ -66,7 +66,7 @@ public class SequenceCommandTest {
     }
 
     @Test
-    public void evaluate_SequenceFirstCommandFailed() throws FileNotFoundException, AbstractApplicationException, ShellException {
+    public void evaluate_SequenceFirstCommandFailed_ThrowsException() throws FileNotFoundException, AbstractApplicationException, ShellException {
         // 2nd command should still evaluate
         // set up stub commands
         CallCommandStub cdCommand = new CallCommandStub(args, applicationRunner, argumentResolver, CallCommandStub.CommandType.CD_ERROR);

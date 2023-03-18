@@ -5,7 +5,11 @@ import sg.edu.nus.comp.cs4218.exception.WcException;
 import sg.edu.nus.comp.cs4218.impl.app.args.WcArguments;
 import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,13 +51,13 @@ public class WcApplication implements WcInterface {
             }
         } catch (Exception e) {
             // Will never happen, actually happens though
-            throw new WcException(e.getMessage()); //NOPMD
+            throw new WcException(e.getMessage(), e);
         }
         try {
             stdout.write(result.getBytes());
             stdout.write(STRING_NEWLINE.getBytes());
         } catch (IOException e) {
-            throw new WcException(ERR_WRITE_STREAM);//NOPMD
+            throw new WcException(ERR_WRITE_STREAM, e);
         }
     }
 
@@ -77,7 +81,7 @@ public class WcApplication implements WcInterface {
         for (String file : fileName) {
             File node = IOUtils.resolveFilePath(file).toFile();
             if (!node.exists()) {
-                result.add("wc: " + ERR_FILE_NOT_FOUND);
+                result.add("wc: " + ERR_FILE_DIR_NOT_FOUND);
                 continue;
             }
             if (node.isDirectory()) {

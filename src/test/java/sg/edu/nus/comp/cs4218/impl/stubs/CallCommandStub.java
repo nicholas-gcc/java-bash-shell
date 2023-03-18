@@ -27,7 +27,7 @@ public class CallCommandStub extends CallCommand {
         CD_ERROR
     }
 
-    private CommandType commandType;
+    private final CommandType commandType;
 
     public CallCommandStub(List<String> argsList, ApplicationRunner applicationRunner, ArgumentResolver argumentResolver, CommandType commandType) {
         super(argsList, applicationRunner, argumentResolver);
@@ -66,7 +66,9 @@ public class CallCommandStub extends CallCommand {
                     if (dataSource.equals(lsOutput)) {
                         stdout.write(grepOutput.getBytes());
                     }
-                    else throw new ShellException("Data not piped correctly");
+                    else {
+                        throw new ShellException("Data not piped correctly");
+                    }
                 } catch (ShellException e) {
                     throw e;
                 } catch (Exception otherErrorsIgnored) {

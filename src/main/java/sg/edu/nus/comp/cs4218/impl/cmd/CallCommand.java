@@ -6,6 +6,7 @@ import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.util.ApplicationRunner;
 import sg.edu.nus.comp.cs4218.impl.util.ArgumentResolver;
 import sg.edu.nus.comp.cs4218.impl.util.IORedirectionHandler;
+import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -19,6 +20,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_SYNTAX;
  * <p>
  * Command format: (<non-keyword> or <quoted>) *
  */
+@SuppressWarnings({"PMD.CloseResource"})
 public class CallCommand implements Command {
     private final List<String> argsList;
     private final ApplicationRunner appRunner;
@@ -41,6 +43,7 @@ public class CallCommand implements Command {
         IORedirectionHandler redirHandler = new IORedirectionHandler(argsList, stdin, stdout, argumentResolver);
         redirHandler.extractRedirOptions();
         List<String> noRedirArgsList = redirHandler.getNoRedirArgsList();
+
         InputStream inputStream = redirHandler.getInputStream();
         OutputStream outputStream = redirHandler.getOutputStream();
 
@@ -50,6 +53,9 @@ public class CallCommand implements Command {
             String app = parsedArgsList.remove(0);
             appRunner.runApp(app, parsedArgsList.toArray(new String[0]), inputStream, outputStream);
         }
+
+        IOUtils.closeInputStream(inputStream);
+        IOUtils.closeOutputStream(outputStream);
 
     }
 

@@ -3,6 +3,7 @@ package sg.edu.nus.comp.cs4218.impl.cmd;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.util.ApplicationRunner;
 import sg.edu.nus.comp.cs4218.impl.util.ArgumentResolver;
@@ -10,8 +11,8 @@ import sg.edu.nus.comp.cs4218.impl.util.ArgumentResolver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
@@ -62,14 +63,12 @@ public class CallCommandTest {
     }
 
     @Test
-    void evaluate_simpleCommandArgList_OutputsCorrectly() {
+    void evaluate_simpleCommandArgList_OutputsCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("echo", "hello world");
         callCommand = new CallCommand(args, applicationRunner, argumentResolver);
         String expectedOutput = "hello world";
-        assertDoesNotThrow(() -> {
-            callCommand.evaluate(stdin, stdout);
-            assertEquals(expectedOutput, stdout.toString());
-        });
+        callCommand.evaluate(stdin, stdout);
+        assertEquals(expectedOutput, stdout.toString());
     }
 
     @Test
