@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_INPUT;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
@@ -94,18 +95,23 @@ public class CatApplication implements CatInterface {
             if (name == null) {
                 throw new CatException(ERR_NULL_ARGS);
             }
-            File file = IOUtils.resolveFilePath(name).toFile();
-            if (!file.exists()) {
-                throw new CatException(ERR_FILE_DIR_NOT_FOUND + ": " + name + " does not exist.");
-            }
+            try {
+                File file = IOUtils.resolveFilePath(name).toFile();
+                if (!file.exists()) {
+                    throw new CatException(name + ": " + ERR_FILE_NOT_FOUND);
+                }
 
-            if (file.isDirectory()) {
-                throw new CatException(ERR_IS_DIR + ": " + name);
-            }
+                if (file.isDirectory()) {
+                    throw new CatException(ERR_IS_DIR + ": " + name);
+                }
 
-            try (InputStream inputStream = new FileInputStream(file)){
+                InputStream inputStream = new FileInputStream(file);
                 buildSB(inputStream, sb, isLineNumber);
-            } catch (Exception e) {
+                inputStream.close();
+            } catch (CatException e) {
+                throw e;
+            }
+            catch (Exception e) {
                 throw new CatException(e.getMessage(), e);
             }
         }

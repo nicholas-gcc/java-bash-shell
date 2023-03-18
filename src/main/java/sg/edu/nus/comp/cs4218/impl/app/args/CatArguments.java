@@ -30,7 +30,7 @@ public class CatArguments {
             throw new NullPointerException(ERR_NULL_ARGS);
         }
         if (args.length < 1) {
-            throw new IllegalArgumentException(ERR_NO_ARGS);
+            throw new InvalidArgsException(ERR_NO_ARGS);
         }
 
         // check if option flag -n exists, set boolean accordingly
