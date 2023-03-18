@@ -99,7 +99,7 @@ public class CpApplication implements CpInterface {
     }
 
     @Override
-    public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileNames) throws Exception {
+    public void cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileNames) throws Exception {
         try {
             Path destFolderPath = FileSystemUtils.resolvePath(destFolder);
 
@@ -143,7 +143,6 @@ public class CpApplication implements CpInterface {
                             new CopyFileVisitor(srcFilePath, destFilePath));
                 }
             }
-            return null;
         } catch (IOException e) {
             throw new CpException(e.getMessage(), e);
         }
