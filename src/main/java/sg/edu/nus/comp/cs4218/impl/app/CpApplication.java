@@ -15,7 +15,10 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 
 
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
+
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -69,7 +72,7 @@ public class CpApplication implements CpInterface {
         } catch (CpException e) {
             throw e;
         } catch (Exception e) {
-            throw new CpException(e.getMessage());
+            throw new CpException(e.getMessage(), e);
         }
 
     }
@@ -144,7 +147,7 @@ public class CpApplication implements CpInterface {
             }
             return null;
         } catch (IOException e) {
-            throw new CpException(e.getMessage());
+            throw new CpException(e.getMessage(), e);
         }
     }
 

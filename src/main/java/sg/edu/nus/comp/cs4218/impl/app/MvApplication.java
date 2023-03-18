@@ -11,7 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
+
 
 public class MvApplication implements MvInterface {
 
@@ -83,13 +88,13 @@ public class MvApplication implements MvInterface {
                 Files.move(Paths.get(fileName), Paths.get(destFilePath));
             }
         } catch (FileAlreadyExistsException e) {
-            throw new MvException("Cannot move file: a file with the same name already exists in destination folder");
+            throw new MvException("Cannot move file: a file with the same name already exists in destination folder", e);
         } catch (AccessDeniedException e) {
-            throw (MvException) new MvException(ErrorConstants.ERR_NO_PERM + ":" + e.getFile()).initCause(e);
+            throw new MvException(ErrorConstants.ERR_NO_PERM + ":" + e.getFile(), e);
         } catch (NoSuchFileException e) {
-            throw (MvException) new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage()).initCause(e);
+            throw new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage(), e);
         } catch (IOException e) {
-            throw new MvException(e.getMessage());
+            throw new MvException(e.getMessage(), e);
         }
         return destFilePath;
     }
@@ -129,7 +134,7 @@ public class MvApplication implements MvInterface {
                     throw new MvException(e.getMessage(), e);
                 }
             } catch (IOException ex) {
-                throw new MvException("Could not write to output stream");
+                throw new MvException("Could not write to output stream", e);
             }
         }
     }
