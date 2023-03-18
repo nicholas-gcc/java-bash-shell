@@ -131,6 +131,14 @@ public class CutApplicationTest {
     }
 
     @Test
+    void cutFromFiles_fileNameIsNull_ReturnsNullArgsException() {
+        List<int[]> ranges = List.of(new int[]{1, 8});
+        Throwable thrown = assertThrows(CutException.class,
+                () -> cutApp.cutFromFiles(false, true, ranges, null));
+        assertEquals(CUT_EX_PREFIX + ERR_NULL_ARGS, thrown.getMessage());
+    }
+
+    @Test
     void run_WithNullArgs_ReturnsException() {
         Throwable thrown = assertThrows(CutException.class, () -> {
             cutApp.run(null, null, null);
@@ -207,5 +215,12 @@ public class CutApplicationTest {
         OutputStream outputStream = new ByteArrayOutputStream();
         cutApp.run(new String[]{"-b", "1-8,10"}, inputStream, outputStream);
         assertEquals(expected, outputStream.toString());
+    }
+
+    @Test
+    void run_InvalidArgs_ReturnsException() {
+        Throwable thrown = assertThrows(CutException.class,
+                () -> cutApp.run(new String[]{"-b", "???"}, System.in, System.out));
+        assertEquals(CUT_EX_PREFIX + "Invalid indexes provided", thrown.getMessage());
     }
 }

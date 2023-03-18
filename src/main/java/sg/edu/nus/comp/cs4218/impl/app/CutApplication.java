@@ -28,7 +28,7 @@ public class CutApplication implements CutInterface {
         try {
             cutArgs.parse(args);
         } catch (Exception e) {
-            throw new CutException(e.getMessage()); //NOPMD
+            throw new CutException(e.getMessage(), e);
         }
 
         StringBuilder result = new StringBuilder();
@@ -52,7 +52,7 @@ public class CutApplication implements CutInterface {
         try {
             stdout.write(result.toString().getBytes());
         } catch (Exception e) {
-            throw new CutException(ERR_WRITE_STREAM);//NOPMD
+            throw new CutException(ERR_WRITE_STREAM, e);
         }
     }
 
@@ -66,7 +66,7 @@ public class CutApplication implements CutInterface {
         for (String fileString : fileName) {
             File file = IOUtils.resolveFilePath(fileString).toFile();
             if (!file.exists()) {
-                throw new CutException(ERR_FILE_NOT_FOUND);
+                throw new CutException(ERR_FILE_DIR_NOT_FOUND);
             }
             if (file.isDirectory()) {
                 throw new CutException(ERR_IS_DIR);
@@ -78,7 +78,7 @@ public class CutApplication implements CutInterface {
                 lines.addAll(IOUtils.getLinesFromInputStream(fileStream));
                 IOUtils.closeInputStream(fileStream);
             } catch (Exception e) {
-                throw new CutException(ERR_IO_EXCEPTION);//NOPMD
+                throw new CutException(ERR_IO_EXCEPTION, e);
             }
         }
         return cutString(isCharPo, isBytePo, ranges, lines);
@@ -94,7 +94,7 @@ public class CutApplication implements CutInterface {
             List<String> lines = IOUtils.getLinesFromInputStream(stdin);
             return cutString(isCharPo, isBytePo, ranges, lines);
         } catch (Exception e) {
-            throw new CutException(e.getMessage());
+            throw new CutException(e.getMessage(), e);
         }
     }
 

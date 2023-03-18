@@ -8,7 +8,9 @@ import sg.edu.nus.comp.cs4218.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 
@@ -18,7 +20,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
-public class FileSystemUtilsTest { //NOPMD
+@SuppressWarnings("PMD.GodClass")
+public class FileSystemUtilsTest {
     static final String CWD = System.getProperty("user.dir");
     static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "util" + CHAR_FILE_SEP + "FileSystemUtils";
     static final String SAMPLE_FILE = "sample.txt";
@@ -28,7 +31,7 @@ public class FileSystemUtilsTest { //NOPMD
     static final String NEW_FILE = "new.txt";
     static final String NEW_DIR = "new";
     static final String NEW_SUB_DIR = "newsubdir";
-
+    static final String NON_EXIST_ERR = "File or directory %s does not exist";
 
     @BeforeEach
     void setCurrentDirectory() {
@@ -117,7 +120,7 @@ public class FileSystemUtilsTest { //NOPMD
 
     @Test
     void deleteFileOrDir_NonExistingFile_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE); //NOPMD
+        String expectedMessage = String.format(NON_EXIST_ERR, FAKE_FILE);
         try {
             FileSystemUtils.deleteFileOrDir(FAKE_FILE);
         } catch (Exception e) {
@@ -137,7 +140,7 @@ public class FileSystemUtilsTest { //NOPMD
 
     @Test
     void deleteFileOrDir_NonExistingDir_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_DIR);
+        String expectedMessage = String.format(NON_EXIST_ERR, FAKE_DIR);
         try {
             FileSystemUtils.deleteFileOrDir(FAKE_DIR);
         } catch (Exception e) {
@@ -155,7 +158,7 @@ public class FileSystemUtilsTest { //NOPMD
 
     @Test
     void readFileContent_NonExistingFilename_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE);
+        String expectedMessage = String.format(NON_EXIST_ERR, FAKE_FILE);
         try {
             FileSystemUtils.readFileContent(FAKE_FILE);
         } catch (Exception e) {
@@ -172,38 +175,60 @@ public class FileSystemUtilsTest { //NOPMD
             assertEquals(expectedMessage, e.getMessage());
         }
     }
+    @Test
+    void writeStrToFile_NonExistingFile_ThrowsException() {
+        String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE);
+        String notRelevant = "";
+        boolean isAppend = false;
+        try {
+            FileSystemUtils.writeStrToFile(isAppend, notRelevant, FAKE_FILE);
+        } catch (Exception e) {
+            assertEquals(expectedMessage, e.getMessage());
+        }
+    }
 
     @Test
-    void appendStrToFile_ExistingFile_AppendsStringToFile() throws Exception {
+    void wrtieStrToFile_ExistingDir_ThrowsException() {
+        String expectedMessage = String.format("Failed to write to file %s", SAMPLE_DIR);
+        String notRelevant = "";
+        boolean isAppend = false;
+        try {
+            FileSystemUtils.writeStrToFile(isAppend, notRelevant, SAMPLE_DIR);
+        } catch (Exception e) {
+            assertEquals(expectedMessage, e.getMessage());
+        }
+    }
+
+    @Test
+    void writeStrToFile_WritingToExistingFile_WritesStringToFile() throws Exception {
         String absolutePath = Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE;
         File file = new File(absolutePath);
-        String textToAppend = "This is a text to append to the new file." + STRING_NEWLINE + "This is the second line.";
+        String textToAppend = "This is a text to write to the new file." + STRING_NEWLINE + "This is the second line.";
+        boolean isAppend = false;
         file.createNewFile();
-        FileSystemUtils.appendStrToFile(NEW_FILE, textToAppend);
+        FileSystemUtils.writeStrToFile(isAppend, textToAppend, NEW_FILE);
         assertEquals(textToAppend, Files.readString(Paths.get(absolutePath)));
         file.delete();
     }
 
     @Test
-    void appendStrToFile_NonExistingFile_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_FILE);
-        String notRelevant = "";
-        try {
-            FileSystemUtils.appendStrToFile(FAKE_FILE, notRelevant);
-        } catch (Exception e) {
-            assertEquals(expectedMessage, e.getMessage());
-        }
-    }
+    void writeStrToFile_AppendToExistingFile_AppendsStringToFile() throws Exception {
+        String absolutePath = Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE;
+        File file = new File(absolutePath);
+        String textToWrite = "Initial text" + STRING_NEWLINE + "Testing";
+        String textToAppend = "This is a text to append to the new file." + STRING_NEWLINE + "This is the second line.";
+        boolean isAppend = true;
 
-    @Test
-    void appendStrToFile_ExistingDir_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("Failed to write to file %s", SAMPLE_DIR);
-        String notRelevant = "";
-        try {
-            FileSystemUtils.appendStrToFile(SAMPLE_DIR, notRelevant);
-        } catch (Exception e) {
-            assertEquals(expectedMessage, e.getMessage());
-        }
+        // Creates file and writes initial text to the file
+        file.createNewFile();
+        Path path = Paths.get(absolutePath);
+        Files.write(path, textToWrite.getBytes(), StandardOpenOption.APPEND);
+
+        // Appends new text to the file
+        FileSystemUtils.writeStrToFile(isAppend, textToAppend, NEW_FILE);
+
+        assertEquals(textToWrite + textToAppend, Files.readString(path));
+        file.delete();
     }
 
     @Test
@@ -218,7 +243,7 @@ public class FileSystemUtilsTest { //NOPMD
 
     @Test
     void isDir_NonExistingDir_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_DIR);
+        String expectedMessage = String.format(NON_EXIST_ERR, FAKE_DIR);
         try {
             FileSystemUtils.isDir(FAKE_DIR);
         } catch (Exception e) {
@@ -247,7 +272,7 @@ public class FileSystemUtilsTest { //NOPMD
 
     @Test
     void isEmptyDir_NonExistingDir_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_DIR);
+        String expectedMessage = String.format(NON_EXIST_ERR, FAKE_DIR);
         try {
             FileSystemUtils.isEmptyDir(FAKE_DIR);
         } catch (Exception e) {
@@ -353,7 +378,7 @@ public class FileSystemUtilsTest { //NOPMD
 
     @Test
     void getFilesInFolder_NonExistingDir_ThrowExceptionWithCorrectMessage() {
-        String expectedMessage = String.format("File or directory %s does not exist", FAKE_DIR);
+        String expectedMessage = String.format(NON_EXIST_ERR, FAKE_DIR);
         try {
             FileSystemUtils.getFilesInFolder(FAKE_DIR);
         } catch (Exception e) {
@@ -385,5 +410,29 @@ public class FileSystemUtilsTest { //NOPMD
     @Test
     void joinPath_NoFileName_ReturnsCorrectPath() {
         assertEquals("" + CHAR_FILE_SEP, FileSystemUtils.joinPath());
+    }
+
+    @Test
+    void resolvePath_Dirname_ReturnsCorrectPath() {
+        Path path = FileSystemUtils.resolvePath(SAMPLE_DIR);
+        assertEquals(Paths.get(Environment.currentDirectory).resolve(SAMPLE_DIR).toString(), path.toString());
+    }
+
+    @Test
+    void resolvePath_Filename_ReturnsCorrectPath() {
+        Path path = FileSystemUtils.resolvePath(SAMPLE_FILE);
+        assertEquals(Paths.get(Environment.currentDirectory).resolve(SAMPLE_FILE).toString(), path.toString());
+    }
+
+    @Test
+    void getRelativeToCwd_ExistingDir_ReturnsCorrectRelativePath() {
+        Path path = Paths.get(Environment.currentDirectory).resolve(SAMPLE_DIR);
+        assertEquals(SAMPLE_DIR, FileSystemUtils.getRelativeToCwd(path).toString());
+    }
+
+    @Test
+    void getRelativeToCwd_ExistingFile_ReturnsCorrectRelativePath() {
+        Path path = Paths.get(Environment.currentDirectory).resolve(SAMPLE_FILE);
+        assertEquals(SAMPLE_FILE, FileSystemUtils.getRelativeToCwd(path).toString());
     }
 }

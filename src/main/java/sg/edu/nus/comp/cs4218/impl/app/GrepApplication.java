@@ -1,28 +1,18 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
-import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.app.GrepInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.GrepException;
-import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import sg.edu.nus.comp.cs4218.impl.app.args.GrepArguments;
-import sg.edu.nus.comp.cs4218.impl.parser.GrepArgsParser;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
@@ -76,8 +66,8 @@ public class GrepApplication implements GrepInterface {
                 String path = grepArgs.convertToAbsolutePath(f);
                 File file = new File(path);
                 if (!file.exists()) {
-                    lineResults.add(f + ": " + ERR_FILE_NOT_FOUND);
-                    countResults.add(f + ": " + ERR_FILE_NOT_FOUND);
+                    lineResults.add(f + ": " + ERR_FILE_DIR_NOT_FOUND);
+                    countResults.add(f + ": " + ERR_FILE_DIR_NOT_FOUND);
                     continue;
                 }
                 if (file.isDirectory()) { // ignore if it's a directory
@@ -109,7 +99,7 @@ public class GrepApplication implements GrepInterface {
                 }
                 reader.close();
             } catch (PatternSyntaxException pse) {
-                throw new GrepException(ERR_INVALID_REGEX);
+                throw new GrepException(ERR_INVALID_REGEX, pse);
             } finally {
                 if (reader != null) {
                     reader.close();
@@ -143,9 +133,9 @@ public class GrepApplication implements GrepInterface {
             }
             reader.close();
         } catch (PatternSyntaxException pse) {
-            throw new GrepException(ERR_INVALID_REGEX);
+            throw new GrepException(ERR_INVALID_REGEX, pse);
         } catch (NullPointerException npe) {
-            throw new GrepException(ERR_FILE_NOT_FOUND);
+            throw new GrepException(ERR_FILE_NOT_FOUND, npe);
         }
 
         String results = "";
@@ -196,7 +186,7 @@ public class GrepApplication implements GrepInterface {
         } catch (GrepException grepException) {
             throw grepException;
         } catch (Exception e) {
-            throw new GrepException(e.getMessage());
+            throw new GrepException(e.getMessage(), e);
         }
     }
 

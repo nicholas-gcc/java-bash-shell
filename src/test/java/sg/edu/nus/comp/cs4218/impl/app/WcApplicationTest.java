@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_WRITE_STREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_GENERAL;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_PERM;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
@@ -198,7 +198,7 @@ public class WcApplicationTest {
     @Test
     void wc_CountFromFilesNonExistingFile_ShowsFileNotFound() throws Exception {
         String result = wcApplication.countFromFiles(true, true, true, "blah");
-        assertEquals("wc: " + ERR_FILE_NOT_FOUND, result);
+        assertEquals("wc: " + ERR_FILE_DIR_NOT_FOUND, result);
     }
 
     @Test

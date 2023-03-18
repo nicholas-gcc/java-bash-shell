@@ -70,8 +70,12 @@ public class CutArguments {
             String[] range = s.split("-");
              if (range.length == 1) {
                 int[] rangeEntry = new int[2];
-                 rangeEntry[0] = Integer.parseInt(range[0]);
-                 rangeEntry[1] = Integer.parseInt(range[0]);
+                try {
+                    rangeEntry[0] = Integer.parseInt(range[0]);
+                    rangeEntry[1] = Integer.parseInt(range[0]);
+                } catch (NumberFormatException e) {
+                    throw new NumberFormatException("Invalid indexes provided");
+                }
                 this.ranges.add(rangeEntry);
             } else if (range.length == 2) {
                 int[] rangeEntry = new int[2];

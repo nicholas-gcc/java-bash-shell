@@ -10,7 +10,7 @@ import java.io.OutputStream;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 
-
+@SuppressWarnings("PMD.ExcessiveMethodLength")
 public class ApplicationRunner {
     public final static String APP_LS = "ls";
     public final static String APP_WC = "wc";
@@ -25,7 +25,10 @@ public class ApplicationRunner {
     public final static String APP_CP = "cp";
     public final static String APP_CUT = "cut";
     public final static String APP_RM = "rm";
+    public final static String APP_TEE = "tee";
 
+
+    public final static String APP_SORT = "sort";
 
     /**
      * Run the application as specified by the application command keyword and arguments.
@@ -81,8 +84,14 @@ public class ApplicationRunner {
             case APP_CUT:
                 application = new CutApplication();
                 break;
+            case APP_SORT:
+                application = new SortApplication();
+                break;
             case APP_RM:
                 application = new RmApplication();
+                break;
+            case APP_TEE:
+                application = new TeeApplication();
                 break;
             default:
                 throw new ShellException(app + ": " + ERR_INVALID_APP);
