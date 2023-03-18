@@ -203,7 +203,7 @@ public class WcApplicationTest {
     @Test
     void wc_CountFromFilesNonExistingFile_ShowsFileNotFound() throws Exception {
         String result = wcApplication.countFromFiles(true, true, true, "blah");
-        assertEquals(WC_EX_PREFIX + ERR_FILE_NOT_FOUND, result);
+        assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
     }
 
     @Test

@@ -47,7 +47,7 @@ public class CdApplicationTest {
     void cd_PathDoesNotExist_ThrowsCdException() {
         String string = "blah";
         CdException cdException = assertThrows(CdException.class, () -> cdApplication.changeToDirectory(string));
-        assertEquals(CD_EX_PREFIX + ERR_FILE_NOT_FOUND, cdException.getMessage());
+        assertEquals(CD_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, cdException.getMessage());
     }
 
     @Test
