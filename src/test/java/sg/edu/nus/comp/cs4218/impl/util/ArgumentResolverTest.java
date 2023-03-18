@@ -37,7 +37,6 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt",
@@ -51,7 +50,6 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1");
@@ -62,7 +60,6 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testD*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
