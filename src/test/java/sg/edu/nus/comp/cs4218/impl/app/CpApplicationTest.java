@@ -34,6 +34,12 @@ public class CpApplicationTest {
     private ByteArrayOutputStream outputStream;
 
     private CpApplication cpApplication;
+    private final static String STUB_A_TEXT = "This is stubA.txt";
+    private final static String STUB_B_TEXT = "This is stubB.txt";
+    private final static String STUB_C_TEXT = "This is stubC.txt";
+    private final static String STUB_D_TEXT = "This is stubD.txt";
+    private final static String TXT_EXTENSION = ".txt";
+
 
     @BeforeEach
     void setUp() throws IOException {
@@ -47,16 +53,16 @@ public class CpApplicationTest {
          * stubD.txt
          * */
         tempDirA = Files.createTempDirectory(CWD, "stubDirA");
-        tempFileA = Files.createTempFile(tempDirA, "stubA", ".txt");
-        Files.writeString(tempFileA, "This is stubA.txt");
+        tempFileA = Files.createTempFile(tempDirA, "stubA", TXT_EXTENSION);
+        Files.writeString(tempFileA, STUB_A_TEXT);
         tempDirB = Files.createTempDirectory(CWD, "stubDirB");
         tempDirC = Files.createTempDirectory(tempDirB, "stubDirC");
-        tempFileC = Files.createTempFile(tempDirC, "stubC", ".txt");
-        Files.writeString(tempFileC, "This is stubC.txt");
-        tempFileB = Files.createTempFile(tempDirB, "stubB", ".txt");
-        Files.writeString(tempFileB, "This is stubB.txt");
-        tempFileD = Files.createTempFile(CWD, "stubD", ".txt");
-        Files.writeString(tempFileD, "This is stubD.txt");
+        tempFileC = Files.createTempFile(tempDirC, "stubC", TXT_EXTENSION);
+        Files.writeString(tempFileC, STUB_C_TEXT);
+        tempFileB = Files.createTempFile(tempDirB, "stubB", TXT_EXTENSION);
+        Files.writeString(tempFileB, STUB_B_TEXT);
+        tempFileD = Files.createTempFile(CWD, "stubD", TXT_EXTENSION);
+        Files.writeString(tempFileD, STUB_D_TEXT);
 
         cpApplication = new CpApplication();
         inputStream = new ByteArrayInputStream(new byte[0]);
@@ -105,7 +111,7 @@ public class CpApplicationTest {
         assertTrue(Files.exists(copiedFile));
 
         // check file contents are copied over
-        String expectedContent = "This is stubD.txt";
+        String expectedContent = STUB_D_TEXT;
         String actualContent = Files.readString(copiedFile);
         assertEquals(expectedContent, actualContent);
     }
@@ -121,7 +127,7 @@ public class CpApplicationTest {
         assertTrue(Files.exists(copiedFile) && Files.exists(overwrittenFile));
 
         // check file contents are copied over correctly
-        String expectedContent = "This is stubD.txt";
+        String expectedContent = STUB_D_TEXT;
         String actualContent = Files.readString(overwrittenFile);
         assertEquals(expectedContent, actualContent);
     }
@@ -138,13 +144,13 @@ public class CpApplicationTest {
         assertTrue(Files.exists(copiedFileD) && Files.exists(copiedFileA));
 
         // check file contents are copied over
-        String expectedContentFileD = "This is stubD.txt";
-        String actualContentFileD = Files.readString(copiedFileD);
-        assertEquals(expectedContentFileD, actualContentFileD);
+        String expectedContentD = STUB_D_TEXT;
+        String actualContentD = Files.readString(copiedFileD);
+        assertEquals(expectedContentD, actualContentD);
 
-        String expectedContentFileA = "This is stubB.txt";
-        String actualContentFileA = Files.readString(copiedFileA);
-        assertEquals(expectedContentFileA, actualContentFileA);
+        String expectedContentA = STUB_B_TEXT;
+        String actualContentA = Files.readString(copiedFileA);
+        assertEquals(expectedContentA, actualContentA);
     }
 
     @Test
@@ -185,11 +191,11 @@ public class CpApplicationTest {
                 Files.exists(copiedFileC));
 
         // check file contents are copied over
-        String expectedContentB = "This is stubB.txt";
+        String expectedContentB = STUB_B_TEXT;
         String actualContentB = Files.readString(copiedFileB);
         assertEquals(expectedContentB, actualContentB);
 
-        String expectedContentC = "This is stubC.txt";
+        String expectedContentC = STUB_C_TEXT;
         String actualContentC = Files.readString(copiedFileC);
         assertEquals(expectedContentC, actualContentC);
     }
@@ -214,15 +220,15 @@ public class CpApplicationTest {
                 Files.exists(copiedFileC) && Files.exists(copiedFileD));
 
         // check file contents are copied over
-        String expectedContentB = "This is stubB.txt";
+        String expectedContentB = STUB_B_TEXT;
         String actualContentB = Files.readString(copiedFileB);
         assertEquals(expectedContentB, actualContentB);
 
-        String expectedContentC = "This is stubC.txt";
+        String expectedContentC = STUB_C_TEXT;
         String actualContentC = Files.readString(copiedFileC);
         assertEquals(expectedContentC, actualContentC);
 
-        String expectedContentD = "This is stubD.txt";
+        String expectedContentD = STUB_D_TEXT;
         String actualContentD = Files.readString(copiedFileD);
         assertEquals(expectedContentD, actualContentD);
     }
@@ -250,11 +256,11 @@ public class CpApplicationTest {
                 Files.exists(copiedFileC));
 
         // check file contents are copied over
-        String expectedContentB = "This is stubB.txt";
+        String expectedContentB = STUB_B_TEXT;
         String actualContentB = Files.readString(copiedFileB);
         assertEquals(expectedContentB, actualContentB);
 
-        String expectedContentC = "This is stubC.txt";
+        String expectedContentC = STUB_C_TEXT;
         String actualContentC = Files.readString(copiedFileC);
         assertEquals(expectedContentC, actualContentC);
 

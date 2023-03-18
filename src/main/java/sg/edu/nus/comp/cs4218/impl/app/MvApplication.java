@@ -4,8 +4,15 @@ import sg.edu.nus.comp.cs4218.app.MvInterface;
 import sg.edu.nus.comp.cs4218.exception.MvException;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import sg.edu.nus.comp.cs4218.impl.parser.MvArgsParser;
-import sg.edu.nus.comp.cs4218.impl.util.ErrorConstants;
 import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
+
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MISSING_ARG;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_PERM;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
+
+
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +50,7 @@ public class MvApplication implements MvInterface {
 
         } catch (NoSuchFileException e) {
             // If the source file does not exist
-            throw new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage(), e);
+            throw new MvException(ERR_FILE_NOT_FOUND + ":" + e.getMessage(), e);
 
         } catch (FileAlreadyExistsException e) {
             // If the destination file already exists
@@ -90,9 +97,9 @@ public class MvApplication implements MvInterface {
         } catch (FileAlreadyExistsException e) {
             throw new MvException("Cannot move file: a file with the same name already exists in destination folder", e);
         } catch (AccessDeniedException e) {
-            throw new MvException(ErrorConstants.ERR_NO_PERM + ":" + e.getFile(), e);
+            throw new MvException(ERR_NO_PERM + ":" + e.getFile(), e);
         } catch (NoSuchFileException e) {
-            throw new MvException(ErrorConstants.ERR_FILE_NOT_FOUND + ":" + e.getMessage(), e);
+            throw new MvException(ERR_FILE_NOT_FOUND + ":" + e.getMessage(), e);
         } catch (IOException e) {
             throw new MvException(e.getMessage(), e);
         }
@@ -102,14 +109,17 @@ public class MvApplication implements MvInterface {
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws MvException {
         if (args == null) {
-            throw new MvException(ErrorConstants.ERR_NULL_ARGS);
+            throw new MvException(ERR_NULL_ARGS);
+        }
+        if (stdout == null) {
+            throw new MvException(ERR_NO_OSTREAM);
         }
         MvArgsParser mvArgsParser = new MvArgsParser();
         try {
             mvArgsParser.parse(args);
             String[] toMoveFiles = mvArgsParser.getSourceFiles();
             if (toMoveFiles.length == 0) {
-                throw new InvalidArgsException(ErrorConstants.ERR_MISSING_ARG);
+                throw new InvalidArgsException(ERR_MISSING_ARG);
             }
             String destPath = mvArgsParser.getDestFile();
             boolean isOverwrite = mvArgsParser.shouldOverwrite();
@@ -117,7 +127,7 @@ public class MvApplication implements MvInterface {
                 mvFilesToFolder(isOverwrite, destPath, toMoveFiles);
             } else {
                 if (toMoveFiles.length != 1) {
-                    throw new InvalidArgsException(ErrorConstants.ERR_MISSING_ARG);
+                    throw new InvalidArgsException(ERR_MISSING_ARG);
                 }
                 if (!isOverwrite && new File(destPath).exists()) {
                     throw new MvException("Destination file '" + destPath + "' already exists and cannot be replaced.");
@@ -125,17 +135,7 @@ public class MvApplication implements MvInterface {
                 mvSrcFileToDestFile(isOverwrite, toMoveFiles[0], destPath);
             }
         } catch (Exception e) {
-            try {
-                if (stdout == null) {
-                    throw new MvException("OutputStream cannot be null");
-                }
-                else {
-                    stdout.write(e.getMessage().getBytes());
-                    throw new MvException(e.getMessage(), e);
-                }
-            } catch (IOException ex) {
-                throw new MvException("Could not write to output stream", e);
-            }
+            throw new MvException(e.getMessage(), e);
         }
     }
 

@@ -13,8 +13,6 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MISSING_ARG;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 
-
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -41,7 +39,7 @@ public class CpApplication implements CpInterface {
         try {
             parser.parse(args);
         } catch (InvalidArgsException e) {
-            throw new CpException(e.getMessage());
+            throw new CpException(e.getMessage(), e);
         }
 
         boolean isRecursive = parser.isRecursive();

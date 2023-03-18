@@ -7,7 +7,13 @@ import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.MvException;
 import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
-import java.io.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MvApplicationTest {
 
     private static final String BASE_URL = Environment.currentDirectory;
-    private static final String FLAG_IS_NO_OVERWRITE = "-n";
+    private static final String FLAG_NO_OVERWRITE = "-n";
 
     private static final Path CWD = Paths.get(BASE_URL);
     private Path tempFileA;
@@ -70,7 +76,7 @@ class MvApplicationTest {
 
     @Test
     void run_nullOutputStream_ThrowsException() {
-        String expected = "mv: OutputStream cannot be null";
+        String expected = "mv: " + ERR_NO_OSTREAM;
         String[] args = {};
         Throwable err = assertThrows(MvException.class, () -> mvApplication.run(args, inputStream, null));
         assertEquals(expected, err.getMessage());
@@ -116,7 +122,7 @@ class MvApplicationTest {
 
     @Test
     void run_MoveFileIntoDirectoryNoOverride_ShouldNotThrow() throws IOException {
-        String[] args = {FLAG_IS_NO_OVERWRITE, getFileName(tempFileA), getFileName(tempDirA)};
+        String[] args = {FLAG_NO_OVERWRITE, getFileName(tempFileA), getFileName(tempDirA)};
         assertDoesNotThrow(() -> mvApplication.run(args, inputStream, outputStream));
         List<Path> files = Files.list(tempDirA)
                 .filter(Files::isRegularFile)
