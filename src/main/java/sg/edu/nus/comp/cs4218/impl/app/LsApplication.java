@@ -75,8 +75,8 @@ public class LsApplication implements LsInterface {
 
         Boolean recursive = parser.isRecursive();
         Boolean sortByExt = parser.isSortByExt();
-        String[] filesOrDirs = parser.getDirectories()
-                .toArray(new String[parser.getDirectories().size()]);
+        String[] filesOrDirs = parser.getFilesOrDirNames()
+                .toArray(new String[parser.getFilesOrDirNames().size()]);
         String result = listFolderContent(recursive, sortByExt, filesOrDirs);
 
         try {
