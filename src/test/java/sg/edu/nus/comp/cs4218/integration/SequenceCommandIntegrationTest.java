@@ -53,12 +53,12 @@ public class SequenceCommandIntegrationTest {
         outputStream = new ByteArrayOutputStream();
     }
 
-    @AfterEach
-    void reset() throws IOException {
-        Environment.currentDirectory = CWD;
-        inputStream.close();
-        outputStream.close();
-    }
+//    @AfterEach
+//    void reset() throws IOException {
+//        Environment.currentDirectory = CWD;
+//        inputStream.close();
+//        outputStream.close();
+//    }
 
     @AfterEach
     void deleteFiles() throws Exception {
@@ -74,6 +74,9 @@ public class SequenceCommandIntegrationTest {
         if (FileSystemUtils.fileOrDirExist(DIR + CHAR_FILE_SEP + NEW_FILE2)) {
             FileSystemUtils.deleteFileOrDir(DIR + CHAR_FILE_SEP + NEW_FILE2);
         }
+        Environment.currentDirectory = CWD;
+        inputStream.close();
+        outputStream.close();
     }
 
     @Test
