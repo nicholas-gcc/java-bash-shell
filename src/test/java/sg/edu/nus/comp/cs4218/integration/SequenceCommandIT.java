@@ -151,7 +151,7 @@ public class SequenceCommandIT {
     }
 
     @Test
-    void parseAndEvaluate_PasteAndUniq_shouldPrintCorrectly() throws Exception {
+    void parseAndEvaluate_PasteSAndUniq_shouldPrintCorrectly() throws Exception {
         FileSystemUtils.createEmptyFile(NEW_FILE1);
         FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
 
@@ -183,6 +183,17 @@ public class SequenceCommandIT {
 
    @Test
    void parseAndEvaluate_PasteAndSort_ShouldSortProperly() throws Exception {
-        
+       FileSystemUtils.createEmptyFile(NEW_FILE1);
+       FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
+
+       FileSystemUtils.createEmptyFile(NEW_FILE2);
+
+       String command = "paste " + NEW_FILE1 + " " + SAMPLE_FILE + " > " + NEW_FILE2 + "; sort " + NEW_FILE2;
+       shell.parseAndEvaluate(command, outputStream);
+       String expected = NEW_CONTENT_LINE1 + CHAR_TAB + CONTENT_LINE1 + STRING_NEWLINE
+       + NEW_CONTENT_LINE2 + CHAR_TAB + CONTENT_LINE2 + STRING_NEWLINE;
+       assertEquals(expected, outputStream.toString());
    }
+
+   
 }
