@@ -12,6 +12,7 @@ import sg.edu.nus.comp.cs4218.impl.ShellImpl;
 import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -132,7 +133,19 @@ public class SequenceCommandIT {
     }
 
     @Test
-    void parseAndEvaluate_MvAndLs_shouldMoveCorrectly() throws Exception {
-        
+    void parseAndEvaluate_MvAndCdAndLs_shouldMoveCorrectly() throws Exception {
+        File inputFile = new File(NEW_FILE);
+        if(!inputFile.exists()) {
+            inputFile.createNewFile();
+        }
+        String command = "mv " + NEW_FILE + " " + DIR + "; ls " + DIR;
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = DIR + ":"+ STRING_NEWLINE + DELETE_FILE + STRING_NEWLINE + NEW_FILE + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+
+        command = "cd dir; mv new.txt ..;ls";
+        shell.parseAndEvaluate(command, outputStream);
+        expected += DELETE_FILE + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
     }
 }
