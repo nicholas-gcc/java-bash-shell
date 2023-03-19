@@ -225,6 +225,11 @@ public class WcApplication implements WcInterface {
             } else {
                 long[] count = getCountReport(stdin); // lines words bytes;
 
+                // Update total count
+                totalLines += count[0];
+                totalWords += count[1];
+                totalBytes += count[2];
+
                 StringBuilder sb = new StringBuilder(); //NOPMD
                 if (isLines) {
                     sb.append(String.format(NUMBER_FORMAT, count[0]));
@@ -235,6 +240,7 @@ public class WcApplication implements WcInterface {
                 if (isBytes) {
                     sb.append(String.format(NUMBER_FORMAT, count[2]));
                 }
+                sb.append(String.format(" %s", file));
                 result.add(sb.toString());
             }
         }

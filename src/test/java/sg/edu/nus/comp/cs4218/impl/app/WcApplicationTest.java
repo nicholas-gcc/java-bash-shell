@@ -353,8 +353,101 @@ public class WcApplicationTest {
         assertEquals(ERR_NULL_STREAMS, exception.getMessage());
     }
 
-    @Test void wc_GetCountReportValidInput_GetsCorrectly() throws Exception {
+    @Test
+    void wc_GetCountReportValidInput_GetsCorrectly() throws Exception {
         stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_TEST_1_FILE);
         wcApplication.getCountReport(stdin);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinNullFiles_ThrowsException() {
+        Exception exception = assertThrows(Exception.class, () ->
+                wcApplication.countFromFileAndStdin(true, true, true, stdin, null)
+        );
+        assertEquals(ERR_GENERAL, exception.getMessage());
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinNullStdin_ThrowsException() {
+        WcException wcException = assertThrows(WcException.class, () ->
+                wcApplication.countFromFileAndStdin(true, true, true, null, "")
+        );
+        assertEquals(WC_EX_PREFIX + ERR_NULL_STREAMS, wcException.getMessage());
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinNonExistingFile_ShowsFileNotFound() throws Exception {
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                "blah");
+        assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinDirectory_ShowsDirectory() throws Exception {
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                "test_dir");
+        assertEquals(WC_EX_PREFIX + ERR_IS_DIR, result);
+    }
+
+    @Test
+    @EnabledOnOs({OS.MAC})
+//    Mac and windows uses different file permissions, this method only works on mac
+    void wc_CountFromFileAndStdinUnreadable_ShowsUnreadable() throws Exception {
+        File unreadableFile = new File(Environment.currentDirectory + File.separator + "unreadable.txt");
+        unreadableFile.setReadable(false);
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                "unreadable.txt");
+        assertEquals(WC_EX_PREFIX + ERR_NO_PERM, result);
+        unreadableFile.setReadable(true);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinValidFile_CountsCorrectly() throws Exception {
+        String expected = WC_TEST_1_RESULT;
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                WC_TEST_1_FILE);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinMultipleValidFiles_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "wc_test2.txt"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                "       0       1       5 wc_test2.txt" + STRING_NEWLINE +
+                "       0       2      10 total";
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinInvalidFile_CountsCorrectly() throws Exception {
+        String expected = WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND;
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                "blah");
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinValidAndInvalidFile_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "blah"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND + STRING_NEWLINE +
+                "       0       1       5 total";
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinValidFileAndStdin_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "-"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                "       2      55     287 -" + STRING_NEWLINE +
+                "       2      56     292 total";
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
     }
 }
