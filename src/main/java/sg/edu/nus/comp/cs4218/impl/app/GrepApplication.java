@@ -12,17 +12,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_REGEX;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_INPUT;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
+@SuppressWarnings({"PMD.GodClass"})
 public class GrepApplication implements GrepInterface {
     public static final String IS_DIRECTORY = "Is a directory";
     public static final String NULL_POINTER = "Null Pointer Exception";
 
-
-
-    private static GrepArguments grepArgs = new GrepArguments();
+    private final GrepArguments grepArgs;
+    public GrepApplication() {
+        grepArgs = new GrepArguments();
+    }
 
     @Override
     public String grepFromFiles(String pattern, Boolean isCaseInsensitive, Boolean isCountLines, Boolean isPrefixFileName, String... fileNames) throws Exception {
@@ -37,11 +42,11 @@ public class GrepApplication implements GrepInterface {
 
         String results = "";
         if (isCountLines) {
-            results = countResults.toString() + STRING_NEWLINE;
+            results = countResults + STRING_NEWLINE;
         } else {
             if (!lineResults.toString().isEmpty()) {
 
-                results = lineResults.toString() + STRING_NEWLINE;
+                results = lineResults + STRING_NEWLINE;
             }
         }
         return results;
@@ -160,7 +165,7 @@ public class GrepApplication implements GrepInterface {
             String pattern = grepArgs.getGrepArguments(args, inputFiles);
             GrepArguments.validate(pattern);
 
-            String result = "";
+            String result;
 
             if (stdin == null || inputFiles.isEmpty()) {
                 throw new Exception(ERR_NO_INPUT);
