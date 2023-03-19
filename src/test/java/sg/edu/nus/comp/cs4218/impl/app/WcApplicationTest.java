@@ -442,11 +442,25 @@ public class WcApplicationTest {
     }
 
     @Test
-    void wc_CountFromFileAndStdinValidFileAndStdin_CountsCorrectly() throws Exception {
+    @EnabledOnOs({OS.MAC})
+    void wc_CountFromFileAndStdinValidFileAndStdinOnMac_CountsCorrectly() throws Exception {
         String [] array = {WC_TEST_1_FILE, "-"};
         String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
                 "       2      55     287 -" + STRING_NEWLINE +
                 "       2      56     292 total";
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @EnabledOnOs({OS.WINDOWS})
+    void wc_CountFromFileAndStdinValidFileAndStdinOnWindows_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "-"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                "       2      55     289 -" + STRING_NEWLINE +
+                "       2      56     294 total";
         stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
         String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
                 array);
