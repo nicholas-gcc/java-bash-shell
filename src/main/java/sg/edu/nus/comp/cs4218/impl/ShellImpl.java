@@ -34,6 +34,9 @@ public class ShellImpl implements Shell {
                     String currentDirectory = Environment.currentDirectory;
                     System.out.print(new File(currentDirectory).getAbsolutePath() + "> ");
                     commandString = reader.readLine();
+                    if (commandString == null) {
+                        break; // End of stream, terminate process
+                    }
                 } catch (IOException e) {
                     break; // Streams are closed, terminate process
                 }
