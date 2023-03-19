@@ -2,26 +2,36 @@ package sg.edu.nus.comp.cs4218.integration;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.Shell;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
+import sg.edu.nus.comp.cs4218.exception.CpException;
+import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.ShellImpl;
 import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class SequenceCommandIT {
     static final String CWD = System.getProperty("user.dir");
-    static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "it" + CHAR_FILE_SEP + "sequence";
+    static final String TESTING_PATH = "assets" + CHAR_FILE_SEP + "it" + CHAR_FILE_SEP + "sequence";
     static final String SAMPLE_FILE = "sample.txt";
+
+    static final String DELETE_FILE = "delete_me.txt";
     static final String CONTENT_LINE1 = "This is a sample text.";
     static final String CONTENT_LINE2 =  "This is the second line.";
     static final String SAMPLE_CONTENT =  CONTENT_LINE1 + STRING_NEWLINE + CONTENT_LINE2;
+    static final String NEW_FILE = "new.txt";
     static final String NEW_FILE1 = "new1.txt";
     static final String NEW_FILE2 = "new2.txt";
     static final String NEW_CONTENT_LINE1 = "This is new content.";
@@ -36,7 +46,7 @@ public class SequenceCommandIT {
 
     @BeforeEach
     void setup() {
-        Environment.currentDirectory += TESTING_PATH;
+        Environment.currentDirectory += CHAR_FILE_SEP + TESTING_PATH;
         inputStream = System.in;
         outputStream = new ByteArrayOutputStream();
     }
@@ -50,6 +60,9 @@ public class SequenceCommandIT {
 
     @AfterEach
     void deleteFiles() throws Exception {
+        if (FileSystemUtils.fileOrDirExist(NEW_FILE)) {
+            FileSystemUtils.deleteFileOrDir(NEW_FILE);
+        }
         if (FileSystemUtils.fileOrDirExist(NEW_FILE1)) {
             FileSystemUtils.deleteFileOrDir(NEW_FILE1);
         }
@@ -61,6 +74,47 @@ public class SequenceCommandIT {
         }
     }
 
-    
+    @Test
+    void parseAndEvaluate_cdAndCat_shouldPrintFileContent() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        Environment.currentDirectory = CWD;
+        String command = "cd " + TESTING_PATH + "; cat " + SAMPLE_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        assertEquals(SAMPLE_CONTENT + STRING_NEWLINE, outputStream.toString());
+    }
 
+    @Test
+    void parseAndEvaluate_CdAndCp_shouldPrintFileContent() throws Exception {
+        Environment.currentDirectory = CWD;
+        String command = "cd " + TESTING_PATH + "; cp " + SAMPLE_FILE + " " + NEW_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        String output = FileSystemUtils.readFileContent(NEW_FILE);
+        assertEquals(SAMPLE_CONTENT, output);
+    }
+
+    @Test
+    void parseAndEvaluate_CpAndCutC_shouldPrintCutContent() throws Exception {
+        String command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; cut -c 6-7 " + NEW_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = "is" + STRING_NEWLINE + "is" + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
+
+    @Test
+    void parseAndEvaluate_CpAndCutB_shouldPrintCutContent() throws Exception {
+        String command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; cut -b 2 " + NEW_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = "h" + STRING_NEWLINE + "h" + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
+
+    @Test
+    void parseAndEvaluate_CdAndLs_shouldPrintFiles() throws Exception {
+        Environment.currentDirectory = CWD;
+        String command = "cd " + TESTING_PATH + "; ls ";
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = DELETE_FILE + STRING_NEWLINE
+                + DIR + STRING_NEWLINE
+                + SAMPLE_FILE + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
 }
