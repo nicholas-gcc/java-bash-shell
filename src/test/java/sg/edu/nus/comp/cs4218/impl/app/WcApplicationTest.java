@@ -42,6 +42,8 @@ public class WcApplicationTest {
     private static final String WC_TEST_1_RESULT = "       0       1       5 wc_test1.txt";
     private static final String WC_MULTI_SENT = "multi-sentence.txt";
     private static final String WC_MULTI_PARA = "multi-para.txt";
+    private static final String WC_INVALID_FILE = "blah";
+    private static final String WC_UNREADABLE = "unreadable.txt";
 
     @BeforeEach
     void setup() {
@@ -202,7 +204,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_CountFromFilesNonExistingFile_ShowsFileNotFound() throws Exception {
-        String result = wcApplication.countFromFiles(true, true, true, "blah");
+        String result = wcApplication.countFromFiles(true, true, true, WC_INVALID_FILE);
         assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
     }
 
@@ -216,9 +218,9 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.MAC})
 //    Mac and windows uses different file permissions, this method only works on mac
     void wc_CountFromFilesUnreadable_ShowsUnreadable() throws Exception {
-        File unreadableFile = new File(Environment.currentDirectory + File.separator + "unreadable.txt");
+        File unreadableFile = new File(Environment.currentDirectory + File.separator + WC_UNREADABLE);
         unreadableFile.setReadable(false);
-        String result = wcApplication.countFromFiles(true, true, true, "unreadable.txt");
+        String result = wcApplication.countFromFiles(true, true, true, WC_UNREADABLE);
         assertEquals(WC_EX_PREFIX + ERR_NO_PERM, result);
         unreadableFile.setReadable(true);
     }
@@ -378,7 +380,7 @@ public class WcApplicationTest {
     @Test
     void wc_CountFromFileAndStdinNonExistingFile_ShowsFileNotFound() throws Exception {
         String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
-                "blah");
+                WC_INVALID_FILE);
         assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
     }
 
@@ -393,10 +395,10 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.MAC})
 //    Mac and windows uses different file permissions, this method only works on mac
     void wc_CountFromFileAndStdinUnreadable_ShowsUnreadable() throws Exception {
-        File unreadableFile = new File(Environment.currentDirectory + File.separator + "unreadable.txt");
+        File unreadableFile = new File(Environment.currentDirectory + File.separator + WC_UNREADABLE);
         unreadableFile.setReadable(false);
         String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
-                "unreadable.txt");
+                WC_UNREADABLE);
         assertEquals(WC_EX_PREFIX + ERR_NO_PERM, result);
         unreadableFile.setReadable(true);
     }
@@ -424,13 +426,13 @@ public class WcApplicationTest {
     void wc_CountFromFileAndStdinInvalidFile_CountsCorrectly() throws Exception {
         String expected = WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND;
         String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
-                "blah");
+                WC_INVALID_FILE);
         assertEquals(expected, result);
     }
 
     @Test
     void wc_CountFromFileAndStdinValidAndInvalidFile_CountsCorrectly() throws Exception {
-        String [] array = {WC_TEST_1_FILE, "blah"};
+        String [] array = {WC_TEST_1_FILE, WC_INVALID_FILE};
         String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
                 WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND + STRING_NEWLINE +
                 "       0       1       5 total";
