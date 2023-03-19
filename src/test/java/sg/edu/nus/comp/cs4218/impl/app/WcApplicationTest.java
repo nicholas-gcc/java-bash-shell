@@ -42,6 +42,8 @@ public class WcApplicationTest {
     private static final String WC_TEST_1_RESULT = "       0       1       5 wc_test1.txt";
     private static final String WC_MULTI_SENT = "multi-sentence.txt";
     private static final String WC_MULTI_PARA = "multi-para.txt";
+    private static final String WC_INVALID_FILE = "blah";
+    private static final String WC_UNREADABLE = "unreadable.txt";
 
     @BeforeEach
     void setup() {
@@ -202,7 +204,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_CountFromFilesNonExistingFile_ShowsFileNotFound() throws Exception {
-        String result = wcApplication.countFromFiles(true, true, true, "blah");
+        String result = wcApplication.countFromFiles(true, true, true, WC_INVALID_FILE);
         assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
     }
 
@@ -216,9 +218,9 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.MAC})
 //    Mac and windows uses different file permissions, this method only works on mac
     void wc_CountFromFilesUnreadable_ShowsUnreadable() throws Exception {
-        File unreadableFile = new File(Environment.currentDirectory + File.separator + "unreadable.txt");
+        File unreadableFile = new File(Environment.currentDirectory + File.separator + WC_UNREADABLE);
         unreadableFile.setReadable(false);
-        String result = wcApplication.countFromFiles(true, true, true, "unreadable.txt");
+        String result = wcApplication.countFromFiles(true, true, true, WC_UNREADABLE);
         assertEquals(WC_EX_PREFIX + ERR_NO_PERM, result);
         unreadableFile.setReadable(true);
     }
@@ -353,8 +355,115 @@ public class WcApplicationTest {
         assertEquals(ERR_NULL_STREAMS, exception.getMessage());
     }
 
-    @Test void wc_GetCountReportValidInput_GetsCorrectly() throws Exception {
+    @Test
+    void wc_GetCountReportValidInput_GetsCorrectly() throws Exception {
         stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_TEST_1_FILE);
         wcApplication.getCountReport(stdin);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinNullFiles_ThrowsException() {
+        Exception exception = assertThrows(Exception.class, () ->
+                wcApplication.countFromFileAndStdin(true, true, true, stdin, null)
+        );
+        assertEquals(ERR_GENERAL, exception.getMessage());
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinNullStdin_ThrowsException() {
+        WcException wcException = assertThrows(WcException.class, () ->
+                wcApplication.countFromFileAndStdin(true, true, true, null, "")
+        );
+        assertEquals(WC_EX_PREFIX + ERR_NULL_STREAMS, wcException.getMessage());
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinNonExistingFile_ShowsFileNotFound() throws Exception {
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                WC_INVALID_FILE);
+        assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinDirectory_ShowsDirectory() throws Exception {
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                "test_dir");
+        assertEquals(WC_EX_PREFIX + ERR_IS_DIR, result);
+    }
+
+    @Test
+    @EnabledOnOs({OS.MAC})
+//    Mac and windows uses different file permissions, this method only works on mac
+    void wc_CountFromFileAndStdinUnreadable_ShowsUnreadable() throws Exception {
+        File unreadableFile = new File(Environment.currentDirectory + File.separator + WC_UNREADABLE);
+        unreadableFile.setReadable(false);
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                WC_UNREADABLE);
+        assertEquals(WC_EX_PREFIX + ERR_NO_PERM, result);
+        unreadableFile.setReadable(true);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinValidFile_CountsCorrectly() throws Exception {
+        String expected = WC_TEST_1_RESULT;
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                WC_TEST_1_FILE);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinMultipleValidFiles_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "wc_test2.txt"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                "       0       1       5 wc_test2.txt" + STRING_NEWLINE +
+                "       0       2      10 total";
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinInvalidFile_CountsCorrectly() throws Exception {
+        String expected = WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND;
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                WC_INVALID_FILE);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void wc_CountFromFileAndStdinValidAndInvalidFile_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, WC_INVALID_FILE};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND + STRING_NEWLINE +
+                "       0       1       5 total";
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @EnabledOnOs({OS.MAC})
+    void wc_CountFromFileAndStdinValidFileAndStdinOnMac_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "-"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                "       2      55     287 -" + STRING_NEWLINE +
+                "       2      56     292 total";
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @EnabledOnOs({OS.WINDOWS})
+    void wc_CountFromFileAndStdinValidFileAndStdinOnWindows_CountsCorrectly() throws Exception {
+        String [] array = {WC_TEST_1_FILE, "-"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
+                "       2      55     289 -" + STRING_NEWLINE +
+                "       2      56     294 total";
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
+        String result = wcApplication.countFromFileAndStdin(true, true, true, stdin,
+                array);
+        assertEquals(expected, result);
     }
 }
