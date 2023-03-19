@@ -13,6 +13,7 @@ import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,9 +66,15 @@ public class SequenceCommandIntegrationTest {
         if (FileSystemUtils.fileOrDirExist(NEW_FILE)) {
             FileSystemUtils.deleteFileOrDir(NEW_FILE);
         }
-        if (FileSystemUtils.fileOrDirExist(DIR + CHAR_FILE_SEP + NEW_FILE2)) {
-            FileSystemUtils.deleteFileOrDir(DIR + CHAR_FILE_SEP + NEW_FILE2);
+        FileOutputStream writer = new FileOutputStream(Environment.currentDirectory + CHAR_FILE_SEP + NEW_FILE2);
+        try {
+            writer.write(("").getBytes());
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            writer.close();
         }
+
         Environment.currentDirectory = CWD;
         inputStream.close();
         outputStream.close();
