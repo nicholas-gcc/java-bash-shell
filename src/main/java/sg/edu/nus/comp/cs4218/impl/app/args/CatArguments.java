@@ -5,10 +5,12 @@ import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_DASH;
 
 public class CatArguments {
     String[] files;
@@ -33,6 +35,11 @@ public class CatArguments {
             throw new InvalidArgsException(ERR_NO_ARGS);
         }
 
+        // check if arg is only -
+        if (args.length == 1 && args[0].equals(STRING_DASH)) {
+            this.files = new String[]{"-"};
+            return;
+        }
         // check if option flag -n exists, set boolean accordingly
         isLineNumbers = args[0].charAt(0) == CHAR_FLAG_PREFIX && args[0].charAt(1) == FLAG_LINE_NUM_CHAR;
 

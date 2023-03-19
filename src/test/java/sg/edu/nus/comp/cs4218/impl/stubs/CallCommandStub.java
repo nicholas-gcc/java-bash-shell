@@ -29,13 +29,14 @@ public class CallCommandStub extends CallCommand {
 
     private final CommandType commandType;
 
-    public CallCommandStub(List<String> argsList, ApplicationRunner applicationRunner, ArgumentResolver argumentResolver, CommandType commandType) {
+    public CallCommandStub(List<String> argsList, ApplicationRunner applicationRunner,
+                           ArgumentResolver argumentResolver, CommandType commandType) {
         super(argsList, applicationRunner, argumentResolver);
         this.commandType = commandType;
     }
 
     @Override
-    public void evaluate(InputStream stdin, OutputStream stdout) throws AbstractApplicationException, ShellException {
+    public void evaluate(InputStream stdin, OutputStream stdout) throws ShellException {
         // stub output for ls command
         String lsOutput = "src" + System.lineSeparator() + "assets" + System.lineSeparator() + "target";
 

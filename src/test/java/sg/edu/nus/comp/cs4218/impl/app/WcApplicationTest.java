@@ -37,6 +37,11 @@ public class WcApplicationTest {
     OutputStream stdout;
     static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "wc";
     static final String CWD = System.getProperty("user.dir");
+    private static final String WC_EX_PREFIX = "wc: ";
+    private static final String WC_TEST_1_FILE = "wc_test1.txt";
+    private static final String WC_TEST_1_RESULT = "       0       1       5 wc_test1.txt";
+    private static final String WC_MULTI_SENT = "multi-sentence.txt";
+    private static final String WC_MULTI_PARA = "multi-para.txt";
 
     @BeforeEach
     void setup() {
@@ -56,21 +61,21 @@ public class WcApplicationTest {
         String [] array = {};
         stdout = null;
         WcException wcException = assertThrows(WcException.class, () -> wcApplication.run(array, stdin, stdout));
-        assertEquals("wc: " + ERR_NULL_STREAMS, wcException.getMessage());
+        assertEquals(WC_EX_PREFIX + ERR_NULL_STREAMS, wcException.getMessage());
     }
 
     @Test
     void wc_RunWithOneFile_ShouldWcCorrectly() throws WcException {
-        String [] array = {"wc_test1.txt"};
-        String expected = "       0       1       5 wc_test1.txt" + STRING_NEWLINE;
+        String [] array = {WC_TEST_1_FILE};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
     }
 
     @Test
     void wc_RunWithMultipleFiles_ShouldWcCorrectly() throws WcException {
-        String [] array = {"wc_test1.txt", "wc_test2.txt"};
-        String expected = "       0       1       5 wc_test1.txt" + STRING_NEWLINE +
+        String [] array = {WC_TEST_1_FILE, "wc_test2.txt"};
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
                 "       0       1       5 wc_test2.txt" + STRING_NEWLINE +
                 "       0       2      10 total" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
@@ -88,7 +93,7 @@ public class WcApplicationTest {
     @Test
     @EnabledOnOs({OS.MAC})
     void wc_RunWithMultiSentenceFileOnMac_ShouldWcCorrectly() throws WcException {
-        String [] array = {"multi-sentence.txt"};
+        String [] array = {WC_MULTI_SENT};
         String expected = "       2      55     287 multi-sentence.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -97,7 +102,7 @@ public class WcApplicationTest {
     @Test
     @EnabledOnOs({OS.WINDOWS})
     void wc_RunWithMultiSentenceFileOnWindows_ShouldWcCorrectly() throws WcException {
-        String [] array = {"multi-sentence.txt"};
+        String [] array = {WC_MULTI_SENT};
         String expected = "       2      55     289 multi-sentence.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -106,7 +111,7 @@ public class WcApplicationTest {
     @Test
     @EnabledOnOs({OS.MAC})
     void wc_RunWithMultiParaFileOnMac_ShouldWcCorrectly() throws WcException {
-        String [] array = {"multi-para.txt"};
+        String [] array = {WC_MULTI_PARA};
         String expected = "      12     220    1234 multi-para.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -115,7 +120,7 @@ public class WcApplicationTest {
     @Test
     @EnabledOnOs({OS.WINDOWS})
     void wc_RunWithMultiParaFileOnWindows_ShouldWcCorrectly() throws WcException {
-        String [] array = {"multi-para.txt"};
+        String [] array = {WC_MULTI_PARA};
         String expected = "      12     220    1246 multi-para.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -130,7 +135,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_RunWithByteArgument_ShouldWcCorrectly() throws WcException {
-        String [] array = {"-c", "wc_test1.txt"};
+        String [] array = {"-c", WC_TEST_1_FILE};
         String expected = "       5 wc_test1.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -138,7 +143,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_RunWithLineArgument_ShouldWcCorrectly() throws WcException {
-        String [] array = {"-l", "wc_test1.txt"};
+        String [] array = {"-l", WC_TEST_1_FILE};
         String expected = "       0 wc_test1.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -146,7 +151,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_RunWithWordsArgument_ShouldWcCorrectly() throws WcException {
-        String [] array = {"-w", "wc_test1.txt"};
+        String [] array = {"-w", WC_TEST_1_FILE};
         String expected = "       1 wc_test1.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -154,7 +159,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_RunWithLineByteArgument_ShouldWcCorrectly() throws WcException {
-        String [] array = {"-l", "-c", "wc_test1.txt"};
+        String [] array = {"-l", "-c", WC_TEST_1_FILE};
         String expected = "       0       5 wc_test1.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -162,7 +167,7 @@ public class WcApplicationTest {
 
     @Test
     void wc_RunWithByteWordArgument_ShouldWcCorrectly() throws WcException {
-        String [] array = {"-c", "-w", "wc_test1.txt"};
+        String [] array = {"-c", "-w", WC_TEST_1_FILE};
         String expected = "       1       5 wc_test1.txt" + STRING_NEWLINE;
         wcApplication.run(array, stdin, stdout);
         assertEquals(expected, stdout.toString());
@@ -173,7 +178,7 @@ public class WcApplicationTest {
         String [] array = {};
         stdin = null;
         WcException wcException = assertThrows(WcException.class, () -> wcApplication.run(array, stdin, stdout));
-        assertEquals("wc: " + ERR_NULL_STREAMS, wcException.getMessage());
+        assertEquals(WC_EX_PREFIX + ERR_NULL_STREAMS, wcException.getMessage());
     }
 
     @Test
@@ -182,7 +187,7 @@ public class WcApplicationTest {
         stdout = new FileOutputStream("output.txt");
         IOUtils.closeOutputStream(stdout);
         WcException wcException = assertThrows(WcException.class,() -> wcApplication.run(array, stdin, stdout));
-        assertEquals("wc: " + ERR_WRITE_STREAM, wcException.getMessage());
+        assertEquals(WC_EX_PREFIX + ERR_WRITE_STREAM, wcException.getMessage());
         File file = new File("output.txt");
         file.delete();
     }
@@ -198,13 +203,13 @@ public class WcApplicationTest {
     @Test
     void wc_CountFromFilesNonExistingFile_ShowsFileNotFound() throws Exception {
         String result = wcApplication.countFromFiles(true, true, true, "blah");
-        assertEquals("wc: " + ERR_FILE_DIR_NOT_FOUND, result);
+        assertEquals(WC_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND, result);
     }
 
     @Test
     void wc_CountFromFilesDirectory_ShowsDirectory() throws Exception {
         String result = wcApplication.countFromFiles(true, true, true, "test_dir");
-        assertEquals("wc: " + ERR_IS_DIR, result);
+        assertEquals(WC_EX_PREFIX + ERR_IS_DIR, result);
     }
 
     @Test
@@ -214,21 +219,21 @@ public class WcApplicationTest {
         File unreadableFile = new File(Environment.currentDirectory + File.separator + "unreadable.txt");
         unreadableFile.setReadable(false);
         String result = wcApplication.countFromFiles(true, true, true, "unreadable.txt");
-        assertEquals("wc: " + ERR_NO_PERM, result);
+        assertEquals(WC_EX_PREFIX + ERR_NO_PERM, result);
         unreadableFile.setReadable(true);
     }
 
     @Test
     void wc_CountFromFilesValidFile_CountsCorrectly() throws Exception {
-        String expected = "       0       1       5 wc_test1.txt";
+        String expected = WC_TEST_1_RESULT;
         String result = wcApplication.countFromFiles(true, true, true,
-                "wc_test1.txt");
+                WC_TEST_1_FILE);
         assertEquals(expected, result);
     }
 
     @Test
     void wc_CountFromFilesMultipleValidFiles_CountsCorrectly() throws Exception {
-        String expected = "       0       1       5 wc_test1.txt" + STRING_NEWLINE +
+        String expected = WC_TEST_1_RESULT + STRING_NEWLINE +
                 "       0       1       5 wc_test2.txt" + STRING_NEWLINE +
                 "       0       2      10 total";
         String result = wcApplication.countFromFiles(true, true, true,
@@ -249,7 +254,7 @@ public class WcApplicationTest {
     void wc_CountFromFilesMultiSentenceFileOnMac_CountsCorrectly() throws Exception {
         String expected = "       2      55     287 multi-sentence.txt";
         String result = wcApplication.countFromFiles(true, true, true,
-                "multi-sentence.txt");
+                WC_MULTI_SENT);
         assertEquals(expected, result);
     }
 
@@ -258,7 +263,7 @@ public class WcApplicationTest {
     void wc_CountFromFilesMultiSentenceFileOnWindows_CountsCorrectly() throws Exception {
         String expected = "       2      55     289 multi-sentence.txt";
         String result = wcApplication.countFromFiles(true, true, true,
-                "multi-sentence.txt");
+                WC_MULTI_SENT);
         assertEquals(expected, result);
     }
 
@@ -267,7 +272,7 @@ public class WcApplicationTest {
     void wc_CountFromFilesMultiParaFileOnMac_CountsCorrectly() throws Exception {
         String expected = "      12     220    1234 multi-para.txt";
         String result = wcApplication.countFromFiles(true, true, true,
-                "multi-para.txt");
+                WC_MULTI_PARA);
         assertEquals(expected, result);
     }
 
@@ -276,7 +281,7 @@ public class WcApplicationTest {
     void wc_CountFromFilesMultiParaFileOnWindows_CountsCorrectly() throws Exception {
         String expected = "      12     220    1246 multi-para.txt";
         String result = wcApplication.countFromFiles(true, true, true,
-                "multi-para.txt");
+                WC_MULTI_PARA);
         assertEquals(expected, result);
     }
 
@@ -291,7 +296,7 @@ public class WcApplicationTest {
     @Test
     void wc_CountFromStdinValidFile_CountsCorrectly() throws Exception {
         String expected = "       0       1       5";
-        stdin = new FileInputStream(Environment.currentDirectory + File.separator + "wc_test1.txt");
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_TEST_1_FILE);
         String result = wcApplication.countFromStdin(true, true, true, stdin);
         assertEquals(expected, result);
     }
@@ -308,7 +313,7 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.MAC})
     void wc_CountFromStdinMultiSentenceFileOnMac_CountsCorrectly() throws Exception {
         String expected = "       2      55     287";
-        stdin = new FileInputStream(Environment.currentDirectory + File.separator + "multi-sentence.txt");
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
         String result = wcApplication.countFromStdin(true, true, true, stdin);
         assertEquals(expected, result);
     }
@@ -317,7 +322,7 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.WINDOWS})
     void wc_CountFromStdinMultiSentenceFileOnWindows_CountsCorrectly() throws Exception {
         String expected = "       2      55     289";
-        stdin = new FileInputStream(Environment.currentDirectory + File.separator + "multi-sentence.txt");
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_SENT);
         String result = wcApplication.countFromStdin(true, true, true, stdin);
         assertEquals(expected, result);
     }
@@ -326,7 +331,7 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.MAC})
     void wc_CountFromStdinMultiParaFileOnMac_CountsCorrectly() throws Exception {
         String expected = "      12     220    1234";
-        stdin = new FileInputStream(Environment.currentDirectory + File.separator + "multi-para.txt");
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_PARA);
         String result = wcApplication.countFromStdin(true, true, true, stdin);
         assertEquals(expected, result);
     }
@@ -335,7 +340,7 @@ public class WcApplicationTest {
     @EnabledOnOs({OS.WINDOWS})
     void wc_CountFromStdinMultiParaFileOnWindows_CountsCorrectly() throws Exception {
         String expected = "      12     220    1246";
-        stdin = new FileInputStream(Environment.currentDirectory + File.separator + "multi-para.txt");
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_MULTI_PARA);
         String result = wcApplication.countFromStdin(true, true, true, stdin);
         assertEquals(expected, result);
     }
@@ -349,7 +354,7 @@ public class WcApplicationTest {
     }
 
     @Test void wc_GetCountReportValidInput_GetsCorrectly() throws Exception {
-        stdin = new FileInputStream(Environment.currentDirectory + File.separator + "wc_test1.txt");
+        stdin = new FileInputStream(Environment.currentDirectory + File.separator + WC_TEST_1_FILE);
         wcApplication.getCountReport(stdin);
     }
 }
