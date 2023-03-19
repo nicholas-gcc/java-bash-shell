@@ -169,13 +169,13 @@ public class SequenceCommandIntegrationTest {
     void parseAndEvaluate_MvRmAndLs_ShouldRunCorrectly() throws Exception {
         FileSystemUtils.createEmptyFile(NEW_FILE);
 
-        String command = "mv " + NEW_FILE + " " + "NEW_FILE" + "; ls" +  "; rm " + "NEW_FILE" + "; ls";
+        String command = "mv " + NEW_FILE + " " + "new3.txt" + "; ls" +  "; rm " + "new3.txt" + "; ls";
         shell.parseAndEvaluate(command, outputStream);
-        String expected = "NEW_FILE" + STRING_NEWLINE
-                + DELETE_FILE + STRING_NEWLINE
+        String expected = DELETE_FILE + STRING_NEWLINE
                 + DIR + STRING_NEWLINE
                 + NEW_FILE1 + STRING_NEWLINE
                 + NEW_FILE2 + STRING_NEWLINE
+                + "new3.txt" + STRING_NEWLINE
                 + SAMPLE_FILE + STRING_NEWLINE
                 + DELETE_FILE + STRING_NEWLINE
                 + DIR + STRING_NEWLINE
