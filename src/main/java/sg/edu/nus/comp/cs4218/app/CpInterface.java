@@ -11,7 +11,7 @@ public interface CpInterface extends Application {
      * @param destFile of path to destination file
      * @throws Exception
      */
-    String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws Exception;
+    void cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile) throws Exception;
 
     /**
      * copy files to destination folder
@@ -21,5 +21,5 @@ public interface CpInterface extends Application {
      * @param fileName   Array of String of file names
      * @throws Exception
      */
-    String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileName) throws Exception;
+    void cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileName) throws Exception;
 }

@@ -11,6 +11,7 @@ import sg.edu.nus.comp.cs4218.impl.util.ArgumentResolver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -66,7 +67,7 @@ public class CallCommandTest {
     void evaluate_simpleCommandArgList_OutputsCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("echo", "hello world");
         callCommand = new CallCommand(args, applicationRunner, argumentResolver);
-        String expectedOutput = "hello world";
+        String expectedOutput = "hello world" + STRING_NEWLINE;
         callCommand.evaluate(stdin, stdout);
         assertEquals(expectedOutput, stdout.toString());
     }
