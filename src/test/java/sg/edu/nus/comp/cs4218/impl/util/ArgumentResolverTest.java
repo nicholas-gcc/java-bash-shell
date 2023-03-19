@@ -1,14 +1,13 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import sg.edu.nus.comp.cs4218.Environment;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,75 +36,73 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    @DisabledOnOs(OS.WINDOWS)
-    void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() {
+    void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt",
                 PATH_TO_TEST_FILES + File.separator + "testDir1",
                 PATH_TO_TEST_FILES + File.separator + "testDir2",
                 PATH_TO_TEST_FILES + File.separator + "testDir3");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
-    @DisabledOnOs(OS.WINDOWS)
-    void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() {
+    void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
+
     }
 
     @Test
-    @DisabledOnOs(OS.WINDOWS)
-    void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() {
+    void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testD*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
                 PATH_TO_TEST_FILES + File.separator + "testDir2",
                 PATH_TO_TEST_FILES + File.separator + "testDir3");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
-    void parseArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() {
+    void parseArgument_GlobMatchRegularFile_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
+        // In this unit test, * is a prefix to the pattern instead of postfix
+        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*.txt");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt");
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
+    }
+
+    @Test
+    void parseArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("echo", "`echo hello`");
         List<String> expectedTokens = Arrays.asList("echo", "hello");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
-    void parseArgument_CommandSubstitutionWithSingleQuote_ReturnsCommandWithCorrectArgTokens() {
+    void parseArgument_CommandSubstitutionWithSingleQuote_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("echo", "`echo 'hello world'`");
 
         // From project documentation: Other characters (including quotes) are not interpreted as special characters
         List<String> expectedTokens = Arrays.asList("echo", "hello", "world");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
-    void parseArgument_CommandSubstitutionWithMixedQuotes_ReturnsCommandWithCorrectArgTokens() {
+    void parseArgument_CommandSubstitutionWithMixedQuotes_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("echo", "`echo \"‘quote is not interpreted as special character’\"`");
 
         // From proj documentation: Other characters (including quotes) are not interpreted as special characters
         List<String> expectedTokens = Arrays.asList("echo", "‘quote", "is", "not", "interpreted", "as", "special", "character’");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
@@ -150,24 +147,20 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    void resolveOneArgument_CommandSubstitutionNoQuoteMultipleTokens_ReturnsCommandWithCorrectArgTokens() {
+    void resolveOneArgument_CommandSubstitutionNoQuoteMultipleTokens_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         String args = "`echo hello world`";
         List<String> expectedTokens = Arrays.asList("hello", "world");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.resolveOneArgument(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+        List<String> actualTokens = argumentResolver.resolveOneArgument(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
-    void resolveOneArgument_CommandSubstitutionWithSingleQuote_ReturnsCommandWithCorrectArgTokens() {
+    void resolveOneArgument_CommandSubstitutionWithSingleQuote_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         String args = "`echo 'hello world'`";
 
         // note: resolveOneArgument should split up 'hello world'. parseArguments will combine them into one single 'hello world' token
         List<String> expectedTokens = Arrays.asList("hello", "world");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.resolveOneArgument(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+        List<String> actualTokens = argumentResolver.resolveOneArgument(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 }
