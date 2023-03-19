@@ -107,17 +107,26 @@ public class CutApplication implements CutInterface {
      * @param ranges List of 2-element arrays containing the start and end indices for cut.
      * @param lines List of lines to be cut
      */
-    private String cutString(Boolean isCharPo, Boolean isBytePo, List<int[]> ranges, List<String> lines) {
+    private String cutString(Boolean isCharPo, Boolean isBytePo, List<int[]> ranges, List<String> lines) throws CutException {
         StringBuilder result = new StringBuilder();
         for (String line : lines) {
             for (int[] range : ranges) {
                 int start = range[0];
                 int end = range[1];
+
                 // https://askubuntu.com/questions/1102240/what-is-the-difference-between-cut-s-b-and-c-option
                 if (isCharPo) {
+                    // If range is invalid based on string length
+                    if (end > line.length()) {
+                        throw new CutException(ERR_OUT_OF_BOUNDS);
+                    }
                     result.append(line, start - 1, end);
                 } else if (isBytePo) {
                     byte[] bytes = line.getBytes(StandardCharsets.UTF_8);
+                    // If range is invalid based on byte length
+                    if (end > bytes.length) {
+                        throw new CutException(ERR_OUT_OF_BOUNDS);
+                    }
                     byte[] slicedBytes = Arrays.copyOfRange(bytes, start - 1, end);
                     String slicedStr = new String(slicedBytes);
                     result.append(slicedStr);

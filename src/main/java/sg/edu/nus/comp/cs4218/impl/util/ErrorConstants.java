@@ -51,6 +51,9 @@ public class ErrorConstants {
     // `grep` related
     public static final String ERR_NO_REGEX = "No regular expression supplied";
 
+    // `cut` related
+    public static final String ERR_OUT_OF_BOUNDS = "Range/index out of bounds";
+
     // `mkdir` related
     public static final String ERR_NO_FOLDERS = "No folder names are supplied";
     public static final String ERR_FILE_EXISTS = "File or directory already exists";
