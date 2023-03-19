@@ -6,9 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import sg.edu.nus.comp.cs4218.Environment;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,38 +39,36 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() {
+    void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt",
                 PATH_TO_TEST_FILES + File.separator + "testDir1",
                 PATH_TO_TEST_FILES + File.separator + "testDir2",
                 PATH_TO_TEST_FILES + File.separator + "testDir3");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
-    void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() {
+    void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
+
     }
 
     @Test
-    void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() {
+    void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testD*");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
                 PATH_TO_TEST_FILES + File.separator + "testDir2",
                 PATH_TO_TEST_FILES + File.separator + "testDir3");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
