@@ -22,7 +22,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_PERM;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_DASH;
 
-@SuppressWarnings({"PMD.CloseResource"})
+@SuppressWarnings({"PMD.CloseResource", "PMD.GodClass", "PMD.ExcessiveMethodLength"})
 public class WcApplication implements WcInterface {
 
     private static final String NUMBER_FORMAT = " %7d";
@@ -82,7 +82,7 @@ public class WcApplication implements WcInterface {
      * @throws Exception Throws Exception
      */
     @Override
-    public String countFromFiles(Boolean isBytes, Boolean isLines, Boolean isWords, //NOPMD
+    public String countFromFiles(Boolean isBytes, Boolean isLines, Boolean isWords,
                                  String... fileName) throws Exception {
         if (fileName == null) {
             throw new Exception(ERR_GENERAL);
