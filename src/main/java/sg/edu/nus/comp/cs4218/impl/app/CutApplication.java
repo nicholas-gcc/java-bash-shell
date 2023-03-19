@@ -8,7 +8,9 @@ import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
@@ -50,7 +52,7 @@ public class CutApplication implements CutInterface {
         }
 
         try {
-            stdout.write(result.toString().getBytes());
+            stdout.write(result.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             throw new CutException(ERR_WRITE_STREAM, e);
         }
@@ -111,12 +113,14 @@ public class CutApplication implements CutInterface {
             for (int[] range : ranges) {
                 int start = range[0];
                 int end = range[1];
-                // TODO: Implement char vs byte cutting (might be useful to test against in hackathon)
                 // https://askubuntu.com/questions/1102240/what-is-the-difference-between-cut-s-b-and-c-option
                 if (isCharPo) {
                     result.append(line, start - 1, end);
                 } else if (isBytePo) {
-                    result.append(line, start - 1, end);
+                    byte[] bytes = line.getBytes(StandardCharsets.UTF_8);
+                    byte[] slicedBytes = Arrays.copyOfRange(bytes, start - 1, end);
+                    String slicedStr = new String(slicedBytes);
+                    result.append(slicedStr);
                 }
             }
             result.append(STRING_NEWLINE);
