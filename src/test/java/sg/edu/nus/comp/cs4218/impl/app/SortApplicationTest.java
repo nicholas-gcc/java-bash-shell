@@ -20,6 +20,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_DASH;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 @SuppressWarnings("PMD.CloseResource")
 class SortApplicationTest {
@@ -34,6 +35,7 @@ class SortApplicationTest {
     private static final String ZZZ_STRING = "zzz";
     private static final String TXT_FILE_EXT = ".txt";
     private static final String SORT_ERR_PREFIX = "sort: ";
+    private static final String FILE_PREFIX = "output";
     private SortApplication sortApp;
     private Path tempDir;
 
@@ -147,13 +149,41 @@ class SortApplicationTest {
                 + EFG_STRING + STRING_NEWLINE + ZZZ_STRING;
 
         // create the files
-        InputStream inputStream = new ByteArrayInputStream(input1.getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         Path inputFile1 = createTempFileWithContent(input1);
         Path inputFile2 = createTempFileWithContent(input2);
-        Path outputFile = Files.createTempFile(tempDir, "output", TXT_FILE_EXT);
+        Path outputFile = Files.createTempFile(tempDir, FILE_PREFIX, TXT_FILE_EXT);
         OutputStream outputStream = Files.newOutputStream(outputFile);
 
         sortApp.run(new String[]{"-n", "-f", inputFile1.toString(), inputFile2.toString()}, inputStream, outputStream);
+        String result = new String(Files.readAllBytes(outputFile));
+
+        assertEquals(expectedOutput + STRING_NEWLINE, result);
+
+        IOUtils.closeOutputStream(outputStream);
+    }
+
+    @Test
+    void run_ValidInputFilesAndStdInStream_CorrectOutput() throws Exception {
+        // should combine the items of two files and sort them after merging
+        String input1 = ABC_STRING + STRING_NEWLINE + ZZZ_STRING + STRING_NEWLINE
+                + CCC_STRING + STRING_NEWLINE + BBB_STRING + STRING_NEWLINE + AAA_STRING;
+
+        String input2 = DEF_STRING + STRING_NEWLINE + EFG_STRING + STRING_NEWLINE
+                + BCD_STRING + STRING_NEWLINE + AAA_STRING;
+
+        String expectedOutput = AAA_STRING + STRING_NEWLINE + AAA_STRING + STRING_NEWLINE
+                + ABC_STRING + STRING_NEWLINE + BBB_STRING + STRING_NEWLINE + BCD_STRING +
+                STRING_NEWLINE + CCC_STRING + STRING_NEWLINE + DEF_STRING + STRING_NEWLINE
+                + EFG_STRING + STRING_NEWLINE + ZZZ_STRING;
+
+        // create the files
+        InputStream inputStream = new ByteArrayInputStream(input1.getBytes(StandardCharsets.UTF_8));
+        Path inputFile2 = createTempFileWithContent(input2);
+        Path outputFile = Files.createTempFile(tempDir, FILE_PREFIX, TXT_FILE_EXT);
+        OutputStream outputStream = Files.newOutputStream(outputFile);
+
+        sortApp.run(new String[]{"-n", "-f", STRING_DASH, inputFile2.toString()}, inputStream, outputStream);
         String result = new String(Files.readAllBytes(outputFile));
 
         assertEquals(expectedOutput + STRING_NEWLINE, result);
@@ -174,13 +204,40 @@ class SortApplicationTest {
                 + BBB_STRING + STRING_NEWLINE + ABC_STRING + STRING_NEWLINE + AAA_STRING + STRING_NEWLINE + AAA_STRING;
 
         // create the files
-        InputStream inputStream = new ByteArrayInputStream(input1.getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         Path inputFile1 = createTempFileWithContent(input1);
         Path inputFile2 = createTempFileWithContent(input2);
-        Path outputFile = Files.createTempFile(tempDir, "output", TXT_FILE_EXT);
+        Path outputFile = Files.createTempFile(tempDir, FILE_PREFIX, TXT_FILE_EXT);
         OutputStream outputStream = Files.newOutputStream(outputFile);
 
         sortApp.run(new String[]{"-n", "-r", "-f", inputFile1.toString(), inputFile2.toString()}, inputStream, outputStream);
+        String result = new String(Files.readAllBytes(outputFile));
+
+        assertEquals(expectedOutput + STRING_NEWLINE, result);
+
+        IOUtils.closeOutputStream(outputStream);
+    }
+
+    @Test
+    void run_ValidInputFilesAndStdInReverse_CorrectOutput() throws Exception {
+        String input1 = ABC_STRING + STRING_NEWLINE + ZZZ_STRING + STRING_NEWLINE
+                + CCC_STRING + STRING_NEWLINE + BBB_STRING + STRING_NEWLINE + AAA_STRING;
+
+        String input2 = DEF_STRING + STRING_NEWLINE + EFG_STRING + STRING_NEWLINE
+                + BCD_STRING + STRING_NEWLINE + AAA_STRING;
+
+        String expectedOutput = ZZZ_STRING + STRING_NEWLINE + EFG_STRING + STRING_NEWLINE
+                + DEF_STRING + STRING_NEWLINE + CCC_STRING + STRING_NEWLINE + BCD_STRING + STRING_NEWLINE
+                + BBB_STRING + STRING_NEWLINE + ABC_STRING + STRING_NEWLINE + AAA_STRING + STRING_NEWLINE + AAA_STRING;
+
+        // create the files
+        InputStream inputStream = new ByteArrayInputStream(input1.getBytes(StandardCharsets.UTF_8));
+        Path inputFile1 = createTempFileWithContent(input1);
+        Path inputFile2 = createTempFileWithContent(input2);
+        Path outputFile = Files.createTempFile(tempDir, FILE_PREFIX, TXT_FILE_EXT);
+        OutputStream outputStream = Files.newOutputStream(outputFile);
+
+        sortApp.run(new String[]{"-n", "-r", "-f", inputFile2.toString(), STRING_DASH}, inputStream, outputStream);
         String result = new String(Files.readAllBytes(outputFile));
 
         assertEquals(expectedOutput + STRING_NEWLINE, result);
@@ -210,7 +267,7 @@ class SortApplicationTest {
     @Test
     void run_InvalidArguments_ShouldThrow() throws IOException {
         String[] invalidArgs = new String[]{"-invalid", "filename.txt"};
-        Path outputFile = Files.createTempFile(tempDir, "output", TXT_FILE_EXT);
+        Path outputFile = Files.createTempFile(tempDir, FILE_PREFIX, TXT_FILE_EXT);
         Throwable err = assertThrows(SortException.class, () -> {
             sortApp.run(invalidArgs, null, Files.newOutputStream(outputFile));
         });

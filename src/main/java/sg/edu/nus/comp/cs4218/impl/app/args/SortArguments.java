@@ -6,6 +6,7 @@ import java.util.List;
 import sg.edu.nus.comp.cs4218.exception.SortException;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_DASH;
 
 
 public class SortArguments {
@@ -38,7 +39,8 @@ public class SortArguments {
                     continue;
                 }
                 // `parsingFlag` is to ensure all flags come first, followed by files.
-                if (parsingFlag && arg.charAt(0) == CHAR_FLAG_PREFIX) {
+                // We ignore lone dash without flag char following it as lone dash opens stdin
+                if (parsingFlag && arg.charAt(0) == CHAR_FLAG_PREFIX && !arg.equals(STRING_DASH)) {
                     // Loop through to see if we have any invalid flags
                     for (char c : arg.toCharArray()) {
                         if (c == CHAR_FLAG_PREFIX || c == CHAR_FIRST_W_NUM || c == CHAR_REV_ORDER || c == CHAR_CASE_IGNORE) {
