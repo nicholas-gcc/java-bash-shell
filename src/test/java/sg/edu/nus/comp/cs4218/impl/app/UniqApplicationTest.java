@@ -3,64 +3,75 @@ package sg.edu.nus.comp.cs4218.impl.app;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 
-import java.io.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class UniqApplicationTest {
+
+    private static final String HELLO_WORLD_STR = "Hello World";
+    private static final String ALICE_STR = "Alice";
+    private static final String BOB_STR = "Bob";
+
     UniqApplication uniqApplication = new UniqApplication();
-    static String fileContent = "Hello World" + System.lineSeparator() + //NOPMD - suppressed AvoidDuplicateLiterals -
-                                                                         // repetition is necessary to testing
-            "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Alice" + System.lineSeparator() + //NOPMD - suppressed AvoidDuplicateLiterals - repetition is necessary to testing
-            "Alice" + System.lineSeparator() + //NOPMD - suppressed AvoidDuplicateLiterals - repetition is necessary to testing
-            "Bob" + System.lineSeparator() + //NOPMD - suppressed AvoidDuplicateLiterals - repetition is necessary to testing
-            "Alice" + System.lineSeparator() +
-            "Bob" + System.lineSeparator() +
-            "Bob";
-    String noTagResult = "Hello World" + System.lineSeparator() +
-            "Alice" + System.lineSeparator() +
-            "Bob" + System.lineSeparator() +
-            "Alice" + System.lineSeparator() +
-            "Bob" + System.lineSeparator();
-    String countTagResult = "5 Hello World" + System.lineSeparator() +
-            "2 Alice" + System.lineSeparator() +
-            "1 Bob" + System.lineSeparator() +
-            "1 Alice" + System.lineSeparator() +
-            "2 Bob" + System.lineSeparator();
+    static String fileContent = HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE +
+            BOB_STR;
+    String noTagResult = HELLO_WORLD_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE;
+    String countTagResult = "5 Hello World" + STRING_NEWLINE +
+            "2 Alice" + STRING_NEWLINE +
+            "1 Bob" + STRING_NEWLINE +
+            "1 Alice" + STRING_NEWLINE +
+            "2 Bob" + STRING_NEWLINE;
 
-    String repeatedTagResult = "Hello World" + System.lineSeparator() +
-            "Alice" + System.lineSeparator() +
-            "Bob" + System.lineSeparator();
+    String repeatedTagResult = HELLO_WORLD_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE;
 
-    String allRepeatedResult = "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Hello World" + System.lineSeparator() +
-            "Alice" + System.lineSeparator() +
-            "Alice" + System.lineSeparator() +
-            "Bob" + System.lineSeparator() +
-            "Bob" + System.lineSeparator();
+    String allRepeatedResult = HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            HELLO_WORLD_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            ALICE_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE +
+            BOB_STR + STRING_NEWLINE;
 
-    String countRepeatResult = "5 Hello World" + System.lineSeparator() +
-            "2 Alice" + System.lineSeparator() +
-            "2 Bob" + System.lineSeparator();
+    String countRepeatResult = "5 Hello World" + STRING_NEWLINE +
+            "2 Alice" + STRING_NEWLINE +
+            "2 Bob" + STRING_NEWLINE;
 
-    String allTagsResult = "1 Hello World" + System.lineSeparator() +
-            "2 Hello World" + System.lineSeparator() +
-            "3 Hello World" + System.lineSeparator() +
-            "4 Hello World" + System.lineSeparator() +
-            "5 Hello World" + System.lineSeparator() +
-            "1 Alice" + System.lineSeparator() +
-            "2 Alice" + System.lineSeparator() +
-            "1 Bob" + System.lineSeparator() +
-            "2 Bob" + System.lineSeparator();
+    String allTagsResult = "1 Hello World" + STRING_NEWLINE +
+            "2 Hello World" + STRING_NEWLINE +
+            "3 Hello World" + STRING_NEWLINE +
+            "4 Hello World" + STRING_NEWLINE +
+            "5 Hello World" + STRING_NEWLINE +
+            "1 Alice" + STRING_NEWLINE +
+            "2 Alice" + STRING_NEWLINE +
+            "1 Bob" + STRING_NEWLINE +
+            "2 Bob" + STRING_NEWLINE;
     InputStream mockStdIn = new java.io.ByteArrayInputStream(fileContent.getBytes());
     ByteArrayOutputStream mockStdOut = new ByteArrayOutputStream();
     static String inputFileName = "test.txt";
@@ -96,139 +107,109 @@ public class UniqApplicationTest {
     }
 
     @Test
-    void uniq_FromFileNoTag_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(noTagResult,
-                    uniqApplication.uniqFromFile(false, false, false,
-                            inputFileName, outputFileName));
-        });
+    void uniq_FromFileNoTag_ShouldCompleteProperly() throws Exception {
+        assertEquals(noTagResult,
+                uniqApplication.uniqFromFile(false, false, false,
+                        inputFileName, outputFileName));
     }
 
     @Test
-    void uniq_FromStdinNoTag_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(noTagResult,
-                    uniqApplication.uniqFromStdin(false, false, false,
-                            mockStdIn, outputFileName));
-        });
+    void uniq_FromStdinNoTag_ShouldCompleteProperly() throws Exception {
+        assertEquals(noTagResult,
+                uniqApplication.uniqFromStdin(false, false, false,
+                        mockStdIn, outputFileName));
     }
 
     @Test
-    void uniq_FromFileTagCount_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(countTagResult,
-                    uniqApplication.uniqFromFile(true, false, false,
-                            inputFileName, outputFileName));
-        });
+    void uniq_FromFileTagCount_ShouldCompleteProperly() throws Exception {
+        assertEquals(countTagResult,
+                uniqApplication.uniqFromFile(true, false, false,
+                        inputFileName, outputFileName));
     }
 
     @Test
-    void uniq_FromStdinTagCount_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(countTagResult,
-                    uniqApplication.uniqFromStdin(true, false, false,
-                            mockStdIn, outputFileName));
-        });
+    void uniq_FromStdinTagCount_ShouldCompleteProperly() throws Exception {
+        assertEquals(countTagResult,
+                uniqApplication.uniqFromStdin(true, false, false,
+                        mockStdIn, outputFileName));
     }
 
     @Test
-    void uniq_FromFileTagRepeated_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(repeatedTagResult,
-                    uniqApplication.uniqFromFile(false, true, false,
-                            inputFileName, outputFileName));
-        });
+    void uniq_FromFileTagRepeated_ShouldCompleteProperly() throws Exception {
+        assertEquals(repeatedTagResult,
+                uniqApplication.uniqFromFile(false, true, false,
+                        inputFileName, outputFileName));
     }
 
     @Test
-    void uniq_FromStdinTagRepeated_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(repeatedTagResult,
-                    uniqApplication.uniqFromStdin(false, true, false,
-                            mockStdIn, outputFileName));
-        });
+    void uniq_FromStdinTagRepeated_ShouldCompleteProperly() throws Exception {
+        assertEquals(repeatedTagResult,
+                uniqApplication.uniqFromStdin(false, true, false,
+                        mockStdIn, outputFileName));
     }
     @Test
-    void uniq_FromFileTagAllRepeated_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(allRepeatedResult,
-                    uniqApplication.uniqFromFile(false, false, true,
-                            inputFileName, outputFileName));
-        });
+    void uniq_FromFileTagAllRepeated_ShouldCompleteProperly() throws Exception {
+        assertEquals(allRepeatedResult,
+                uniqApplication.uniqFromFile(false, false, true,
+                        inputFileName, outputFileName));
     }
 
     @Test
-    void uniq_FromStdinTagAllRepeated_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(allRepeatedResult,
-                    uniqApplication.uniqFromStdin(false, false, true,
-                            mockStdIn, outputFileName));
-        });
+    void uniq_FromStdinTagAllRepeated_ShouldCompleteProperly() throws Exception {
+        assertEquals(allRepeatedResult,
+                uniqApplication.uniqFromStdin(false, false, true,
+                        mockStdIn, outputFileName));
     }
 
     @Test
-    void uniq_FromFileTagCountRepeated_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(countRepeatResult,
-                    uniqApplication.uniqFromFile(true, true, false,
-                            inputFileName, outputFileName));
-        });
+    void uniq_FromFileTagCountRepeated_ShouldCompleteProperly() throws Exception {
+        assertEquals(countRepeatResult,
+                uniqApplication.uniqFromFile(true, true, false,
+                        inputFileName, outputFileName));
     }
 
     @Test
-    void uniq_FromStdinTagCountRepeated_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(countRepeatResult,
-                    uniqApplication.uniqFromStdin(true, true, false,
-                            mockStdIn, outputFileName));
-        });
+    void uniq_FromStdinTagCountRepeated_ShouldCompleteProperly() throws Exception {
+        assertEquals(countRepeatResult,
+                uniqApplication.uniqFromStdin(true, true, false,
+                        mockStdIn, outputFileName));
     }
 
     @Test
-    void uniq_FromFileAllTags_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(allTagsResult,
-                    uniqApplication.uniqFromFile(true, true, true,
-                            inputFileName, outputFileName));
-        });
+    void uniq_FromFileAllTags_ShouldCompleteProperly() throws Exception {
+        assertEquals(allTagsResult,
+                uniqApplication.uniqFromFile(true, true, true,
+                        inputFileName, outputFileName));
     }
 
     @Test
-    void uniq_FromStdinAllTag_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            assertEquals(allTagsResult,
-                    uniqApplication.uniqFromStdin(true, true, true,
-                            mockStdIn, outputFileName));
-        });
+    void uniq_FromStdinAllTag_ShouldCompleteProperly() throws Exception {
+        assertEquals(allTagsResult,
+                uniqApplication.uniqFromStdin(true, true, true,
+                        mockStdIn, outputFileName));
     }
 
     @Test
-    void uniq_runWithArgsAllTags_ShouldCompleteProperly() {
-        assertDoesNotThrow(() -> {
-            uniqApplication.run(
-                    new String[]{"-c", "-d", "-D", inputFileName},
-                    mockStdIn,
-                    mockStdOut);
-            assertEquals(allTagsResult, new String(mockStdOut.toByteArray()));
-            mockStdOut.close();
-        });
+    void uniq_runWithArgsAllTags_ShouldCompleteProperly() throws AbstractApplicationException, IOException {
+        uniqApplication.run(
+                new String[]{"-c", "-d", "-D", inputFileName},
+                mockStdIn,
+                mockStdOut);
+        assertEquals(allTagsResult, mockStdOut.toString());
+        mockStdOut.close();
 
-        assertDoesNotThrow(() -> {
-            uniqApplication.run(
-                    new String[]{"-c", "-d", "-D", inputFileName, outputFileName},
-                    mockStdIn,
-                    mockStdOut);
-            assertEquals(allTagsResult, Files.readString(Path.of(outputFileName)));
-        });
+        uniqApplication.run(
+                new String[]{"-c", "-d", "-D", inputFileName, outputFileName},
+                mockStdIn,
+                mockStdOut);
+        assertEquals(allTagsResult, Files.readString(Path.of(outputFileName)));
 
-        mockStdOut = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> {
-            uniqApplication.run(
-                    new String[]{"-c", "-d", "-D"},
-                    mockStdIn,
-                    mockStdOut);
-            assertEquals(allTagsResult, new String(mockStdOut.toByteArray()));
-            mockStdOut.close();
-        });
+    mockStdOut = new ByteArrayOutputStream();
+        uniqApplication.run(
+                new String[]{"-c", "-d", "-D"},
+                mockStdIn,
+                mockStdOut);
+        assertEquals(allTagsResult, mockStdOut.toString());
+        mockStdOut.close();
     }
 }

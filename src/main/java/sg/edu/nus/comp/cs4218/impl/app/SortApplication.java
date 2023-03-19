@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
@@ -199,8 +200,8 @@ public class SortApplication implements SortInterface {
         Collections.sort(input, new Comparator<String>() {
             @Override
             public int compare(String str1, String str2) {
-                String temp1 = isCaseIndependent ? str1.toLowerCase() : str1;//NOPMD
-                String temp2 = isCaseIndependent ? str2.toLowerCase() : str2;//NOPMD
+                String temp1 = isCaseIndependent ? str1.toLowerCase(Locale.US) : str1;
+                String temp2 = isCaseIndependent ? str2.toLowerCase(Locale.US) : str2;
 
                 // Extract the first group of numbers if possible.
                 if (isFirstWordNumber && !temp1.isEmpty() && !temp2.isEmpty()) {

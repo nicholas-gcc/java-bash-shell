@@ -1,7 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.stubs;
 
 import sg.edu.nus.comp.cs4218.Environment;
-import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.cmd.CallCommand;
 import sg.edu.nus.comp.cs4218.impl.util.ApplicationRunner;
@@ -14,12 +13,12 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings({"PMD.ExcessiveMethodLength"})
 public class CallCommandStub extends CallCommand {
 
     public enum CommandType {
         LS_SUCCESS_STUB,
         GREP_SUCCESS_STUB,
-        GREP_SUCCESS_SUBSEQUENT_STUB,
         LS_ERROR,
         GREP_ERROR,
         CD_SUCCESS_STUB,
@@ -39,20 +38,16 @@ public class CallCommandStub extends CallCommand {
     public void evaluate(InputStream stdin, OutputStream stdout) throws ShellException {
         // stub output for ls command
         String lsOutput = "src" + System.lineSeparator() + "assets" + System.lineSeparator() + "target";
-
         // stub output for grep "src"
         String grepOutput = "src";
-
         // stub output for echo "test"
         String echoOutput = "test";
-
 
         switch(this.commandType) {
             case LS_SUCCESS_STUB:
                 try {
                     stdout.write(lsOutput.getBytes());
                 } catch (Exception ignored) {
-
             }
                 break;
             case GREP_SUCCESS_STUB:
@@ -72,7 +67,7 @@ public class CallCommandStub extends CallCommand {
                     }
                 } catch (ShellException e) {
                     throw e;
-                } catch (Exception otherErrorsIgnored) {
+                } catch (Exception ignored) {
 
                 }
                 break;
@@ -87,7 +82,6 @@ public class CallCommandStub extends CallCommand {
                 try {
                     stdout.write(echoOutput.getBytes());
                 } catch (Exception ignored) {
-
                 }
                 break;
             case LS_ERROR:

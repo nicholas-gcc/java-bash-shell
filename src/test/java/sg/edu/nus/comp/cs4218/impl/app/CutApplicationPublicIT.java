@@ -12,10 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
+@SuppressWarnings({"PMD.ClassNamingConventions", "PMD.CloseResource"})
 public class CutApplicationPublicIT {
     public static final String CHAR_FLAG = "-c";
     public static final String BYTE_FLAG = "-b";
     public static final String TEST_RANGE = "1-3";
+    private static final String HELLO_SUBSTR = "hel";
     CutApplication cutApplication;
 
     private String joinStringsByLineSeparator(String... strs) {
@@ -38,7 +40,8 @@ public class CutApplicationPublicIT {
         InputStream stdin = generateInputStreamFromStrings("hello world");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         cutApplication.run(argList, stdin, output);
-        assertEquals("hel" + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        stdin.close();
     }
 
     @Test
@@ -47,7 +50,8 @@ public class CutApplicationPublicIT {
         InputStream stdin = generateInputStreamFromStrings("hello world");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         cutApplication.run(argList, stdin, output);
-        assertEquals("hel" + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        stdin.close();
     }
 
     @Test
@@ -56,7 +60,8 @@ public class CutApplicationPublicIT {
         InputStream stdin = generateInputStreamFromStrings("hello", "world");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         cutApplication.run(argList, stdin, output);
-        assertEquals("hel" + STRING_NEWLINE + "wor" + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE + "wor" + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        stdin.close();
     }
 
     @Test
@@ -65,7 +70,8 @@ public class CutApplicationPublicIT {
         InputStream stdin = generateInputStreamFromStrings("hello", "world");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         cutApplication.run(argList, stdin, output);
-        assertEquals("hel" + STRING_NEWLINE + "wor" + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE + "wor" + STRING_NEWLINE, output.toString(StandardCharsets.UTF_8));
+        stdin.close();
     }
 
     @Test

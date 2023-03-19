@@ -8,7 +8,6 @@ import sg.edu.nus.comp.cs4218.exception.ShellException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -24,24 +23,27 @@ public class ArgumentResolverTest {
     private static final String BASE_DIR = Environment.currentDirectory;
 
     private static final Path CWD = Paths.get(BASE_DIR);
-    private static final Path PATH_TO_TEST_FILES = CWD.resolve("assets" + File.separator + "app"
+    private static final Path PATH_FILES = CWD.resolve("assets" + File.separator + "app"
             + File.separator + "ls");
+    private static final String ECHO_CMD = "echo";
+    private static final String HELLO_STR = "hello";
+
     ApplicationRunner applicationRunner;
     ArgumentResolver argumentResolver;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         this.applicationRunner = new ApplicationRunner();
         this.argumentResolver = new ArgumentResolver();
     }
 
     @Test
     void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt",
-                PATH_TO_TEST_FILES + File.separator + "testDir1",
-                PATH_TO_TEST_FILES + File.separator + "testDir2",
-                PATH_TO_TEST_FILES + File.separator + "testDir3");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "*");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "abc.txt",
+                PATH_FILES + File.separator + "testDir1",
+                PATH_FILES + File.separator + "testDir2",
+                PATH_FILES + File.separator + "testDir3");
 
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
@@ -49,8 +51,8 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1*");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1");
 
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
@@ -59,10 +61,10 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testD*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
-                PATH_TO_TEST_FILES + File.separator + "testDir2",
-                PATH_TO_TEST_FILES + File.separator + "testDir3");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "testD*");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1",
+                PATH_FILES + File.separator + "testDir2",
+                PATH_FILES + File.separator + "testDir3");
 
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
@@ -71,36 +73,36 @@ public class ArgumentResolverTest {
     @Test
     void parseArgument_GlobMatchRegularFile_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         // In this unit test, * is a prefix to the pattern instead of postfix
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*.txt");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "*.txt");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "abc.txt");
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
     void parseArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("echo", "`echo hello`");
-        List<String> expectedTokens = Arrays.asList("echo", "hello");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo hello`");
+        List<String> expectedTokens = Arrays.asList(ECHO_CMD, HELLO_STR);
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
     void parseArgument_CommandSubstitutionWithSingleQuote_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("echo", "`echo 'hello world'`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo 'hello world'`");
 
         // From project documentation: Other characters (including quotes) are not interpreted as special characters
-        List<String> expectedTokens = Arrays.asList("echo", "hello", "world");
+        List<String> expectedTokens = Arrays.asList(ECHO_CMD, HELLO_STR, "world");
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
     void parseArgument_CommandSubstitutionWithMixedQuotes_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("echo", "`echo \"‘quote is not interpreted as special character’\"`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo \"‘quote is not interpreted as special character’\"`");
 
         // From proj documentation: Other characters (including quotes) are not interpreted as special characters
-        List<String> expectedTokens = Arrays.asList("echo", "‘quote", "is", "not", "interpreted", "as", "special", "character’");
+        List<String> expectedTokens = Arrays.asList(ECHO_CMD, "‘quote", "is", "not", "interpreted", "as", "special", "character’");
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
     }
@@ -121,7 +123,7 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_InvalidCommandSubstitution_ThrowsShellException() {
-        List<String> args = Arrays.asList("echo", "`hello world`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`hello world`");
         assertThrows(ShellException.class, () -> {
             argumentResolver.parseArguments(args);
         });
@@ -129,7 +131,7 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_CommandSubstitutionContainsNewline_ThrowsShellException() {
-        List<String> args = Arrays.asList("echo", "`echo hello" + System.lineSeparator() + "`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo hello" + System.lineSeparator() + "`");
         assertThrows(ShellException.class, () -> {
             argumentResolver.parseArguments(args);
         });
@@ -139,7 +141,7 @@ public class ArgumentResolverTest {
     @Test
     void resolveOneArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() {
         String args = "`echo hello`";
-        List<String> expectedTokens = Arrays.asList("hello");
+        List<String> expectedTokens = Arrays.asList(HELLO_STR);
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);
@@ -149,7 +151,7 @@ public class ArgumentResolverTest {
     @Test
     void resolveOneArgument_CommandSubstitutionNoQuoteMultipleTokens_ReturnsCommandWithCorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         String args = "`echo hello world`";
-        List<String> expectedTokens = Arrays.asList("hello", "world");
+        List<String> expectedTokens = Arrays.asList(HELLO_STR, "world");
         List<String> actualTokens = argumentResolver.resolveOneArgument(args);
         assertEquals(expectedTokens, actualTokens);
     }
@@ -159,7 +161,7 @@ public class ArgumentResolverTest {
         String args = "`echo 'hello world'`";
 
         // note: resolveOneArgument should split up 'hello world'. parseArguments will combine them into one single 'hello world' token
-        List<String> expectedTokens = Arrays.asList("hello", "world");
+        List<String> expectedTokens = Arrays.asList(HELLO_STR, "world");
         List<String> actualTokens = argumentResolver.resolveOneArgument(args);
         assertEquals(expectedTokens, actualTokens);
     }
