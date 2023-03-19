@@ -5,10 +5,17 @@ import sg.edu.nus.comp.cs4218.app.UniqInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.UniqException;
 import sg.edu.nus.comp.cs4218.impl.app.args.UniqArguments;
+import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public class UniqApplication implements UniqInterface {
@@ -28,19 +35,10 @@ public class UniqApplication implements UniqInterface {
             if (fileNames[1] == null) {//write to stdout
                 stdout.write(result.getBytes());
             } else {
-                File outputFile = new File(convertToAbsolutePath(fileNames[1]));
-                if (!outputFile.exists()) {
-                    outputFile.createNewFile();
+                if (!FileSystemUtils.fileOrDirExist(fileNames[1])) {
+                    FileSystemUtils.createEmptyFile(fileNames[1]);
                 }
-                FileWriter inputWriter = null;
-                try {
-                    inputWriter = new FileWriter(fileNames[1]);
-                    inputWriter.write(result);
-                } catch (IOException ioException) {
-                    throw ioException;
-                } finally {
-                    inputWriter.close();
-                }
+                FileSystemUtils.writeStrToFile(false, result, fileNames[1]);
             }
         } catch (Exception exception) {
             throw new UniqException(exception.getMessage(), exception);
@@ -59,8 +57,6 @@ public class UniqApplication implements UniqInterface {
         String result;
         try {
             result = getResultFromReader(isCount, isRepeated, isAllRepeated, reader);
-        } catch (Exception exception) {
-            throw exception;
         } finally {
             reader.close();
         }
@@ -75,12 +71,12 @@ public class UniqApplication implements UniqInterface {
 
     /**
      * take in the options and a reader, and return the result that should be printed to stdout or file
-     * @param isCount
-     * @param isRepeated
-     * @param isAllRepeated
+     * @param isCount Whether option count is provided.
+     * @param isRepeated Whether option repeat is provided.
+     * @param isAllRepeated Whether option all repeat is provided.
      * @param reader BufferedReader, can be for either stdin or file reader
-     * @return
-     * @throws IOException
+     * @return String result.
+     * @throws IOException Thows IOExeption.
      */
     String getResultFromReader(Boolean isCount, Boolean isRepeated, Boolean isAllRepeated, BufferedReader reader) throws IOException {
         String result = "";
@@ -110,7 +106,7 @@ public class UniqApplication implements UniqInterface {
                 memorisedLine = line;
                 line = reader.readLine();
             }
-            if ((!isRepeated && !isAllRepeated) || ((isAllRepeated || isRepeated) && count > 1)) {
+            if (!isRepeated && !isAllRepeated || count > 1) {
                 result = isCount ? result + count + " " + memorisedLine + System.lineSeparator()
                         : result + memorisedLine + System.lineSeparator();
 
@@ -147,7 +143,7 @@ public class UniqApplication implements UniqInterface {
      */
     private String convertPathToSystemPath(String path) {
         String convertedPath = path;
-        String pathIdentifier = "\\" + Character.toString(CHAR_FILE_SEP);
+        String pathIdentifier = "\\" + CHAR_FILE_SEP;
         convertedPath = convertedPath.replaceAll("(\\\\)+", pathIdentifier);
         convertedPath = convertedPath.replaceAll("/+", pathIdentifier);
 

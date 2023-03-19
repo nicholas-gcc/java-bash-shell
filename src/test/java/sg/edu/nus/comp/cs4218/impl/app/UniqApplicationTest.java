@@ -82,14 +82,8 @@ public class UniqApplicationTest {
         File inputFile = new File(inputFileName);
         if(!inputFile.exists()) {
             inputFile.createNewFile();
-            FileWriter inputWriter = null;
-            try {
-                inputWriter = new FileWriter(inputFile);
+            try (FileWriter inputWriter = new FileWriter(inputFile)) {
                 inputWriter.write(fileContent);
-            } catch (IOException ioException) {
-                throw ioException;
-            } finally {
-                inputWriter.close();
             }
         }
     }

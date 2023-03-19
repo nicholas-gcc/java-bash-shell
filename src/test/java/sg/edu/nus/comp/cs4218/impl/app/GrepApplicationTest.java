@@ -44,15 +44,15 @@ public class GrepApplicationTest {
             "And see the stars shining high," + STRING_NEWLINE +
             "Remember that they are there for you," + STRING_NEWLINE +
             "Guiding your way, always true.";
-    private static String fileName2 = "test2.md";
-    private static String fileContent2 = "Twinkle twinkle little star, " + STRING_NEWLINE +
+    private static final String FILE_NAME_2 = "test2.md";
+    private static final String FILE_CONTENT_2 = "Twinkle twinkle little star, " + STRING_NEWLINE +
             "How I wonder what you are." + STRING_NEWLINE +
             "Up above the world so high, " + STRING_NEWLINE +
             "Like a diamond in the sky.";
     @BeforeAll
     static void setUpTestFile() throws IOException {
         File testFile = new File(FILE_NAME);
-        File testFile2 = new File(fileName2);
+        File testFile2 = new File(FILE_NAME_2);
         if (!testFile.exists()) {
             testFile.createNewFile();
         }
@@ -64,10 +64,8 @@ public class GrepApplicationTest {
         try {
             writer1 = new FileWriter(FILE_NAME);
             writer1.write(FILE_CONTENT);
-            writer2 = new FileWriter(fileName2);
-            writer2.write(fileContent2);
-        } catch (IOException ioException) {
-            throw ioException;
+            writer2 = new FileWriter(FILE_NAME_2);
+            writer2.write(FILE_CONTENT_2);
         } finally {
             writer1.close();
             writer2.close();
@@ -77,7 +75,7 @@ public class GrepApplicationTest {
     @AfterAll
     static void cleanUpFile() {
         File file = new File(FILE_NAME);
-        File file2 = new File(fileName2);
+        File file2 = new File(FILE_NAME_2);
         if (file.exists()) {
             file.delete();
         }
@@ -127,12 +125,12 @@ public class GrepApplicationTest {
     void grep_NoTagFromMultipleFiles_ShouldGrepCorrectly() throws Exception {
         String pattern = "star";
         String result = grepApplication.grepFromFiles(pattern, false, false, false,
-                FILE_NAME, fileName2);
+                FILE_NAME, FILE_NAME_2);
         String correctResult = FILE_NAME + ": The stars above twinkle and shine." + STRING_NEWLINE +
                 FILE_NAME + ": Each star a miracle of light," + STRING_NEWLINE +
                 FILE_NAME + ": The stars above, a celestial wonder," + STRING_NEWLINE +
                 FILE_NAME + ": And see the stars shining high," + STRING_NEWLINE +
-                fileName2 + ": Twinkle twinkle little star, " + STRING_NEWLINE;
+                FILE_NAME_2 + ": Twinkle twinkle little star, " + STRING_NEWLINE;
         assertEquals(correctResult, result);
     }
 
@@ -140,9 +138,9 @@ public class GrepApplicationTest {
     void grep_CountFromMultipleFiles_ShouldGrepCorrectly() throws Exception {
         String pattern = "star";
         String result = grepApplication.grepFromFiles(pattern, false, true, false,
-                FILE_NAME, fileName2);
+                FILE_NAME, FILE_NAME_2);
         String correctResult = FILE_NAME + ": 4" + STRING_NEWLINE +
-                fileName2 + ": 1" + STRING_NEWLINE;
+                FILE_NAME_2 + ": 1" + STRING_NEWLINE;
         assertEquals(correctResult, result);
     }
 
