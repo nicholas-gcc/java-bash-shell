@@ -19,7 +19,6 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class TeeApplication implements TeeInterface {
     public String teeFromStdin(Boolean isAppend, InputStream stdin, String... fileName) throws TeeException {
-        // TODO: Implement method
         if (stdin == null) {
             throw new TeeException(ERR_NO_ISTREAM);
         }
