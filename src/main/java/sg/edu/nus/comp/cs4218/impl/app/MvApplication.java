@@ -114,29 +114,33 @@ public class MvApplication implements MvInterface {
         if (stdout == null) {
             throw new MvException(ERR_NO_OSTREAM);
         }
+
+        // try parsing
         MvArgsParser mvArgsParser = new MvArgsParser();
         try {
             mvArgsParser.parse(args);
-            String[] toMoveFiles = mvArgsParser.getSourceFiles();
-            if (toMoveFiles.length == 0) {
-                throw new InvalidArgsException(ERR_MISSING_ARG);
-            }
-            String destPath = mvArgsParser.getDestFile();
-            boolean isOverwrite = mvArgsParser.shouldOverwrite();
-            if (new File(FileSystemUtils.getAbsolutePathName(destPath)).isDirectory()) {
-                mvFilesToFolder(isOverwrite, destPath, toMoveFiles);
-            } else {
-                if (toMoveFiles.length != 1) {
-                    throw new InvalidArgsException(ERR_MISSING_ARG);
-                }
-                if (!isOverwrite && new File(destPath).exists()) {
-                    throw new MvException("Destination file '" + destPath + "' already exists and cannot be replaced.");
-                }
-                mvSrcFileToDestFile(isOverwrite, toMoveFiles[0], destPath);
-            }
-        } catch (Exception e) {
+        } catch (InvalidArgsException e) {
             throw new MvException(e.getMessage(), e);
         }
+
+        String[] toMoveFiles = mvArgsParser.getSourceFiles();
+        if (toMoveFiles.length == 0) {
+            throw new MvException(ERR_MISSING_ARG);
+        }
+        String destPath = mvArgsParser.getDestFile();
+        boolean isOverwrite = mvArgsParser.shouldOverwrite();
+        if (new File(FileSystemUtils.getAbsolutePathName(destPath)).isDirectory()) {
+            mvFilesToFolder(isOverwrite, destPath, toMoveFiles);
+        } else {
+            if (toMoveFiles.length != 1) {
+                throw new MvException(ERR_MISSING_ARG);
+            }
+            if (!isOverwrite && new File(destPath).exists()) {
+                throw new MvException("Destination file '" + destPath + "' already exists and cannot be replaced.");
+            }
+            mvSrcFileToDestFile(isOverwrite, toMoveFiles[0], destPath);
+        }
+
     }
 
 }

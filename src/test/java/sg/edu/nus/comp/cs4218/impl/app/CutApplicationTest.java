@@ -9,7 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
@@ -18,14 +19,12 @@ public class CutApplicationTest {
     private static final String CUT_EX_PREFIX = "cut: ";
     private static final String SAMPLE_SENTENCE = "Today is Tuesday";
     private static final String SAMPLE_WORD = "baz";
-
     private static final String FOLDER_FILEPATH = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "cut";
     private static final String ONE_SENTENCE_FILE = "one-sentence.txt";
     private static final String MUL_SENTENCE_FILE = "multi-sentence.txt";
-
     private static final String ONE_WORD_FILE = "one-word.txt";
-
     private static final String NON_EXISTENT_FILE = "non-existent.txt";
+    private static final String TDY_STR = "Today is";
 
     private final CutApplication cutApp = new CutApplication();
 
@@ -59,7 +58,7 @@ public class CutApplicationTest {
     @Test
     void cutFromStdin_RangeFirstByteToEighthByte_ReturnsCorrectOutput() throws CutException {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        String expected = "Today is" + STRING_NEWLINE;//NOPMD
+        String expected = "Today is" + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 8});
         String actual = cutApp.cutFromStdin(false, true, ranges, inputStream);
         assertEquals(expected, actual);
@@ -112,7 +111,7 @@ public class CutApplicationTest {
 
     @Test
     void cutFromFiles_RangeFirstByteToEighthByteOfOneSentenceFile_ReturnsCorrectOutput() throws CutException {
-        String expected = "Today is" + STRING_NEWLINE;
+        String expected = TDY_STR + STRING_NEWLINE;
         List<int[]> ranges = List.of(new int[]{1, 8});
         String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + ONE_SENTENCE_FILE;
         String actual = cutApp.cutFromFiles(false, true, ranges, filepath);
@@ -166,7 +165,7 @@ public class CutApplicationTest {
     @Test
     void run_RangeFromStdin_ReturnsCorrectOutput() throws CutException {
         InputStream inputStream = new ByteArrayInputStream(SAMPLE_SENTENCE.getBytes());
-        String expected = "Today is" + STRING_NEWLINE;
+        String expected = TDY_STR + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         cutApp.run(new String[]{"-b", "1-8"}, inputStream, outputStream);
         assertEquals(expected, outputStream.toString());
@@ -184,7 +183,7 @@ public class CutApplicationTest {
     @Test
     void run_RangeFromOneSentenceFile_ReturnsCorrectOutput() throws CutException {
         String filepath = FOLDER_FILEPATH + CHAR_FILE_SEP + ONE_SENTENCE_FILE;
-        String expected = "Today is" + STRING_NEWLINE;
+        String expected = TDY_STR + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         cutApp.run(new String[]{"-b", "1-8", filepath}, null, outputStream);
         assertEquals(expected, outputStream.toString());

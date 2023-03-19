@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public final class StringUtils {
     public static final String STRING_NEWLINE = System.lineSeparator();
@@ -37,7 +38,7 @@ public final class StringUtils {
      */
     public static String fileSeparator() {
         // We need to escape \ in Windows...
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {//NOPMD
+        if (System.getProperty("os.name").toLowerCase(Locale.US).contains("win")) {
             return '\\' + File.separator;
         }
         return File.separator;

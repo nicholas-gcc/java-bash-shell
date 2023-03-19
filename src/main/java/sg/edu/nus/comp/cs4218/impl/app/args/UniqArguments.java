@@ -2,7 +2,7 @@ package sg.edu.nus.comp.cs4218.impl.app.args;
 
 import sg.edu.nus.comp.cs4218.exception.UniqException;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
 
 public class UniqArguments {
     private static final char CHAR_FLAG = '-';
@@ -13,14 +13,10 @@ public class UniqArguments {
     private boolean repeated;
     private boolean allRepeated;
 
-    private String inputFile, outputFile;
-
     public UniqArguments() {
         this.count = false;
         this.repeated = false;
         this.allRepeated = false;
-        this.inputFile = null;
-        this.outputFile = null;
     }
 
     public boolean isCount() {
@@ -35,24 +31,16 @@ public class UniqArguments {
         return allRepeated;
     }
 
-    public void parse(String... args) throws Exception {
-
-    }
-
     /**
-     * given an array of arguments, extract flags (options) and return input and output filename
+     * Given an array of arguments, extract flags (options) and return input and output filename
      * if input/output file is not specified, null is contained in the array
-     * @param args
+     * @param args Arguments for the command
      * @return [inputFileName, outputFileName]
-     * @throws UniqException
+     * @throws UniqException Throws UniqException if invalid flag is met
      */
-    public String[] getFiles(String[] args) throws UniqException {
+    public String[] getFiles(String... args) throws UniqException {
         boolean isOption = true;
-        boolean isOutput = false;
         String[] result = {null, null};
-        if(args.length == 0) {
-            return result;
-        }
 
         for (String arg: args) {
             if (isOption && !arg.isEmpty() && arg.charAt(0) == CHAR_FLAG){//option flag
@@ -61,7 +49,6 @@ public class UniqArguments {
                 }
                 if (arg.length() == 1) {//- is for stdin, end of options
                     isOption = false;
-                    isOutput = true;
                     continue;
                 }
                 switch (arg.charAt(1)) {
@@ -77,9 +64,8 @@ public class UniqArguments {
                     default:
                         throw new UniqException(ERR_INVALID_FLAG);
                 }
-            } else if (isOption && !isOutput){//this is input file
+            } else if (isOption){//this is input file
                 isOption = false;
-                isOutput = true;
                 result[0] = arg;
             } else {//this is output file
                 result[1] = arg;
