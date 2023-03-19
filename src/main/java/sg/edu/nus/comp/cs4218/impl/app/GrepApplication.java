@@ -167,7 +167,7 @@ public class GrepApplication implements GrepInterface {
 
             String result;
 
-            if (stdin == null || inputFiles.isEmpty()) {
+            if (stdin == null && inputFiles.isEmpty()) {
                 throw new Exception(ERR_NO_INPUT);
             }
 
