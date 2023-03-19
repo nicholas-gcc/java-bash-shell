@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class SequenceCommandIT {
@@ -148,4 +149,40 @@ public class SequenceCommandIT {
         expected += DELETE_FILE + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
     }
+
+    @Test
+    void parseAndEvaluate_PasteAndUniq_shouldPrintCorrectly() throws Exception {
+        FileSystemUtils.createEmptyFile(NEW_FILE1);
+        FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
+
+        FileSystemUtils.createEmptyFile(NEW_FILE2);
+
+        String command = "paste -s " + NEW_FILE1 + " " + SAMPLE_FILE + " > " + NEW_FILE2 + "; uniq " + NEW_FILE2;
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = NEW_CONTENT_LINE1 + CHAR_TAB + NEW_CONTENT_LINE2 + STRING_NEWLINE
+                + CONTENT_LINE1 + CHAR_TAB + CONTENT_LINE2 + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
+
+    @Test
+    void parseAndEvaluate_MvRmAndLs_ShouldRunCorrectly() throws Exception {
+        FileSystemUtils.createEmptyFile(NEW_FILE1);
+        FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
+
+        String command = "mv " + NEW_FILE1 + " " + NEW_FILE2 + "; ls" +  "; rm " + NEW_FILE2 + "; ls";
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = DELETE_FILE + STRING_NEWLINE
+                + DIR + STRING_NEWLINE
+                + NEW_FILE2 + STRING_NEWLINE
+                + SAMPLE_FILE + STRING_NEWLINE
+                + DELETE_FILE + STRING_NEWLINE
+                + DIR + STRING_NEWLINE
+                + SAMPLE_FILE + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
+
+   @Test
+   void parseAndEvaluate_PasteAndSort_ShouldSortProperly() throws Exception {
+        
+   }
 }
