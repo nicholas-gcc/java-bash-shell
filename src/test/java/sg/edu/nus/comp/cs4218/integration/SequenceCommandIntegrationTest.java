@@ -12,7 +12,6 @@ import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +22,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
-public class SequenceCommandIT {
+public class SequenceCommandIntegrationTest {
     static final String CWD = System.getProperty("user.dir");
     static final String TESTING_PATH = "assets" + CHAR_FILE_SEP + "it" + CHAR_FILE_SEP + "sequence";
     static final String SAMPLE_FILE = "sample.txt";
@@ -39,6 +38,8 @@ public class SequenceCommandIT {
     static final String NEW_CONTENT_LINE2 =  "This is the second line of new content.";
     static final String NEW_CONTENT = NEW_CONTENT_LINE1 + STRING_NEWLINE + NEW_CONTENT_LINE2;
     static final String DIR = "dir";
+
+    static final String CP_COMMAND = "cp ";
 
 
     InputStream inputStream;
@@ -94,7 +95,7 @@ public class SequenceCommandIT {
 
     @Test
     void parseAndEvaluate_CpAndCutC_shouldPrintCutContent() throws Exception {
-        String command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; cut -c 6-7 " + NEW_FILE;
+        String command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; cut -c 6-7 " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         String expected = "is" + STRING_NEWLINE + "is" + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
@@ -102,7 +103,7 @@ public class SequenceCommandIT {
 
     @Test
     void parseAndEvaluate_CpAndCutB_shouldPrintCutContent() throws Exception {
-        String command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; cut -b 2 " + NEW_FILE;
+        String command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; cut -b 2 " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         String expected = "h" + STRING_NEWLINE + "h" + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
@@ -121,12 +122,12 @@ public class SequenceCommandIT {
 
     @Test
     void parseAndEvaluate_CpAndGrep_shouldGrepProperly() throws Exception {
-        String command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; grep sample " + NEW_FILE;
+        String command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; grep sample " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         String expected = CONTENT_LINE1 + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
 
-        command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; grep -H sample " + NEW_FILE;
+        command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; grep -H sample " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         expected += NEW_FILE + ": " + CONTENT_LINE1 + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
@@ -134,10 +135,8 @@ public class SequenceCommandIT {
 
     @Test
     void parseAndEvaluate_MvAndCdAndLs_shouldMoveCorrectly() throws Exception {
-        File inputFile = new File(NEW_FILE);
-        if(!inputFile.exists()) {
-            inputFile.createNewFile();
-        }
+        FileSystemUtils.createEmptyFile(NEW_FILE);
+
         String command = "mv " + NEW_FILE + " " + DIR + "; ls " + DIR;
         shell.parseAndEvaluate(command, outputStream);
         String expected = DIR + ":"+ STRING_NEWLINE + DELETE_FILE + STRING_NEWLINE + NEW_FILE + STRING_NEWLINE;
@@ -147,6 +146,8 @@ public class SequenceCommandIT {
         shell.parseAndEvaluate(command, outputStream);
         expected += DELETE_FILE + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
+
+        Environment.currentDirectory = CWD + CHAR_FILE_SEP + TESTING_PATH;;
     }
 
     @Test
@@ -209,23 +210,23 @@ public class SequenceCommandIT {
     void parseAndEvaluate_TeeAndUniq_ShouldRunProperly() throws Exception {
         FileSystemUtils.createEmptyFile(NEW_FILE);
 
-        String input = "Hello World" + STRING_NEWLINE +
-                "Hello World" + STRING_NEWLINE +
-                "Alice" + STRING_NEWLINE +
-                "Alice" + STRING_NEWLINE +
-                "Bob" + STRING_NEWLINE +
-                "Alice" + STRING_NEWLINE +
-                "Bob" + STRING_NEWLINE;
+        String input = CONTENT_LINE1 + STRING_NEWLINE +
+                CONTENT_LINE1 + STRING_NEWLINE +
+                CONTENT_LINE2 + STRING_NEWLINE +
+                CONTENT_LINE2 + STRING_NEWLINE +
+                NEW_CONTENT_LINE1 + STRING_NEWLINE +
+                CONTENT_LINE2 + STRING_NEWLINE +
+                NEW_CONTENT_LINE1 + STRING_NEWLINE;
         String command = "tee " + NEW_FILE + "; uniq " + NEW_FILE;
         inputStream = new ByteArrayInputStream(input.getBytes());
         System.setIn(inputStream);
         shell.parseAndEvaluate(command, outputStream);
 
-        String uniqOutput = "Hello World" + STRING_NEWLINE +
-                "Alice" + STRING_NEWLINE +
-                "Bob" + STRING_NEWLINE +
-                "Alice" + STRING_NEWLINE +
-                "Bob" + STRING_NEWLINE;
+        String uniqOutput = CONTENT_LINE1 + STRING_NEWLINE +
+                CONTENT_LINE2 + STRING_NEWLINE +
+                NEW_CONTENT_LINE1 + STRING_NEWLINE +
+                CONTENT_LINE2 + STRING_NEWLINE +
+                NEW_CONTENT_LINE1 + STRING_NEWLINE;
         assertEquals(input + uniqOutput, outputStream.toString());
     }
 }
