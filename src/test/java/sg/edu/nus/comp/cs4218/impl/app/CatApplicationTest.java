@@ -2,7 +2,6 @@ package sg.edu.nus.comp.cs4218.impl.app;
 
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.exception.CatException;
-import sg.edu.nus.comp.cs4218.exception.CutException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,18 +25,18 @@ public class CatApplicationTest {
     private static final String FILE_NAME_A = "A.txt";
     private static final String FILE_NAME_B = "B.txt";
     private static final String FILE_NAME_C = "C.txt";
-
-    private static final String FILE_DOES_NOT_EXIST = "NonExistent.txt";
+    private static final String NON_EXISTENT_TXT = "NonExistent.txt";
     private static final String TEST_FOLDER = "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "cat";
     private static final String CAT_EX_PREFIX = "cat: ";
+    private static final String FILE_A_STR = "This is file A.";
 
     private final CatApplication catApplication = new CatApplication();
 
     @Test
     void catFiles_FileDoesNotExist_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
-                () -> catApplication.catFiles(false, FILE_DOES_NOT_EXIST));
-        assertEquals(CAT_EX_PREFIX + FILE_DOES_NOT_EXIST + ": " + ERR_FILE_NOT_FOUND, thrown.getMessage());
+                () -> catApplication.catFiles(false, NON_EXISTENT_TXT));
+        assertEquals(CAT_EX_PREFIX + NON_EXISTENT_TXT + ": " + ERR_FILE_NOT_FOUND, thrown.getMessage());
     }
 
     @Test
@@ -70,7 +69,7 @@ public class CatApplicationTest {
 
     @Test
     void catFiles_SingleLineFile_ReturnsCorrectOutput() throws CatException {
-        String expected = "This is file A." + STRING_NEWLINE;//NOPMD
+        String expected = FILE_A_STR + STRING_NEWLINE;
         String actual = catApplication.catFiles(false,
                 TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A);
         assertEquals(expected, actual);
@@ -114,7 +113,7 @@ public class CatApplicationTest {
 
     @Test
     void catStdin_ValidWithoutLineNo_ReturnsCorrectOutput() {
-        String expected = "This is file A." + STRING_NEWLINE;
+        String expected = FILE_A_STR + STRING_NEWLINE;
         assertDoesNotThrow(() -> {
             String actual = catApplication.catStdin(false, new ByteArrayInputStream(expected.getBytes()));
             assertEquals(expected, actual);
@@ -123,7 +122,7 @@ public class CatApplicationTest {
 
     @Test
     void catStdin_ValidWithLineNo_ReturnsCorrectOutput() {
-        String input = "This is file A." + STRING_NEWLINE;
+        String input = FILE_A_STR + STRING_NEWLINE;
         assertDoesNotThrow(() -> {
             String actual = catApplication.catStdin(true, new ByteArrayInputStream(input.getBytes()));
             String expected = "1 This is file A." + STRING_NEWLINE;
@@ -179,16 +178,16 @@ public class CatApplicationTest {
     void catFileAndStdin_FileNotFound_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
                 () -> catApplication.catFileAndStdin(false, System.in,
-                        TEST_FOLDER + CHAR_FILE_SEP + FILE_DOES_NOT_EXIST, null));
+                        TEST_FOLDER + CHAR_FILE_SEP + NON_EXISTENT_TXT, null));
         assertEquals(CAT_EX_PREFIX + ERR_FILE_DIR_NOT_FOUND +
-                ": " + TEST_FOLDER + CHAR_FILE_SEP + FILE_DOES_NOT_EXIST + " does not exist.", thrown.getMessage());
+                ": " + TEST_FOLDER + CHAR_FILE_SEP + NON_EXISTENT_TXT + " does not exist.", thrown.getMessage());
     }
 
     // We have 1 sentence from stdin and 1 from file
     @Test
     void catFileAndStdin_ValidArgs_ReturnsCorrectOutput() throws CatException {
         String stdinString = "This is from stdin." + STRING_NEWLINE;
-        String expected = "This is file A." + STRING_NEWLINE +
+        String expected = FILE_A_STR + STRING_NEWLINE +
                 "This is from stdin." + STRING_NEWLINE;
         String actual = catApplication.catFileAndStdin(false,
                 new ByteArrayInputStream(stdinString.getBytes()),
@@ -219,7 +218,7 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsOneFile_ReturnsCorrectOutput() throws CatException {
-        String expected = "This is file A." + System.lineSeparator();
+        String expected = FILE_A_STR + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A},
                 System.in,
@@ -229,7 +228,7 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsFileAWithLineNo_ReturnsCorrectOutput() throws CatException {
-        String expected = "1 This is file A." + System.lineSeparator();
+        String expected = "1 This is file A." + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A},
                 System.in,
@@ -239,8 +238,8 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsFileBWithLineNo_ReturnsCorrectOutput() throws CatException {
-        String expected = "1 This is file B." + System.lineSeparator() +
-                "2 It has two lines." + System.lineSeparator();
+        String expected = "1 This is file B." + STRING_NEWLINE +
+                "2 It has two lines." + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_B},
                 System.in,
@@ -250,9 +249,9 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsFileAWithLineNoAndFileBWithLineNo_ReturnsCorrectOutput() throws CatException {
-        String expected = "1 This is file A." + System.lineSeparator() +
-                "1 This is file B." + System.lineSeparator() +
-                "2 It has two lines." + System.lineSeparator();
+        String expected = "1 This is file A." + STRING_NEWLINE +
+                "1 This is file B." + STRING_NEWLINE +
+                "2 It has two lines." + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A,
                 TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_B},

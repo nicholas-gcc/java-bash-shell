@@ -27,6 +27,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
+@SuppressWarnings({"PMD.CloseResource"})
 public class IOUtilsTest {
     static final String CWD = System.getProperty("user.dir");
     static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "util" + CHAR_FILE_SEP + "IOUtils";
@@ -34,6 +35,7 @@ public class IOUtilsTest {
     static final String FAKE_FILE = "fake.txt";
     static final String SAMPLE_DIR = "sample";
     static final String NEW_FILE = "new.txt";
+    static final String SHELL_ERR = "shell: ";
 
 
     @BeforeEach
@@ -67,7 +69,7 @@ public class IOUtilsTest {
             InputStream inputStream = IOUtils.openInputStream(FAKE_FILE);
             inputStream.close();
         });
-        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        String expectedMessage = SHELL_ERR + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -77,7 +79,7 @@ public class IOUtilsTest {
             InputStream inputStream = IOUtils.openInputStream(SAMPLE_DIR);
             inputStream.close();
         });
-        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        String expectedMessage = SHELL_ERR + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -95,14 +97,14 @@ public class IOUtilsTest {
     @Test
     void openOutputStream_NonExistingFile_ThrowsShellExceptionWithCorrectMessage() {
         ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(FAKE_FILE));
-        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        String expectedMessage = SHELL_ERR + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
     void openOutputStream_ExistingDir_ThrowsShellExceptionWithCorrectMessage() {
         ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(SAMPLE_DIR));
-        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        String expectedMessage = SHELL_ERR + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -131,14 +133,14 @@ public class IOUtilsTest {
     @Test
     void openOutputStream_NonExistingFileIsAppend_ThrowsShellExceptionWithCorrectMessage() {
         ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(FAKE_FILE, true));
-        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        String expectedMessage = SHELL_ERR + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
     void openOutputStream_ExistingDirIsAppend_ThrowsShellExceptionWithCorrectMessage() {
         ShellException exception = assertThrows(ShellException.class, () -> IOUtils.openOutputStream(SAMPLE_DIR, true));
-        String expectedMessage = "shell: " + ERR_FILE_NOT_FOUND;
+        String expectedMessage = SHELL_ERR + ERR_FILE_NOT_FOUND;
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -178,6 +180,7 @@ public class IOUtilsTest {
         InputStream inputStream = new FileInputStream(absolutePath);
         List<String> expectedContent = List.of(new String[]{"This is a sample text.", "This is the second line."});
         assertEquals(expectedContent, IOUtils.getLinesFromInputStream(inputStream));
+        inputStream.close();
     }
 
     @Test
@@ -186,5 +189,6 @@ public class IOUtilsTest {
         InputStream inputStream = new FileInputStream(absolutePath);
         String expectedContent = "This is a sample text." + STRING_NEWLINE + "This is the second line." + STRING_NEWLINE;
         assertEquals(expectedContent, IOUtils.convertStreamToString(inputStream));
+        inputStream.close();
     }
 }

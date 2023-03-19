@@ -12,9 +12,9 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 public class UniqApplication implements UniqInterface {
-    static UniqArguments uniqArgs = new UniqArguments();
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout) throws AbstractApplicationException {
+        UniqArguments uniqArgs = new UniqArguments();
         String[] fileNames = uniqArgs.getFiles(args);
         String result;
         try{
