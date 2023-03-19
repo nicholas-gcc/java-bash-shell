@@ -117,4 +117,12 @@ public class SequenceCommandIT {
                 + SAMPLE_FILE + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
     }
+
+    @Test
+    void parseAndEvaluate_CpAndGrep_shouldGrepProperly() throws Exception {
+        String command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; grep sample " + NEW_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = CONTENT_LINE1 + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
 }
