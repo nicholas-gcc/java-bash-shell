@@ -5,6 +5,7 @@ import sg.edu.nus.comp.cs4218.app.UniqInterface;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.UniqException;
 import sg.edu.nus.comp.cs4218.impl.app.args.UniqArguments;
+import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.*;
 
@@ -28,19 +29,10 @@ public class UniqApplication implements UniqInterface {
             if (fileNames[1] == null) {//write to stdout
                 stdout.write(result.getBytes());
             } else {
-                File outputFile = new File(convertToAbsolutePath(fileNames[1]));
-                if (!outputFile.exists()) {
-                    outputFile.createNewFile();
+                if (!FileSystemUtils.fileOrDirExist(fileNames[1])) {
+                    FileSystemUtils.createEmptyFile(fileNames[1]);
                 }
-                FileWriter inputWriter = null;
-                try {
-                    inputWriter = new FileWriter(fileNames[1]);
-                    inputWriter.write(result);
-                } catch (IOException ioException) {
-                    throw ioException;
-                } finally {
-                    inputWriter.close();
-                }
+                FileSystemUtils.writeStrToFile(false, result, fileNames[1]);
             }
         } catch (Exception exception) {
             throw new UniqException(exception.getMessage(), exception);
