@@ -92,14 +92,15 @@ public class MvApplication implements MvInterface {
                 }
 
                 // move file to destination folder
-                Files.move(Paths.get(fileName), Paths.get(destFilePath));
+                Files.move(Paths.get(srcFilePath), Paths.get(destFilePath));
+
             }
         } catch (FileAlreadyExistsException e) {
             throw new MvException("Cannot move file: a file with the same name already exists in destination folder", e);
         } catch (AccessDeniedException e) {
             throw new MvException(ERR_NO_PERM + ":" + e.getFile(), e);
         } catch (NoSuchFileException e) {
-            throw new MvException(ERR_FILE_NOT_FOUND + ":" + e.getMessage(), e);
+            throw new MvException(ERR_FILE_NOT_FOUND + ": " + e.getMessage(), e);
         } catch (IOException e) {
             throw new MvException(e.getMessage(), e);
         }
