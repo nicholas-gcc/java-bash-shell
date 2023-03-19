@@ -18,11 +18,12 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
 public class WcArgumentsTest {
 
     WcArguments wcArguments;
+    private static final String USER_DIR = "user.dir";
 
     @BeforeAll
     static void setDirectory() {
-        String currentDirectory = System.getProperty("user.dir");
-        System.setProperty("user.dir", currentDirectory + File.separator + "assets"
+        String currentDirectory = System.getProperty(USER_DIR);
+        System.setProperty(USER_DIR, currentDirectory + File.separator + "assets"
                 + File.separator + "app" + File.separator + "wc");
     }
 
@@ -33,9 +34,9 @@ public class WcArgumentsTest {
 
     @AfterAll
     static void resetDirectory() {
-        String originalDirectory = System.getProperty("user.dir").replace(File.separator + "assets"
+        String originalDirectory = System.getProperty(USER_DIR).replace(File.separator + "assets"
                 + File.separator + "app" + File.separator + "wc", "");
-        System.setProperty("user.dir", originalDirectory);
+        System.setProperty(USER_DIR, originalDirectory);
     }
 
     @Test
