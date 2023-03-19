@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.Shell;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
-import sg.edu.nus.comp.cs4218.exception.CpException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 import sg.edu.nus.comp.cs4218.impl.ShellImpl;
 import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
@@ -204,5 +203,29 @@ public class SequenceCommandIT {
         shell.parseAndEvaluate(command, outputStream);
         String expected = "       1 " + NEW_FILE + STRING_NEWLINE + "       5 " + NEW_FILE + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
+    }
+
+    @Test
+    void parseAndEvaluate_TeeAndUniq_ShouldRunProperly() throws Exception {
+        FileSystemUtils.createEmptyFile(NEW_FILE);
+
+        String input = "Hello World" + STRING_NEWLINE +
+                "Hello World" + STRING_NEWLINE +
+                "Alice" + STRING_NEWLINE +
+                "Alice" + STRING_NEWLINE +
+                "Bob" + STRING_NEWLINE +
+                "Alice" + STRING_NEWLINE +
+                "Bob" + STRING_NEWLINE;
+        String command = "tee " + NEW_FILE + "; uniq " + NEW_FILE;
+        inputStream = new ByteArrayInputStream(input.getBytes());
+        System.setIn(inputStream);
+        shell.parseAndEvaluate(command, outputStream);
+
+        String uniqOutput = "Hello World" + STRING_NEWLINE +
+                "Alice" + STRING_NEWLINE +
+                "Bob" + STRING_NEWLINE +
+                "Alice" + STRING_NEWLINE +
+                "Bob" + STRING_NEWLINE;
+        assertEquals(input + uniqOutput, outputStream.toString());
     }
 }
