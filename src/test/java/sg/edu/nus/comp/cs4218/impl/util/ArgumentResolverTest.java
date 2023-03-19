@@ -72,14 +72,12 @@ public class ArgumentResolverTest {
     }
 
     @Test
-    void parseArgument_GlobMatchRegularFile_CorrectArgTokens() {
+    void parseArgument_GlobMatchRegularFile_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         // In this unit test, * is a prefix to the pattern instead of postfix
         List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*.txt");
         List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt");
-        assertDoesNotThrow(() -> {
-            List<String> actualTokens = argumentResolver.parseArguments(args);
-            assertEquals(expectedTokens, actualTokens);
-        });
+        List<String> actualTokens = argumentResolver.parseArguments(args);
+        assertEquals(expectedTokens, actualTokens);
     }
 
     @Test
