@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_ARG;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 
 public class CutArguments {
     public static final char CHAR_CUT_BY_BYTE = 'b';
     public static final char CHAR_CUT_BY_CHAR = 'c';
-    private final List<String> files = new ArrayList<>();;
+    private final List<String> files = new ArrayList<>();
     private boolean charPo, bytePo;
-    private final List<int[]> ranges = new ArrayList<>();;
+    private final List<int[]> ranges = new ArrayList<>();
 
     public CutArguments() {
         this.charPo = false;
@@ -42,17 +45,13 @@ public class CutArguments {
      * files (optional)
      * @param args arguments to parse
      */
-    public void parse(String... args) {
+    public void parse(String... args) throws Exception {
         if (args == null) {
             throw new NullPointerException(ERR_NULL_ARGS);
         }
         if (args.length < 2) {
             throw new IllegalArgumentException(ERR_NO_ARGS);
         }
-        // TODO: confirm removal of this code as can have as many files as args
-//        if (args.length > 4) {
-//            throw new IllegalArgumentException(ERR_TOO_MANY_ARGS);
-//        }
 
         // check and set cut by byte or character option
         if (args[0].charAt(0) == CHAR_FLAG_PREFIX && args[0].charAt(1) == CHAR_CUT_BY_CHAR) {
@@ -74,7 +73,7 @@ public class CutArguments {
                     rangeEntry[0] = Integer.parseInt(range[0]);
                     rangeEntry[1] = Integer.parseInt(range[0]);
                 } catch (NumberFormatException e) {
-                    throw new NumberFormatException("Invalid indexes provided");
+                    throw new IllegalArgumentException("Invalid indexes provided", e);
                 }
                 this.ranges.add(rangeEntry);
             } else if (range.length == 2) {

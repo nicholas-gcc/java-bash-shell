@@ -13,9 +13,15 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.*;
+import static sg.edu.nus.comp.cs4218.impl.app.CatApplication.ERR_GENERAL;
+import static sg.edu.nus.comp.cs4218.impl.app.CatApplication.ERR_IS_DIR;
+import static sg.edu.nus.comp.cs4218.impl.app.CatApplication.ERR_NULL_STREAMS;
+import static sg.edu.nus.comp.cs4218.impl.app.CatApplication.ERR_WRITE_STREAM;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_PERM;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
+@SuppressWarnings({"PMD.CloseResource"})
 public class WcApplication implements WcInterface {
 
     private static final String NUMBER_FORMAT = " %7d";
@@ -31,7 +37,7 @@ public class WcApplication implements WcInterface {
      * @param stdin  An InputStream. The input for the command is read from this InputStream if no
      *               files are specified.
      * @param stdout An OutputStream. The output of the command is written to this OutputStream.
-     * @throws WcException
+     * @throws WcException Throws WcException
      */
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout)
@@ -68,7 +74,7 @@ public class WcApplication implements WcInterface {
      * @param isLines  Boolean option to count the number of lines
      * @param isWords  Boolean option to count the number of words
      * @param fileName Array of String of file names
-     * @throws Exception
+     * @throws Exception Throws Exception
      */
     @Override
     public String countFromFiles(Boolean isBytes, Boolean isLines, Boolean isWords, //NOPMD
@@ -104,34 +110,34 @@ public class WcApplication implements WcInterface {
 
             // Format all output: " %7d %7d %7d %s"
             // Output in the following order: lines words bytes filename
-            StringBuilder sb = new StringBuilder(); //NOPMD
+            StringBuilder stringBuilder = new StringBuilder();
             if (isLines) {
-                sb.append(String.format(NUMBER_FORMAT, count[0]));
+                stringBuilder.append(String.format(NUMBER_FORMAT, count[0]));
             }
             if (isWords) {
-                sb.append(String.format(NUMBER_FORMAT, count[1]));
+                stringBuilder.append(String.format(NUMBER_FORMAT, count[1]));
             }
             if (isBytes) {
-                sb.append(String.format(NUMBER_FORMAT, count[2]));
+                stringBuilder.append(String.format(NUMBER_FORMAT, count[2]));
             }
-            sb.append(String.format(" %s", file));
-            result.add(sb.toString());
+            stringBuilder.append(String.format(" %s", file));
+            result.add(stringBuilder.toString());
         }
 
         // Print cumulative counts for all the files
         if (fileName.length > 1) {
-            StringBuilder sb = new StringBuilder(); //NOPMD
+            StringBuilder stringBuilder = new StringBuilder();
             if (isLines) {
-                sb.append(String.format(NUMBER_FORMAT, totalLines));
+                stringBuilder.append(String.format(NUMBER_FORMAT, totalLines));
             }
             if (isWords) {
-                sb.append(String.format(NUMBER_FORMAT, totalWords));
+                stringBuilder.append(String.format(NUMBER_FORMAT, totalWords));
             }
             if (isBytes) {
-                sb.append(String.format(NUMBER_FORMAT, totalBytes));
+                stringBuilder.append(String.format(NUMBER_FORMAT, totalBytes));
             }
-            sb.append(" total");
-            result.add(sb.toString());
+            stringBuilder.append(" total");
+            result.add(stringBuilder.toString());
         }
         return String.join(STRING_NEWLINE, result);
     }
@@ -143,7 +149,7 @@ public class WcApplication implements WcInterface {
      * @param isLines Boolean option to count the number of lines
      * @param isWords Boolean option to count the number of words
      * @param stdin   InputStream containing arguments from Stdin
-     * @throws Exception
+     * @throws Exception Throws Exception
      */
     @Override
     public String countFromStdin(Boolean isBytes, Boolean isLines, Boolean isWords,
@@ -153,22 +159,22 @@ public class WcApplication implements WcInterface {
         }
         long[] count = getCountReport(stdin); // lines words bytes;
 
-        StringBuilder sb = new StringBuilder(); //NOPMD
+        StringBuilder stringBuilder = new StringBuilder();
         if (isLines) {
-            sb.append(String.format(NUMBER_FORMAT, count[0]));
+            stringBuilder.append(String.format(NUMBER_FORMAT, count[0]));
         }
         if (isWords) {
-            sb.append(String.format(NUMBER_FORMAT, count[1]));
+            stringBuilder.append(String.format(NUMBER_FORMAT, count[1]));
         }
         if (isBytes) {
-            sb.append(String.format(NUMBER_FORMAT, count[2]));
+            stringBuilder.append(String.format(NUMBER_FORMAT, count[2]));
         }
 
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
     @Override
-    public String countFromFileAndStdin(Boolean isBytes, Boolean isLines, Boolean isWords, InputStream stdin, String... fileName) throws Exception {
+    public String countFromFileAndStdin(Boolean isBytes, Boolean isLines, Boolean isWords, InputStream stdin, String... fileName) {
         // TODO: To implement
         return null;
     }
@@ -177,7 +183,7 @@ public class WcApplication implements WcInterface {
      * Returns array containing the number of lines, words, and bytes based on data in InputStream.
      *
      * @param input An InputStream
-     * @throws IOException
+     * @throws IOException Throws IOException
      */
     public long[] getCountReport(InputStream input) throws Exception {
         if (input == null) {
@@ -187,7 +193,7 @@ public class WcApplication implements WcInterface {
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] data = new byte[1024];
-        int inRead = 0;
+        int inRead;
         boolean inWord = false;
         while ((inRead = input.read(data, 0, data.length)) != -1) {
             for (int i = 0; i < inRead; ++i) {

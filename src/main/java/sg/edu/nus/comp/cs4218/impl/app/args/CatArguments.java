@@ -2,22 +2,21 @@ package sg.edu.nus.comp.cs4218.impl.app.args;
 
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FLAG_PREFIX;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_DASH;
 
+@SuppressWarnings({"PMD.LongVariable"})
 public class CatArguments {
     String[] files;
 
     boolean isLineNumbers;
 
-    private static final char FLAG_LINE_NUM_CHAR = 'n';//NOPMD
+    private static final char FLAG_LINE_NUM_CHAR = 'n';
 
     /**
      * Parse 1 or 2 arguments for cat command

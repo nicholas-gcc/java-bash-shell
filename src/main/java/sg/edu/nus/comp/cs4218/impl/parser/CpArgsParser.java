@@ -1,19 +1,19 @@
 package sg.edu.nus.comp.cs4218.impl.parser;
 
 public class CpArgsParser extends ArgsParser {
-    private final static char RECURSIVE_FLAG_LOWERCASE = 'r';
-    private final static char RECURSIVE_FLAG_UPPERCASE = 'R';
+    private final static char RECURSIVE_FLAG_L = 'r';
+    private final static char RECURSIVE_FLAG_U = 'R';
     private String[] sourceFiles;
     private String destFile;
 
     public CpArgsParser() {
         super();
-        legalFlags.add(RECURSIVE_FLAG_LOWERCASE);
-        legalFlags.add(RECURSIVE_FLAG_UPPERCASE);
+        legalFlags.add(RECURSIVE_FLAG_L);
+        legalFlags.add(RECURSIVE_FLAG_U);
     }
 
     public boolean isRecursive() {
-        return flags.contains(RECURSIVE_FLAG_UPPERCASE) || flags.contains(RECURSIVE_FLAG_LOWERCASE);
+        return flags.contains(RECURSIVE_FLAG_U) || flags.contains(RECURSIVE_FLAG_L);
     }
 
     public String[] getSourceFiles() {

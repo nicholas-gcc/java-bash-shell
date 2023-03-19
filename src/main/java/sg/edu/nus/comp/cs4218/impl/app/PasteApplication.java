@@ -9,6 +9,7 @@ import sg.edu.nus.comp.cs4218.impl.util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -29,6 +30,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
+@SuppressWarnings({"PMD.GodClass", "PMD.CloseResource"})
 public class PasteApplication implements PasteInterface {
 
     /**
@@ -77,7 +79,7 @@ public class PasteApplication implements PasteInterface {
      *
      * @param isSerial Paste one file at a time instead of in parallel
      * @param stdin    InputStream containing arguments from Stdin
-     * @throws Exception
+     * @throws Exception Throws Exception
      */
     @Override
     public String mergeStdin(Boolean isSerial, InputStream stdin) throws Exception {
@@ -152,21 +154,13 @@ public class PasteApplication implements PasteInterface {
      * @return the concatenated String
      * @throws Exception if an error occurs while reading from the input streams
      */
-    @SuppressWarnings("PMD.CloseResource")
-    private String mergeInputStreams(Boolean isSerial, InputStream... inputStreams) throws Exception { //NOPMD
+    private String mergeInputStreams(Boolean isSerial, InputStream... inputStreams) throws Exception {
         if (inputStreams == null || inputStreams.length == 0) {
             throw new PasteException(ERR_NULL_ARGS);
         }
         StringBuilder output = new StringBuilder();
         if (isSerial) {
-            for (InputStream inputStream : inputStreams) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                // reads all the lines from the stream and concatenates them separated by tabs
-                String line = reader.lines().collect(Collectors.joining(String.valueOf(CHAR_TAB)));
-                output.append(line.trim()).append(STRING_NEWLINE);
-                reader.close();
-                inputStream.close();
-            }
+            mergeInputStreamsIfSerial(output, inputStreams);
         } else {
             boolean hasData = true;
             Map<InputStream, BufferedReader> readerMap = new HashMap<>();
@@ -207,6 +201,17 @@ public class PasteApplication implements PasteInterface {
             }
         }
         return output.toString();
+    }
+
+    private void mergeInputStreamsIfSerial(StringBuilder stringBuilder, InputStream... inputStreams) throws IOException {
+        for (InputStream inputStream : inputStreams) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            // reads all the lines from the stream and concatenates them separated by tabs
+            String line = reader.lines().collect(Collectors.joining(String.valueOf(CHAR_TAB)));
+            stringBuilder.append(line.trim()).append(STRING_NEWLINE);
+            reader.close();
+            inputStream.close();
+        }
     }
 
     /**
