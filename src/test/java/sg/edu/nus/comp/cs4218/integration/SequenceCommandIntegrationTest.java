@@ -65,12 +65,6 @@ public class SequenceCommandIntegrationTest {
         if (FileSystemUtils.fileOrDirExist(NEW_FILE)) {
             FileSystemUtils.deleteFileOrDir(NEW_FILE);
         }
-        if (FileSystemUtils.fileOrDirExist(NEW_FILE1)) {
-            FileSystemUtils.deleteFileOrDir(NEW_FILE1);
-        }
-        if (FileSystemUtils.fileOrDirExist(NEW_FILE2)) {
-            FileSystemUtils.deleteFileOrDir(NEW_FILE2);
-        }
         if (FileSystemUtils.fileOrDirExist(DIR + CHAR_FILE_SEP + NEW_FILE2)) {
             FileSystemUtils.deleteFileOrDir(DIR + CHAR_FILE_SEP + NEW_FILE2);
         }
@@ -119,6 +113,8 @@ public class SequenceCommandIntegrationTest {
         shell.parseAndEvaluate(command, outputStream);
         String expected = DELETE_FILE + STRING_NEWLINE
                 + DIR + STRING_NEWLINE
+                + NEW_FILE1 + STRING_NEWLINE
+                + NEW_FILE2 + STRING_NEWLINE
                 + SAMPLE_FILE + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
     }
@@ -155,11 +151,6 @@ public class SequenceCommandIntegrationTest {
 
     @Test
     void parseAndEvaluate_PasteSAndUniq_shouldPrintCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(NEW_FILE1);
-        FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
-
-        FileSystemUtils.createEmptyFile(NEW_FILE2);
-
         String command = "paste -s " + NEW_FILE1 + " " + SAMPLE_FILE + " > " + NEW_FILE2 + "; uniq " + NEW_FILE2;
         shell.parseAndEvaluate(command, outputStream);
         String expected = NEW_CONTENT_LINE1 + CHAR_TAB + NEW_CONTENT_LINE2 + STRING_NEWLINE
@@ -169,28 +160,26 @@ public class SequenceCommandIntegrationTest {
 
     @Test
     void parseAndEvaluate_MvRmAndLs_ShouldRunCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(NEW_FILE1);
-        FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
+        FileSystemUtils.createEmptyFile(NEW_FILE);
 
-        String command = "mv " + NEW_FILE1 + " " + NEW_FILE2 + "; ls" +  "; rm " + NEW_FILE2 + "; ls";
+        String command = "mv " + NEW_FILE + " " + "NEW_FILE" + "; ls" +  "; rm " + "NEW_FILE" + "; ls";
         shell.parseAndEvaluate(command, outputStream);
-        String expected = DELETE_FILE + STRING_NEWLINE
+        String expected = "NEW_FILE" + STRING_NEWLINE
+                + DELETE_FILE + STRING_NEWLINE
                 + DIR + STRING_NEWLINE
+                + NEW_FILE1 + STRING_NEWLINE
                 + NEW_FILE2 + STRING_NEWLINE
                 + SAMPLE_FILE + STRING_NEWLINE
                 + DELETE_FILE + STRING_NEWLINE
                 + DIR + STRING_NEWLINE
+                + NEW_FILE1 + STRING_NEWLINE
+                + NEW_FILE2 + STRING_NEWLINE
                 + SAMPLE_FILE + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
     }
 
    @Test
    void parseAndEvaluate_PasteAndSort_ShouldSortProperly() throws Exception {
-       FileSystemUtils.createEmptyFile(NEW_FILE1);
-       FileSystemUtils.writeStrToFile(false, NEW_CONTENT, NEW_FILE1);
-
-       FileSystemUtils.createEmptyFile(NEW_FILE2);
-
        String command = "paste " + NEW_FILE1 + " " + SAMPLE_FILE + " > " + NEW_FILE2 + "; sort " + NEW_FILE2;
        shell.parseAndEvaluate(command, outputStream);
        String expected = NEW_CONTENT_LINE1 + CHAR_TAB + CONTENT_LINE1 + STRING_NEWLINE
