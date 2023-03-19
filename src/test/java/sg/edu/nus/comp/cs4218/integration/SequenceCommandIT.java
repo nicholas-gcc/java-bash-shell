@@ -124,5 +124,15 @@ public class SequenceCommandIT {
         shell.parseAndEvaluate(command, outputStream);
         String expected = CONTENT_LINE1 + STRING_NEWLINE;
         assertEquals(expected, outputStream.toString());
+
+        command = "cp " + SAMPLE_FILE + " " + NEW_FILE + "; grep -H sample " + NEW_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        expected += NEW_FILE + ": " + CONTENT_LINE1 + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
+
+    @Test
+    void parseAndEvaluate_MvAndLs_shouldMoveCorrectly() throws Exception {
+        
     }
 }
