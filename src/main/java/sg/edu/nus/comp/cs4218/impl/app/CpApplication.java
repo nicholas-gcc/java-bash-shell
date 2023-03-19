@@ -76,7 +76,7 @@ public class CpApplication implements CpInterface {
     }
 
     @Override
-    public String cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
+    public void cpSrcFileToDestFile(Boolean isRecursive, String srcFile, String destFile)
             throws CpException, IOException {
         if (srcFile == null || srcFile.isEmpty()) {
             throw new CpException(ERR_NULL_ARGS);
@@ -96,12 +96,10 @@ public class CpApplication implements CpInterface {
         }
 
         Files.copy(srcFilePath, destFilePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return null;
     }
 
     @Override
-    public String cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileNames) throws Exception {
+    public void cpFilesToFolder(Boolean isRecursive, String destFolder, String... fileNames) throws Exception {
         try {
             Path destFolderPath = FileSystemUtils.resolvePath(destFolder);
 
@@ -127,7 +125,8 @@ public class CpApplication implements CpInterface {
                     throw new CpException(ERR_FILE_NOT_FOUND + ": " + fileName);
                 }
 
-                // Do not copy recursively to subdirectories if -r flag is absent and file encountered is directory
+                // Do not copy recursively to subdirectories if -r flag is absent and file
+                // encountered is directory
                 if (Files.isDirectory(srcFilePath) && !isRecursive) {
                     throw new CpException(ERR_IS_DIR + ": " + fileName);
                 }
@@ -137,13 +136,13 @@ public class CpApplication implements CpInterface {
                     Files.copy(srcFilePath, destFilePath, StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                // If recursive copy is enabled, copy any subdirectories and files within the source directory
+                // If recursive copy is enabled, copy any subdirectories and files within the
+                // source directory
                 if (isRecursive) {
                     Files.walkFileTree(srcFilePath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
                             new CopyFileVisitor(srcFilePath, destFilePath));
                 }
             }
-            return null;
         } catch (IOException e) {
             throw new CpException(e.getMessage(), e);
         }
@@ -160,12 +159,14 @@ public class CpApplication implements CpInterface {
 
         /**
          * Invoked for a directory before entries in the directory are visited.
-         * This method copies the directory to the destination path and creates any missing directories along the way.
+         * This method copies the directory to the destination path and creates any
+         * missing directories along the way.
          *
-         * @param dir  The directory being visited
+         * @param dir   The directory being visited
          * @param attrs The basic attributes of the directory
          * @return FileVisitResult.CONTINUE to continue visiting the directory
-         * @throws IOException If there was an error copying the directory or creating missing directories
+         * @throws IOException If there was an error copying the directory or creating
+         *                     missing directories
          */
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
@@ -174,7 +175,8 @@ public class CpApplication implements CpInterface {
             try {
                 // Copy the current directory to the destination
                 Files.copy(dir, targetDir, StandardCopyOption.REPLACE_EXISTING);
-            } catch (FileAlreadyExistsException e) { // If the copied file already exists, check if it's a directory and continue
+            } catch (FileAlreadyExistsException e) { // If the copied file already exists, check if it's a directory and
+                                                     // continue
                 if (!Files.isDirectory(targetDir)) {
                     throw e;
                 }
@@ -186,7 +188,7 @@ public class CpApplication implements CpInterface {
          * Invoked for a file in a directory.
          * This method copies the file to the destination directory.
          *
-         * @param file The file being visited
+         * @param file  The file being visited
          * @param attrs The basic attributes of the file
          * @return FileVisitResult.CONTINUE to continue visiting the file
          * @throws IOException If there was an error copying the file
