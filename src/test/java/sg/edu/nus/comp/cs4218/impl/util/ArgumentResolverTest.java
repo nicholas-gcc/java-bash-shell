@@ -24,7 +24,7 @@ public class ArgumentResolverTest {
     private static final String BASE_DIR = Environment.currentDirectory;
 
     private static final Path CWD = Paths.get(BASE_DIR);
-    private static final Path PATH_FILES = CWD.resolve("assets" + File.separator + "app"
+    private static final Path PATH_TO_TEST_FILES = CWD.resolve("assets" + File.separator + "app"
             + File.separator + "ls");
     private static final String ECHO_CMD = "echo";
     private static final String HELLO_STR = "hello";
