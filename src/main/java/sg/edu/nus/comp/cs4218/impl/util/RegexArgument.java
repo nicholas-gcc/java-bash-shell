@@ -17,8 +17,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 @SuppressWarnings("PMD.AvoidStringBufferField")
 public final class RegexArgument {
-    private StringBuilder plaintext;
-    private StringBuilder regex;
+    private final StringBuilder plaintext;
+    private final StringBuilder regex;
     private boolean isRegex;
 
     public RegexArgument() {

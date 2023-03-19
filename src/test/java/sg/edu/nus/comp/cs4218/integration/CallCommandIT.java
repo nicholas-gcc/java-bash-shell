@@ -80,7 +80,7 @@ public class CallCommandIT {
         CallCommand callCommand = buildCallCommand(args);
         callCommand.evaluate(inputStream, outputStream);
         String output = FileSystemUtils.readFileContent(NEW_FILE1);
-        assertEquals(NEW_CONTENT, output);
+        assertEquals(NEW_CONTENT + STRING_NEWLINE, output);
     }
 
     @Test
