@@ -4,14 +4,22 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GrepApplicationTest {
     private final GrepApplication grepApplication = new GrepApplication();
-    private static String fileName = "test.md";
-    private static String fileContent = "In the deep expanse of the midnight sky," + System.lineSeparator() +
+    private static final String FILE_NAME = "test.md";
+    private static final String BEACON_TEXT1 = "Beacon looks like bacon,";
+    private static final String BEACON_TEXT2 = "but beacon is not beacon";
+    private static final String FILE_CONTENT = "In the deep expanse of the midnight sky," + System.lineSeparator() +
             "The stars above twinkle and shine." + System.lineSeparator() +
             "A cosmic dance that's never-ending," + System.lineSeparator() +
             "A symphony that's truly divine." + System.lineSeparator() +
@@ -42,7 +50,7 @@ public class GrepApplicationTest {
             "Like a diamond in the sky.";
     @BeforeAll
     static void setUpTestFile() throws IOException {
-        File testFile = new File(fileName);
+        File testFile = new File(FILE_NAME);
         File testFile2 = new File(fileName2);
         if (!testFile.exists()) {
             testFile.createNewFile();
@@ -53,8 +61,8 @@ public class GrepApplicationTest {
         FileWriter writer1 = null;
         FileWriter writer2 = null;
         try {
-            writer1 = new FileWriter(fileName);
-            writer1.write(fileContent);
+            writer1 = new FileWriter(FILE_NAME);
+            writer1.write(FILE_CONTENT);
             writer2 = new FileWriter(fileName2);
             writer2.write(fileContent2);
         } catch (IOException ioException) {
@@ -67,7 +75,7 @@ public class GrepApplicationTest {
 
     @AfterAll
     static void cleanUpFile() {
-        File file = new File(fileName);
+        File file = new File(FILE_NAME);
         File file2 = new File(fileName2);
         if (file.exists()) {
             file.delete();
@@ -80,7 +88,7 @@ public class GrepApplicationTest {
     @Test
     void grep_NoTagFromFile_ShouldGrepCorrectly() throws Exception {
         String pattern = "cosmic";
-        String result = grepApplication.grepFromFiles(pattern, false, false, false, fileName);
+        String result = grepApplication.grepFromFiles(pattern, false, false, false, FILE_NAME);
         String correctResult = "A cosmic dance that's never-ending," + System.lineSeparator();
         assertEquals(correctResult, result);
     }
@@ -88,7 +96,7 @@ public class GrepApplicationTest {
     @Test
     void grep_CaseInsensitiveFromFile_ShouldGrepCorrectly() throws Exception {
         String pattern = "and";
-        String result = grepApplication.grepFromFiles(pattern, true, false, false, fileName);
+        String result = grepApplication.grepFromFiles(pattern, true, false, false, FILE_NAME);
         String correctResult = "The stars above twinkle and shine."  + System.lineSeparator() +
                 "A symbol of dreams and aspirations," + System.lineSeparator() +
                 "They shine bright and steady,"  + System.lineSeparator() +
@@ -100,7 +108,7 @@ public class GrepApplicationTest {
     @Test
     void grep_CountFromFile_ShouldGrepCorrectly() throws Exception {
         String pattern = "and";
-        String result = grepApplication.grepFromFiles(pattern, false, true, false, fileName);
+        String result = grepApplication.grepFromFiles(pattern, false, true, false, FILE_NAME);
         String correctResult = "3" + System.lineSeparator();
         assertEquals(correctResult, result);
     }
@@ -108,21 +116,21 @@ public class GrepApplicationTest {
     @Test
     void grep_WithPrefixFromFile_ShouldGrepCorrectly() throws Exception {
         String pattern = "and";
-        String result = grepApplication.grepFromFiles(pattern, false, false, true, fileName);
-        String correctResult = fileName + ": The stars above twinkle and shine." + System.lineSeparator() +
-                fileName + ": A symbol of dreams and aspirations," + System.lineSeparator() +
-                fileName + ": They shine bright and steady," + System.lineSeparator();
+        String result = grepApplication.grepFromFiles(pattern, false, false, true, FILE_NAME);
+        String correctResult = FILE_NAME + ": The stars above twinkle and shine." + System.lineSeparator() +
+                FILE_NAME + ": A symbol of dreams and aspirations," + System.lineSeparator() +
+                FILE_NAME + ": They shine bright and steady," + System.lineSeparator();
     }
 
     @Test
     void grep_NoTagFromMultipleFiles_ShouldGrepCorrectly() throws Exception {
         String pattern = "star";
         String result = grepApplication.grepFromFiles(pattern, false, false, false,
-                fileName, fileName2);
-        String correctResult = fileName + ": The stars above twinkle and shine." + System.lineSeparator() +
-                fileName + ": Each star a miracle of light," + System.lineSeparator() +
-                fileName + ": The stars above, a celestial wonder," + System.lineSeparator() +
-                fileName + ": And see the stars shining high," + System.lineSeparator() +
+                FILE_NAME, fileName2);
+        String correctResult = FILE_NAME + ": The stars above twinkle and shine." + System.lineSeparator() +
+                FILE_NAME + ": Each star a miracle of light," + System.lineSeparator() +
+                FILE_NAME + ": The stars above, a celestial wonder," + System.lineSeparator() +
+                FILE_NAME + ": And see the stars shining high," + System.lineSeparator() +
                 fileName2 + ": Twinkle twinkle little star, " + System.lineSeparator();
         assertEquals(correctResult, result);
     }
@@ -131,8 +139,8 @@ public class GrepApplicationTest {
     void grep_CountFromMultipleFiles_ShouldGrepCorrectly() throws Exception {
         String pattern = "star";
         String result = grepApplication.grepFromFiles(pattern, false, true, false,
-                fileName, fileName2);
-        String correctResult = fileName + ": 4" + System.lineSeparator() +
+                FILE_NAME, fileName2);
+        String correctResult = FILE_NAME + ": 4" + System.lineSeparator() +
                 fileName2 + ": 1" + System.lineSeparator();
         assertEquals(correctResult, result);
     }
@@ -170,7 +178,7 @@ public class GrepApplicationTest {
     @Test
     void grep_CaseInsensitiveCountWithPrefixFromStdin_ShouldGrepCorrectly() throws Exception  {
         String pattern = "ea";
-        String mockInput = "Beacon looks like bacon," + System.lineSeparator() + "but beacon is not beacon";
+        String mockInput = BEACON_TEXT1 + System.lineSeparator() + BEACON_TEXT2;
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromStdin(pattern, true, true, true, mockStd);
         String correctResult = "standard input: " + "2";
@@ -180,11 +188,11 @@ public class GrepApplicationTest {
     @Test
     void grep_NoTagFromFileAndStdin_ShouldGrepCorrectly() throws Exception  {
         String pattern = "beacon";
-        String mockInput = "Beacon looks like bacon," + System.lineSeparator() + "but beacon is not beacon";
+        String mockInput = BEACON_TEXT1 + System.lineSeparator() + BEACON_TEXT2;
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromFileAndStdin(pattern, false, false, false,
-                mockStd, fileName, "-");
-        String correctResult = fileName + ": A beacon of hope in the dark of night." + System.lineSeparator() +
+                mockStd, FILE_NAME, "-");
+        String correctResult = FILE_NAME + ": A beacon of hope in the dark of night." + System.lineSeparator() +
                 "standard input: " + "but beacon is not beacon" + System.lineSeparator();
         assertEquals(correctResult, result);
     }
@@ -192,22 +200,22 @@ public class GrepApplicationTest {
     @Test
     void grep_CountWithPrefixFromFileAndStdin_ShouldGrepCorrectly() throws Exception  {
         String pattern = "beacon";
-        String mockInput = "Beaconnn looks like bacon," + System.lineSeparator()+ "but beacon is not beacon";
+        String mockInput = "Beaconnn looks like bacon," + System.lineSeparator()+ BEACON_TEXT2;
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         String result = grepApplication.grepFromFileAndStdin(pattern, false, true, true,
-                mockStd, fileName, "-");
-        String correctResult = fileName + ": 1" + System.lineSeparator() +
+                mockStd, FILE_NAME, "-");
+        String correctResult = FILE_NAME + ": 1" + System.lineSeparator() +
                 "standard input: " + "1";
         assertEquals(correctResult, result);
     }
 
     @Test
     void grep_InvalidPatterFromFile_ShouldThrowException() throws Exception{
-        String mockInput = "Beacon looks like bacon," + System.lineSeparator() + "but beacon is not beacon";
+        String mockInput = BEACON_TEXT1 + System.lineSeparator() + BEACON_TEXT2;
         InputStream mockStd = new java.io.ByteArrayInputStream(mockInput.getBytes());
         OutputStream mockOut = new ByteArrayOutputStream();
 
-        String[] args = {"([abc", fileName};
+        String[] args = {"([abc", FILE_NAME};
         assertThrows(Exception.class, () -> grepApplication.run(args, mockStd, mockOut ));
 
         args[0] = "";

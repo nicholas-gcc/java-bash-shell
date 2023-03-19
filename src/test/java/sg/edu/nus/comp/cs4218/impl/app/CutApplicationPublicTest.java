@@ -12,7 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
+@SuppressWarnings({"PMD.CloseResource"})
 public class CutApplicationPublicTest {
+    private static final String HELLO_SUBSTR = "hel";
+
     CutApplication cutApplication;
 
     private String joinStringsByLineSeparator(String... strs) {
@@ -40,6 +43,7 @@ public class CutApplicationPublicTest {
         InputStream stdin = generateInputStreamFromStrings("hello world");
         String result = cutApplication.cutFromStdin(true, false, List.of(ranges), stdin);
         assertEquals("hel" + STRING_NEWLINE, result);
+        stdin.close();
     }
 
     @Test
@@ -47,7 +51,8 @@ public class CutApplicationPublicTest {
         int[] ranges = new int[]{1, 3};
         InputStream stdin = generateInputStreamFromStrings("hello world");
         String result = cutApplication.cutFromStdin(false, true, List.of(ranges), stdin);
-        assertEquals("hel" + STRING_NEWLINE, result);
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE, result);
+        stdin.close();
     }
 
     @Test
@@ -55,7 +60,8 @@ public class CutApplicationPublicTest {
         int[] ranges = new int[]{1, 3};
         InputStream stdin = generateInputStreamFromStrings("hello", "world");
         String result = cutApplication.cutFromStdin(true, false, List.of(ranges), stdin);
-        assertEquals("hel" + STRING_NEWLINE + "wor" + STRING_NEWLINE, result);
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE + "wor" + STRING_NEWLINE, result);
+        stdin.close();
     }
 
     @Test
@@ -63,7 +69,8 @@ public class CutApplicationPublicTest {
         int[] ranges = new int[]{1, 3};
         InputStream stdin = generateInputStreamFromStrings("hello", "world");
         String result = cutApplication.cutFromStdin(false, true, List.of(ranges), stdin);
-        assertEquals("hel" + STRING_NEWLINE + "wor" + STRING_NEWLINE, result);
+        assertEquals(HELLO_SUBSTR + STRING_NEWLINE + "wor" + STRING_NEWLINE, result);
+        stdin.close();
     }
 
     @Test

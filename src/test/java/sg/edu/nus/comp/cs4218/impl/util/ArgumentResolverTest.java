@@ -1,6 +1,5 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -25,8 +24,11 @@ public class ArgumentResolverTest {
     private static final String BASE_DIR = Environment.currentDirectory;
 
     private static final Path CWD = Paths.get(BASE_DIR);
-    private static final Path PATH_TO_TEST_FILES = CWD.resolve("assets" + File.separator + "app"
+    private static final Path PATH_FILES = CWD.resolve("assets" + File.separator + "app"
             + File.separator + "ls");
+    private static final String ECHO_CMD = "echo";
+    private static final String HELLO_STR = "hello";
+
     ApplicationRunner applicationRunner;
     ArgumentResolver argumentResolver;
 
@@ -39,11 +41,11 @@ public class ArgumentResolverTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() {
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "abc.txt",
-                PATH_TO_TEST_FILES + File.separator + "testDir1",
-                PATH_TO_TEST_FILES + File.separator + "testDir2",
-                PATH_TO_TEST_FILES + File.separator + "testDir3");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "*");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "abc.txt",
+                PATH_FILES + File.separator + "testDir1",
+                PATH_FILES + File.separator + "testDir2",
+                PATH_FILES + File.separator + "testDir3");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
@@ -53,8 +55,8 @@ public class ArgumentResolverTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() {
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1*");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
@@ -64,10 +66,10 @@ public class ArgumentResolverTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() {
-        List<String> args = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testD*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_TO_TEST_FILES + File.separator + "testDir1",
-                PATH_TO_TEST_FILES + File.separator + "testDir2",
-                PATH_TO_TEST_FILES + File.separator + "testDir3");
+        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "testD*");
+        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1",
+                PATH_FILES + File.separator + "testDir2",
+                PATH_FILES + File.separator + "testDir3");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
@@ -76,8 +78,8 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() {
-        List<String> args = Arrays.asList("echo", "`echo hello`");
-        List<String> expectedTokens = Arrays.asList("echo", "hello");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo hello`");
+        List<String> expectedTokens = Arrays.asList(ECHO_CMD, "hello");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
@@ -86,10 +88,10 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_CommandSubstitutionWithSingleQuote_ReturnsCommandWithCorrectArgTokens() {
-        List<String> args = Arrays.asList("echo", "`echo 'hello world'`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo 'hello world'`");
 
         // From project documentation: Other characters (including quotes) are not interpreted as special characters
-        List<String> expectedTokens = Arrays.asList("echo", "hello", "world");
+        List<String> expectedTokens = Arrays.asList(ECHO_CMD, "hello", "world");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
@@ -98,10 +100,10 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_CommandSubstitutionWithMixedQuotes_ReturnsCommandWithCorrectArgTokens() {
-        List<String> args = Arrays.asList("echo", "`echo \"‘quote is not interpreted as special character’\"`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo \"‘quote is not interpreted as special character’\"`");
 
         // From proj documentation: Other characters (including quotes) are not interpreted as special characters
-        List<String> expectedTokens = Arrays.asList("echo", "‘quote", "is", "not", "interpreted", "as", "special", "character’");
+        List<String> expectedTokens = Arrays.asList(ECHO_CMD, "‘quote", "is", "not", "interpreted", "as", "special", "character’");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.parseArguments(args);
             assertEquals(expectedTokens, actualTokens);
@@ -124,7 +126,7 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_InvalidCommandSubstitution_ThrowsShellException() {
-        List<String> args = Arrays.asList("echo", "`hello world`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`hello world`");
         assertThrows(ShellException.class, () -> {
             argumentResolver.parseArguments(args);
         });
@@ -132,7 +134,7 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_CommandSubstitutionContainsNewline_ThrowsShellException() {
-        List<String> args = Arrays.asList("echo", "`echo hello" + System.lineSeparator() + "`");
+        List<String> args = Arrays.asList(ECHO_CMD, "`echo hello" + System.lineSeparator() + "`");
         assertThrows(ShellException.class, () -> {
             argumentResolver.parseArguments(args);
         });
@@ -142,7 +144,7 @@ public class ArgumentResolverTest {
     @Test
     void resolveOneArgument_CommandSubstitution_ReturnsCommandWithCorrectArgTokens() {
         String args = "`echo hello`";
-        List<String> expectedTokens = Arrays.asList("hello");
+        List<String> expectedTokens = Arrays.asList(HELLO_STR);
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);
@@ -152,7 +154,7 @@ public class ArgumentResolverTest {
     @Test
     void resolveOneArgument_CommandSubstitutionNoQuoteMultipleTokens_ReturnsCommandWithCorrectArgTokens() {
         String args = "`echo hello world`";
-        List<String> expectedTokens = Arrays.asList("hello", "world");
+        List<String> expectedTokens = Arrays.asList(HELLO_STR, "world");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);
@@ -164,7 +166,7 @@ public class ArgumentResolverTest {
         String args = "`echo 'hello world'`";
 
         // note: resolveOneArgument should split up 'hello world'. parseArguments will combine them into one single 'hello world' token
-        List<String> expectedTokens = Arrays.asList("hello", "world");
+        List<String> expectedTokens = Arrays.asList(HELLO_STR, "world");
         assertDoesNotThrow(() -> {
             List<String> actualTokens = argumentResolver.resolveOneArgument(args);
             assertEquals(expectedTokens, actualTokens);

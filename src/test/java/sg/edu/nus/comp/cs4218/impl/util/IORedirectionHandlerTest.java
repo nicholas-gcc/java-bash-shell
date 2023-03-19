@@ -21,10 +21,10 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 
 public class IORedirectionHandlerTest {
-    private static String filename = "file.txt";
-    private static String filename2 = "file2.txt";
-    private static String TEST_MSG = "Test Message";
-    private static List<String> argsList = Arrays.asList("paste", "<", filename);
+    private static final String FILENAME = "file.txt";
+    private static final String FILENAME_2 = "file2.txt";
+    private static final String TEST_MSG = "Test Message";
+    private static List<String> argsList = Arrays.asList("paste", "<", FILENAME);
     private static ArgumentResolver argumentResolver;
     private static InputStream origInputStream;
     private static OutputStream origOutputStream;
@@ -44,11 +44,11 @@ public class IORedirectionHandlerTest {
         origInputStream.close();
         origOutputStream.close();
 
-        if (FileSystemUtils.fileOrDirExist(filename)) {
-            FileSystemUtils.deleteFileOrDir(filename);
+        if (FileSystemUtils.fileOrDirExist(FILENAME)) {
+            FileSystemUtils.deleteFileOrDir(FILENAME);
         }
-        if (FileSystemUtils.fileOrDirExist(filename2)) {
-            FileSystemUtils.deleteFileOrDir(filename2);
+        if (FileSystemUtils.fileOrDirExist(FILENAME_2)) {
+            FileSystemUtils.deleteFileOrDir(FILENAME_2);
         }
 
         Environment.currentDirectory = CWD;
@@ -57,8 +57,8 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_Arguments_ShouldNotThrowException() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
         IORedirectionHandler handler = new IORedirectionHandler( argsList, origInputStream,
                 origOutputStream, argumentResolver);
@@ -70,8 +70,8 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_Arguments_NoRedirArgShouldBePopulatedCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
         IORedirectionHandler handler = new IORedirectionHandler(argsList, origInputStream,
                 origOutputStream, argumentResolver);
@@ -82,48 +82,48 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_Arguments_InputStreamShouldBeAlteredCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
         IORedirectionHandler handler = new IORedirectionHandler(argsList, origInputStream,
                 origOutputStream, argumentResolver);
         handler.extractRedirOptions();
-        assertEquals(FileSystemUtils.readFileContent(filename),
+        assertEquals(FileSystemUtils.readFileContent(FILENAME),
                 new String(handler.getInputStream().readAllBytes()));
         handler.closeAllStreams();
     }
 
     @Test
     void extract_Arguments_OutputStreamShouldBeAlteredCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
-        List<String> argList1 = Arrays.asList("ls", ">", filename);
+        List<String> argList1 = Arrays.asList("ls", ">", FILENAME);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
-        assertEquals(filename, handler1.getOutputFilePath());
+        assertEquals(FILENAME, handler1.getOutputFilePath());
         handler1.closeAllStreams();
     }
 
     @Test
     void extract_ArgumentsAppend_OutputStreamShouldBeAlteredCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
-        List<String> argList1 = Arrays.asList("ls", ">", ">", filename);
+        List<String> argList1 = Arrays.asList("ls", ">", ">", FILENAME);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
-        assertEquals(filename, handler1.getOutputFilePath());
+        assertEquals(FILENAME, handler1.getOutputFilePath());
         handler1.closeAllStreams();
 
     }
 
     @Test
     void extract_ArgumentsNoAppend_IsAppendIsFalse() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
         IORedirectionHandler handler = new IORedirectionHandler(argsList, origInputStream,
                 origOutputStream, argumentResolver);
@@ -134,10 +134,10 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_ArgumentsAppend_IsAppendIsTrue() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
-        List<String> argList1 = Arrays.asList("ls", ">", ">", filename);
+        List<String> argList1 = Arrays.asList("ls", ">", ">", FILENAME);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
@@ -146,8 +146,8 @@ public class IORedirectionHandlerTest {
     }
     @Test
     void extract_EmptyArguments_ShouldThrowShellException() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
         IORedirectionHandler handler1 = new IORedirectionHandler(new ArrayList(), origInputStream,
                 origOutputStream, argumentResolver);
@@ -159,24 +159,24 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_WrongRedirArg_ShouldThrowShellException() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
-        List<String> argList1 = Arrays.asList("ls", "<", ">", filename);
+        List<String> argList1 = Arrays.asList("ls", "<", ">", FILENAME);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         assertThrows(ShellException.class, () -> {
             handler1.extractRedirOptions();
         });
 
-        List<String> argList2 = Arrays.asList("ls", "<", "<", filename);
+        List<String> argList2 = Arrays.asList("ls", "<", "<", FILENAME);
         IORedirectionHandler handler2 = new IORedirectionHandler(argList2, origInputStream,
                 origOutputStream, argumentResolver);
         assertThrows(ShellException.class, () -> {
             handler2.extractRedirOptions();
         });
 
-        List<String> argList3 = Arrays.asList("ls", ">", "<", filename);
+        List<String> argList3 = Arrays.asList("ls", ">", "<", FILENAME);
         IORedirectionHandler handler3 = new IORedirectionHandler(argList3, origInputStream,
                 origOutputStream, argumentResolver);
         assertThrows(ShellException.class, () -> {
@@ -189,10 +189,10 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_TooManyFiles_ShouldThrowShellException() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
-        List<String> argList1 = Arrays.asList("ls", ">", filename, filename);
+        List<String> argList1 = Arrays.asList("ls", ">", FILENAME, FILENAME);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         assertThrows(ShellException.class, () -> {
@@ -223,30 +223,30 @@ public class IORedirectionHandlerTest {
 
     @Test
     void extract_BothRedirChar_BothInputOutputStreamShouldBeAlteredCorrectly() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
-        FileSystemUtils.createEmptyFile(filename2);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
+        FileSystemUtils.createEmptyFile(FILENAME_2);
 
-        List<String> argList1 = Arrays.asList("ls", "<", filename, ">", filename2);
+        List<String> argList1 = Arrays.asList("ls", "<", FILENAME, ">", FILENAME_2);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
 
-        assertEquals(FileSystemUtils.readFileContent(filename),
+        assertEquals(FileSystemUtils.readFileContent(FILENAME),
                 new String(handler1.getInputStream().readAllBytes()));
 
-        assertEquals(filename2,
+        assertEquals(FILENAME_2,
                 handler1.getOutputFilePath());
 
-        List<String> argList2 = Arrays.asList("ls", ">", filename2, "<", filename);
+        List<String> argList2 = Arrays.asList("ls", ">", FILENAME_2, "<", FILENAME);
         IORedirectionHandler handler2 = new IORedirectionHandler(argList2, origInputStream,
                 origOutputStream, argumentResolver);
         handler2.extractRedirOptions();
 
-        assertEquals(FileSystemUtils.readFileContent(filename),
+        assertEquals(FileSystemUtils.readFileContent(FILENAME),
                 new String(handler2.getInputStream().readAllBytes()));
 
-        assertEquals(filename2,
+        assertEquals(FILENAME_2,
                 handler2.getOutputFilePath());
 
         handler1.closeAllStreams();
@@ -255,11 +255,11 @@ public class IORedirectionHandlerTest {
 
     @Test
     void getNoRedirArgsList_extractSuccessful_ShouldReturnCorrectResult() throws Exception {
-        FileSystemUtils.createEmptyFile(filename);
-        FileSystemUtils.writeStrToFile(false, TEST_MSG, filename);
+        FileSystemUtils.createEmptyFile(FILENAME);
+        FileSystemUtils.writeStrToFile(false, TEST_MSG, FILENAME);
 
-        FileSystemUtils.createEmptyFile(filename2);
-        List<String> argList1 = Arrays.asList("ls", "<", filename, ">", filename2);
+        FileSystemUtils.createEmptyFile(FILENAME_2);
+        List<String> argList1 = Arrays.asList("ls", "<", FILENAME, ">", FILENAME_2);
         IORedirectionHandler handler1 = new IORedirectionHandler(argList1, origInputStream,
                 origOutputStream, argumentResolver);
         handler1.extractRedirOptions();
