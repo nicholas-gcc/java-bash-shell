@@ -195,5 +195,14 @@ public class SequenceCommandIT {
        assertEquals(expected, outputStream.toString());
    }
 
-   
+    @Test
+    void parseAndEvaluate_EchoAndWc_ShouldRunProperly() throws Exception {
+        FileSystemUtils.createEmptyFile(NEW_FILE);
+
+        String command = "echo \"" + CONTENT_LINE1 + "\" > " + NEW_FILE +
+                "; wc -l " + NEW_FILE + "; wc -w " + NEW_FILE;
+        shell.parseAndEvaluate(command, outputStream);
+        String expected = "       1 " + NEW_FILE + STRING_NEWLINE + "       5 " + NEW_FILE + STRING_NEWLINE;
+        assertEquals(expected, outputStream.toString());
+    }
 }
