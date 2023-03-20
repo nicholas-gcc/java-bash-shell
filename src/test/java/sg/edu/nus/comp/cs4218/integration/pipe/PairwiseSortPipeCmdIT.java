@@ -179,7 +179,7 @@ public class PairwiseSortPipeCmdIT {
     }
 
     @Test
-    void parseAndEvaluate_CatPipeToCat_OutputsCorrectly() throws Exception {
+    void parseAndEvaluate_SortPipeToCat_OutputsCorrectly() throws Exception {
         // Create new file and write 1 line of new text to it
         FileSystemUtils.createEmptyFile(NEW_FILE);
         FileSystemUtils.writeStrToFile(false, NEW_TEXT, NEW_FILE);
