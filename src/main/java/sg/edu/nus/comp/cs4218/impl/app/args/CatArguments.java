@@ -15,7 +15,7 @@ public class CatArguments {
 
     boolean isLineNumbers;
 
-    private static final char FLAG_NUM_CHAR = 'n';
+    private static final String FLAG_NUM_STRING = "-n";
 
     /**
      * Parse 1 or 2 arguments for cat command
@@ -39,7 +39,7 @@ public class CatArguments {
             return;
         }
         // check if option flag -n exists, set boolean accordingly
-        isLineNumbers = args[0].charAt(0) == CHAR_FLAG_PREFIX && args[0].charAt(1) == FLAG_NUM_CHAR;
+        isLineNumbers = args[0].equals(FLAG_NUM_STRING);
 
         List<String> filesArr;
         if (isLineNumbers) {
