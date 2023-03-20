@@ -54,13 +54,6 @@ public class SequenceCommandIntegrationTest {
         outputStream = new ByteArrayOutputStream();
     }
 
-//    @AfterEach
-//    void reset() throws IOException {
-//        Environment.currentDirectory = CWD;
-//        inputStream.close();
-//        outputStream.close();
-//    }
-
     @AfterEach
     void deleteFiles() throws Exception {
         if (FileSystemUtils.fileOrDirExist(NEW_FILE)) {
@@ -81,7 +74,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_cdAndCat_shouldPrintFileContent() throws FileNotFoundException, AbstractApplicationException, ShellException {
+    void parseAndEvaluate_CdAndCat_ShouldPrintFileContent() throws FileNotFoundException, AbstractApplicationException, ShellException {
         Environment.currentDirectory = CWD;
         String command = "cd " + TESTING_PATH + "; cat " + SAMPLE_FILE;
         shell.parseAndEvaluate(command, outputStream);
@@ -89,7 +82,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_CdAndCp_shouldPrintFileContent() throws Exception {
+    void parseAndEvaluate_CdAndCp_ShouldPrintFileContent() throws Exception {
         Environment.currentDirectory = CWD;
         String command = "cd " + TESTING_PATH + "; cp " + SAMPLE_FILE + " " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
@@ -98,7 +91,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_CpAndCutC_shouldPrintCutContent() throws Exception {
+    void parseAndEvaluate_CpAndCutC_ShouldPrintCutContent() throws Exception {
         String command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; cut -c 6-7 " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         String expected = "is" + STRING_NEWLINE + "is" + STRING_NEWLINE;
@@ -106,7 +99,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_CpAndCutB_shouldPrintCutContent() throws Exception {
+    void parseAndEvaluate_CpAndCutB_ShouldPrintCutContent() throws Exception {
         String command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; cut -b 2 " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         String expected = "h" + STRING_NEWLINE + "h" + STRING_NEWLINE;
@@ -114,7 +107,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_CdAndLs_shouldPrintFiles() throws Exception {
+    void parseAndEvaluate_CdAndLs_ShouldPrintFiles() throws Exception {
         Environment.currentDirectory = CWD;
         String command = "cd " + TESTING_PATH + "; ls ";
         shell.parseAndEvaluate(command, outputStream);
@@ -127,7 +120,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_CpAndGrep_shouldGrepProperly() throws Exception {
+    void parseAndEvaluate_CpAndGrep_ShouldGrepProperly() throws Exception {
         String command = CP_COMMAND + SAMPLE_FILE + " " + NEW_FILE + "; grep sample " + NEW_FILE;
         shell.parseAndEvaluate(command, outputStream);
         String expected = CONTENT_LINE1 + STRING_NEWLINE;
@@ -140,7 +133,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_MvAndCdAndLs_shouldMoveCorrectly() throws Exception {
+    void parseAndEvaluate_MvAndCdAndLs_ShouldMoveCorrectly() throws Exception {
         FileSystemUtils.createEmptyFile(NEW_FILE);
 
         String command = "mv " + NEW_FILE + " " + DIR + "; ls " + DIR;
@@ -157,7 +150,7 @@ public class SequenceCommandIntegrationTest {
     }
 
     @Test
-    void parseAndEvaluate_PasteSAndUniq_shouldPrintCorrectly() throws Exception {
+    void parseAndEvaluate_PasteSAndUniq_ShouldPrintCorrectly() throws Exception {
         String command = "paste -s " + NEW_FILE1 + " " + SAMPLE_FILE + " > " + NEW_FILE2 + "; uniq " + NEW_FILE2;
         shell.parseAndEvaluate(command, outputStream);
         String expected = NEW_CONTENT_LINE1 + CHAR_TAB + NEW_CONTENT_LINE2 + STRING_NEWLINE
