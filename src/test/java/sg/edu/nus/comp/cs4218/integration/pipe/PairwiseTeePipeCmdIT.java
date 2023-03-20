@@ -1,8 +1,8 @@
 package sg.edu.nus.comp.cs4218.integration.pipe;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
@@ -16,13 +16,15 @@ import sg.edu.nus.comp.cs4218.impl.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils.fileOrDirExist;
+import static sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils.getAbsolutePathName;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_SPACE;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
@@ -41,6 +43,20 @@ public class PairwiseTeePipeCmdIT {
     static final String WC_SPACING = StringUtils.multiplyChar(CHAR_SPACE, 7);
     InputStream inputStream;
     OutputStream outputStream;
+
+    // Method isolated to this file, originally from FileSystemUtils
+    public static void createEmptyFile(String filename) throws Exception {
+        String absolutePath = getAbsolutePathName(filename);
+        if (fileOrDirExist(absolutePath)) {
+            return;
+        }
+
+        File file = new File(absolutePath);
+
+        if (!file.createNewFile()) {
+            throw new Exception("Unable to create file: " + filename);
+        }
+    }
     @BeforeEach
     void setup() {
         Environment.currentDirectory += TESTING_PATH;
@@ -49,20 +65,16 @@ public class PairwiseTeePipeCmdIT {
         outputStream = new ByteArrayOutputStream();
     }
 
+
     @AfterEach
-    void reset() throws IOException {
+    void HandleAfterEach() throws Exception {
         Environment.currentDirectory = CWD;
         inputStream.close();
         outputStream.close();
-    }
-
-    @AfterEach
-    void deleteFiles() throws Exception {
-        if (FileSystemUtils.fileOrDirExist(NEW_FILE)) {
+        if (fileOrDirExist(NEW_FILE)) {
             FileSystemUtils.deleteFileOrDir(NEW_FILE);
         }
     }
-
 
     private CallCommand buildCallCommand(String... args) {
         ApplicationRunner applicationRunner = new ApplicationRunner();
@@ -110,7 +122,7 @@ public class PairwiseTeePipeCmdIT {
     @Test
     void parseAndEvaluate_TeePipeToPaste_OutputsCorrectly() throws Exception {
         // Create new file and write 2 lines of new text to it
-        FileSystemUtils.createEmptyFile(NEW_FILE);
+        createEmptyFile(NEW_FILE);
         FileSystemUtils.writeStrToFile(false, NEW_TEXT + STRING_NEWLINE + NEW_TEXT, NEW_FILE);
 
         CallCommand teeCommand = buildCallCommand(TEE_CMD);
@@ -137,7 +149,7 @@ public class PairwiseTeePipeCmdIT {
     @Test
     void parseAndEvaluate_TeePipeToSort_OutputsCorrectly() throws Exception {
         // Create new file and write 1 line of new text to it
-        FileSystemUtils.createEmptyFile(NEW_FILE);
+        createEmptyFile(NEW_FILE);
         FileSystemUtils.writeStrToFile(false, NEW_TEXT, NEW_FILE);
 
         CallCommand teeCommand = buildCallCommand(TEE_CMD);
@@ -153,7 +165,7 @@ public class PairwiseTeePipeCmdIT {
     @Test
     void parseAndEvaluate_TeePipeToTee_OutputsCorrectly() throws Exception {
         // Create new file and write 1 line of new text to it
-        FileSystemUtils.createEmptyFile(NEW_FILE);
+        createEmptyFile(NEW_FILE);
         FileSystemUtils.writeStrToFile(false, NEW_TEXT, NEW_FILE);
 
         CallCommand teeCommand1 = buildCallCommand(TEE_CMD);
@@ -168,7 +180,7 @@ public class PairwiseTeePipeCmdIT {
     @Test
     void parseAndEvaluate_TeePipeToCat_OutputsCorrectly() throws Exception {
         // Create new file and write 1 line of new text to it
-        FileSystemUtils.createEmptyFile(NEW_FILE);
+        createEmptyFile(NEW_FILE);
         FileSystemUtils.writeStrToFile(false, NEW_TEXT, NEW_FILE);
 
         CallCommand teeCommand = buildCallCommand(TEE_CMD);
