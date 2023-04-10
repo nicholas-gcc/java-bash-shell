@@ -35,9 +35,8 @@ public class ShellImpl implements Shell {
                     System.out.print(new File(currentDirectory).getAbsolutePath() + "> ");
                     commandString = reader.readLine();
                     if (commandString == null) {
-                        // EOF or Ctrl + D detected, continue process, note this will cause infinite loop
-                        // if running in intellij terminal, but works fine using jar
-                        continue;
+                        // EOF or Ctrl + D detected, break
+                        break;
                     }
                 } catch (IOException e) {
                     break; // Streams are closed, terminate process

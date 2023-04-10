@@ -106,6 +106,7 @@ public class PasteApplication implements PasteInterface {
      * @throws Exception if an error occurs while reading from the input streams
      */
     @Override
+    @SuppressWarnings("PMD.CloseResource")
     public String mergeFile(Boolean isSerial, String... fileNames) throws Exception {
         try {
             if (fileNames == null || fileNames.length == 0 || isSerial == null) {
@@ -193,6 +194,11 @@ public class PasteApplication implements PasteInterface {
                     output.append(lineSb).append(STRING_NEWLINE);
                 }
             }
+            // close inputStreams and their corresponding BufferedReader objects
+            for (InputStream inputStream : inputStreams) {
+                readerMap.get(inputStream).close();
+                inputStream.close();
+            }
         }
         return output.toString();
     }
@@ -203,7 +209,8 @@ public class PasteApplication implements PasteInterface {
             // reads all the lines from the stream and concatenates them separated by tabs
             String line = reader.lines().collect(Collectors.joining(String.valueOf(CHAR_TAB)));
             stringBuilder.append(line.trim()).append(STRING_NEWLINE);
-
+            reader.close();
+            inputStream.close();
         }
     }
 

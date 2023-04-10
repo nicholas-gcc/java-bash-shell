@@ -101,6 +101,7 @@ public class SortApplication implements SortInterface {
             try {
                 InputStream input = IOUtils.openInputStream(file);
                 lines.addAll(IOUtils.getLinesFromInputStream(input));
+                IOUtils.closeInputStream(input);
             } catch (Exception e) {
                 throw new SortException(e.getMessage(), e);
             }
@@ -167,6 +168,7 @@ public class SortApplication implements SortInterface {
                 try {
                     InputStream input = IOUtils.openInputStream(file);
                     lines.addAll(IOUtils.getLinesFromInputStream(input));
+                    IOUtils.closeInputStream(input);
                 } catch (Exception e) {
                     throw new SortException(e.getMessage(), e);
                 }

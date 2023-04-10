@@ -136,6 +136,7 @@ public class GrepApplication implements GrepInterface {
                     count++;
                 }
             }
+            reader.close();
         } catch (PatternSyntaxException pse) {
             throw new GrepException(ERR_INVALID_REGEX, pse);
         } catch (NullPointerException npe) {

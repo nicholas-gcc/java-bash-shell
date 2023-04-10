@@ -112,6 +112,7 @@ public class UniqApplication implements UniqInterface {
 
             }
         }
+        reader.close();
         return result;
     }
 
