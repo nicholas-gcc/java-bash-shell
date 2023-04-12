@@ -67,7 +67,7 @@ public class PairwiseTeePipeCmdIT {
 
 
     @AfterEach
-    void HandleAfterEach() throws Exception {
+    void handleAfterEach() throws Exception {
         Environment.currentDirectory = CWD;
         inputStream.close();
         outputStream.close();

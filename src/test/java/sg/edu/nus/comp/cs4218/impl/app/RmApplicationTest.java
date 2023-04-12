@@ -8,7 +8,6 @@ import sg.edu.nus.comp.cs4218.exception.RmException;
 import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +19,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.parser.ArgsParser.ILLEGAL_FLAG_MSG;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_CURR_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_PARENT_DIR;
 
 public class RmApplicationTest {
     RmApplication rmApplication;
@@ -52,16 +53,57 @@ public class RmApplicationTest {
     }
 
     @AfterEach
-    void reset() throws IOException {
+    void reset() throws Exception {
+        Environment.currentDirectory = CWD + TESTING_PATH;
+        if (FileSystemUtils.fileOrDirExist(EMPTY_DIR_NAME)) {
+            FileSystemUtils.deleteFileOrDir(EMPTY_DIR_NAME);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1)) {
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2)) {
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME2);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(DIR_NAME1 + CHAR_FILE_SEP + TEXT_FILE_NAME1)) {
+            FileSystemUtils.deleteFileOrDir(DIR_NAME1 + CHAR_FILE_SEP + TEXT_FILE_NAME1);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(DIR_NAME1 + CHAR_FILE_SEP + SUB_DIR_NAME1)) {
+            FileSystemUtils.deleteFileOrDir(DIR_NAME1 + CHAR_FILE_SEP + SUB_DIR_NAME1);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(DIR_NAME1)) {
+            FileSystemUtils.deleteFileOrDir(DIR_NAME1);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(DIR_NAME2 + CHAR_FILE_SEP + SUB_DIR_NAME2)) {
+            FileSystemUtils.deleteFileOrDir(DIR_NAME2 + CHAR_FILE_SEP + SUB_DIR_NAME2);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(DIR_NAME2)) {
+            FileSystemUtils.deleteFileOrDir(DIR_NAME2);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(FAKE_FILE)) {
+            FileSystemUtils.deleteFileOrDir(FAKE_FILE);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(FAKE_DIR)) {
+            FileSystemUtils.deleteFileOrDir(FAKE_DIR);
+        }
+
+
+
         Environment.currentDirectory = CWD;
         outputStream.close();
     }
 
     @Test
     void run_NullArguments_ThrowsRmExceptionWithCorrectMessage(){
-        RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(null, System.in, outputStream);
-        });
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(null, System.in, outputStream));
         String expectedMessage =  ERROR_INITIALS + ERR_NULL_ARGS;
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -69,9 +111,7 @@ public class RmApplicationTest {
     @Test
     void run_NullOutputStream_ThrowsRmExceptionWithCorrectMessage(){
         String[] args = {TEXT_FILE_NAME1};
-        RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(args, System.in, null);
-        });
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, null));
         String expectedMessage =  ERROR_INITIALS + ERR_NO_OSTREAM;
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -79,9 +119,7 @@ public class RmApplicationTest {
     @Test
     void run_OnlyInvalidArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {"-b", "-c", TEXT_FILE_NAME1};
-        RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(args, System.in, outputStream);
-        });
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
         String expectedMessage =  String.format("rm: %s", ILLEGAL_FLAG_MSG + 'b');
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -89,9 +127,7 @@ public class RmApplicationTest {
     @Test
     void run_InvalidAndValidArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {"-r", "-d", "-R", "-D", TEXT_FILE_NAME1};
-        RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(args, System.in, outputStream);
-        });
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
         String expectedMessage =  String.format("rm: %s", ILLEGAL_FLAG_MSG + 'R');
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -108,9 +144,7 @@ public class RmApplicationTest {
     @Test
     void run_ValidArgsWithNoFiles_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {"-r", "-d"};
-        RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(args, System.in, outputStream);
-        });
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
         String expectedMessage =  String.format("rm: %s", ERR_NO_FILE_ARGS);
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -126,9 +160,7 @@ public class RmApplicationTest {
     @Test
     void run_NonExistingFileArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {FAKE_FILE};
-        RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(args, System.in, outputStream);
-        });
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
         String expectedMessage =  String.format("rm: File or directory %s does not exist", FAKE_FILE);
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -144,13 +176,12 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_DirWithoutEmptyDirArg_ThrowsRmExceptionWithCorrectMessage() throws Exception {
+    void run_DirWithoutEmptyDirArg_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {EMPTY_DIR_NAME};
         RmException exception = assertThrows(RmException.class, () -> {
             FileSystemUtils.createEmptyDir(EMPTY_DIR_NAME);
             rmApplication.run(args, System.in, outputStream);
         });
-        FileSystemUtils.deleteFileOrDir(EMPTY_DIR_NAME);
 
         String expectedMessage = String.format(String.format("rm: Cannot remove %s: Is a directory", EMPTY_DIR_NAME));
         assertEquals(expectedMessage, exception.getMessage());
@@ -217,9 +248,7 @@ public class RmApplicationTest {
     @Test
     void run_NonExistingDirWithRecursiveArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {FAKE_DIR, RECURSIVE_ARG};
-         RmException exception = assertThrows(RmException.class, () -> {
-            rmApplication.run(args, System.in, outputStream);
-        });
+         RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
 
         String expectedMessage =  String.format("rm: File or directory %s does not exist", FAKE_DIR);
         assertEquals(expectedMessage, exception.getMessage());
@@ -256,7 +285,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void run_NonEmptyDirIsEmptyDirArgs_ThrowsRmExceptionWithCorrectMessage() throws Exception {
+    void run_NonEmptyDirIsEmptyDirArgs_ThrowsRmExceptionWithCorrectMessage() {
         String[] args = {DIR_NAME1, RM_EMPTY_DIR_ARG};
         String relativeTestPath = "." + CHAR_FILE_SEP + DIR_NAME1 + CHAR_FILE_SEP + TEXT_FILE_NAME1;
         RmException exception = assertThrows(RmException.class, () -> {
@@ -264,8 +293,6 @@ public class RmApplicationTest {
             FileSystemUtils.createEmptyFile(relativeTestPath);
             rmApplication.run(args, System.in, outputStream);
         });
-        FileSystemUtils.deleteFileOrDir(relativeTestPath);
-        FileSystemUtils.deleteFileOrDir(DIR_NAME1);
 
         String expectedMessage = String.format("rm: Cannot remove %s: directory is not empty", DIR_NAME1);
         assertEquals(expectedMessage, exception.getMessage());
@@ -288,6 +315,41 @@ public class RmApplicationTest {
         rmApplication.run(args, System.in, outputStream);
         assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME1));
         assertFalse(FileSystemUtils.fileOrDirExist(DIR_NAME2));
+    }
+
+    @Test
+    void run_CurrentWorkingDirAndIsEmptyDirArgs_ThrowsRmExceptionWithCorrectMessage() throws Exception  {
+        String[] args = {STRING_CURR_DIR, RM_EMPTY_DIR_ARG};
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
+        assertEquals(String.format("rm: refusing to remove '.' or '..' directory: skipping '%s'", STRING_CURR_DIR), exception.getMessage());
+
+    }
+
+    @Test
+    void run_CurrentWorkingDirAndRecursiveArgs_ThrowsRmExceptionWithCorrectMessage() throws Exception  {
+        String[] args = {STRING_CURR_DIR, RECURSIVE_ARG};
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
+        assertEquals(String.format("rm: refusing to remove '.' or '..' directory: skipping '%s'", STRING_CURR_DIR), exception.getMessage());
+
+    }
+
+    @Test
+    void run_ParentWorkingDirAndRecursiveArgs_ThrowsRmExceptionWithCorrectMessage() throws Exception  {
+        String[] args = {STRING_PARENT_DIR, RECURSIVE_ARG};
+        FileSystemUtils.createEmptyDir(DIR_NAME1);
+        // Moves current working directory to the directory created
+        Environment.currentDirectory += CHAR_FILE_SEP + DIR_NAME1;
+
+        RmException exception = assertThrows(RmException.class, () -> rmApplication.run(args, System.in, outputStream));
+        assertEquals(String.format("rm: refusing to remove '.' or '..' directory: skipping '%s'", STRING_PARENT_DIR), exception.getMessage());
 
     }
 
@@ -315,7 +377,7 @@ public class RmApplicationTest {
     }
 
     @Test
-    void remove_OneFileOneDir_ThrowsRmExceptionWithCorrectMessage() throws Exception {
+    void remove_OneFileOneDir_ThrowsRmExceptionWithCorrectMessage() {
         boolean isEmptyFolder = false;
         boolean isRecursive = false;
         RmException exception = assertThrows(RmException.class, () -> {
@@ -323,8 +385,6 @@ public class RmApplicationTest {
             FileSystemUtils.createEmptyDir(DIR_NAME1);
             rmApplication.remove(isEmptyFolder, isRecursive, TEXT_FILE_NAME1, DIR_NAME1);
         });
-
-        FileSystemUtils.deleteFileOrDir(DIR_NAME1);
 
         String expectedMessage = String.format("rm: Cannot remove %s: Is a directory", DIR_NAME1);
         assertEquals(expectedMessage, exception.getMessage());

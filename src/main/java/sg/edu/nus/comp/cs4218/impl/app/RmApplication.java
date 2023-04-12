@@ -13,6 +13,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_CURR_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_PARENT_DIR;
 
 public class RmApplication implements RmInterface {
 
@@ -49,6 +51,11 @@ public class RmApplication implements RmInterface {
             try {
                 if (FileSystemUtils.isDir(name) && !FileSystemUtils.isEmptyDir(name)) {
                     throw new Exception(String.format("Cannot remove %s: directory is not empty", name));
+                }
+
+                // Check if file name is . or ..
+                if (name.equals(STRING_CURR_DIR) || name.equals(STRING_PARENT_DIR)) {
+                    throw new Exception(String.format("refusing to remove '.' or '..' directory: skipping '%s'", name));
                 }
                 FileSystemUtils.deleteFileOrDir(name);
             } catch (Exception e) {
@@ -92,6 +99,10 @@ public class RmApplication implements RmInterface {
     private void removeRecursive( String relativeCwd, String... filenames) throws Exception {
         for (String name : filenames) {
             String relativePath = relativeCwd + name;
+            // Check if relative path is . or ..
+            if (relativePath.equals(STRING_CURR_DIR) || relativePath.equals(STRING_PARENT_DIR)) {
+                throw new Exception(String.format("refusing to remove '.' or '..' directory: skipping '%s'", relativePath));
+            }
             // If directory, recurse to remove content within directory first
             if (FileSystemUtils.isDir(relativePath)) {
                 String[] filenamesInDir = FileSystemUtils.getFilesInFolder(relativePath);
