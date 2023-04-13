@@ -9,7 +9,6 @@ import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -51,7 +50,20 @@ public class TeeApplicationTest {
     }
 
     @AfterEach
-    void reset() throws IOException {
+    void reset() throws Exception {
+        Environment.currentDirectory = CWD + TESTING_PATH;
+        if (FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME1)) {
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(TEXT_FILE_NAME2)) {
+            FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME2);
+        }
+
+        if (FileSystemUtils.fileOrDirExist(FAKE_FILE)) {
+            FileSystemUtils.deleteFileOrDir(FAKE_FILE);
+        }
+
         Environment.currentDirectory = CWD;
         outputStream.close();
     }
@@ -117,7 +129,6 @@ public class TeeApplicationTest {
         FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
         teeApplication.run(args, inputStream, outputStream);
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
     }
 
     @Test
@@ -128,25 +139,23 @@ public class TeeApplicationTest {
         FileSystemUtils.writeStrToFile(false, SAMPLE_CONTENT + SAMPLE_CONTENT + SAMPLE_CONTENT, TEXT_FILE_NAME1);
         teeApplication.run(args, inputStream, outputStream);
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
     }
 
     @Test
-    void run_OneNonExistingFileArgs_ThrowsTeeExceptionAndCorrectMessage(){
+    void run_OneNonExistingFileArgs_WritesToNewFileCorrectly() throws Exception {
         String[] args = {FAKE_FILE};
         inputStream = new ByteArrayInputStream(TEST_INPUT.getBytes());
-        TeeException exception = assertThrows(TeeException.class, () -> teeApplication.run(args, inputStream, outputStream));
-        String expectedMessage = ERROR_INITIALS + String.format("File or directory %s does not exist", FAKE_FILE);
-        assertEquals(expectedMessage, exception.getMessage());
+        teeApplication.run(args, inputStream, outputStream);
+        assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(FAKE_FILE));
     }
 
     @Test
-    void run_OneDirArgs_ThrowsTeeExceptionAndCorrectMessage(){
+    void run_OneDirArgs_CorrectOutputStream() throws TeeException {
         String[] args = {SAMPLE_DIR};
         inputStream = new ByteArrayInputStream(TEST_INPUT.getBytes());
-        TeeException exception = assertThrows(TeeException.class, () -> teeApplication.run(args, inputStream, outputStream));
-        String expectedMessage = ERROR_INITIALS + String.format("Failed to write to file %s", SAMPLE_DIR);
-        assertEquals(expectedMessage, exception.getMessage());
+        teeApplication.run(args, inputStream, outputStream);
+        String expectedOutput = ERROR_INITIALS + String.format("%s: Is a directory", SAMPLE_DIR) + STRING_NEWLINE + TEST_INPUT + STRING_NEWLINE;
+        assertEquals(expectedOutput, outputStream.toString());
     }
 
     @Test
@@ -160,32 +169,28 @@ public class TeeApplicationTest {
         teeApplication.run(args, inputStream, outputStream);
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME2));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME2);
     }
 
     @Test
-    void run_OneExistingFileOneNonExistingFileArgs_ThrowsTeeExceptionAndCorrectMessage() throws Exception {
+    void run_OneExistingFileOneNonExistingFileArgs_WritesToFilesCorrectly() throws Exception {
         String[] args = {TEXT_FILE_NAME1, FAKE_FILE};
         inputStream = new ByteArrayInputStream(TEST_INPUT.getBytes());
 
         FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-        TeeException exception = assertThrows(TeeException.class, () -> teeApplication.run(args, inputStream, outputStream));
-        String expectedMessage = ERROR_INITIALS + String.format("File or directory %s does not exist", FAKE_FILE);
-        assertEquals(expectedMessage, exception.getMessage());
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
+        teeApplication.run(args, inputStream, outputStream);
+        assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(FAKE_FILE));
+        assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
     }
 
     @Test
-    void run_OneFileOneDirArgs_ThrowsTeeExceptionAndCorrectMessage() throws Exception {
+    void run_OneFileOneDirArgs_OutputsCorrectErrorMessage() throws Exception {
         String[] args = {TEXT_FILE_NAME1, SAMPLE_DIR};
         inputStream = new ByteArrayInputStream(TEST_INPUT.getBytes());
 
         FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
-        TeeException exception = assertThrows(TeeException.class, () -> teeApplication.run(args, inputStream, outputStream));
-        String expectedMessage = ERROR_INITIALS + String.format("Failed to write to file %s", SAMPLE_DIR);
-        assertEquals(expectedMessage, exception.getMessage());
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
+        teeApplication.run(args, inputStream, outputStream);
+        String expectedOutput = ERROR_INITIALS + String.format("%s: Is a directory", SAMPLE_DIR) + STRING_NEWLINE + TEST_INPUT + STRING_NEWLINE;
+        assertEquals(expectedOutput, outputStream.toString());
     }
 
     @Test
@@ -197,7 +202,6 @@ public class TeeApplicationTest {
         FileSystemUtils.writeStrToFile(false, SAMPLE_CONTENT + STRING_NEWLINE, TEXT_FILE_NAME1);
         teeApplication.run(args, inputStream, outputStream);
         assertEquals(SAMPLE_CONTENT + STRING_NEWLINE + TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
     }
 
     @Test
@@ -215,7 +219,6 @@ public class TeeApplicationTest {
         FileSystemUtils.createEmptyFile(TEXT_FILE_NAME1);
         teeApplication.teeFromStdin(false, inputStream, filenames);
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
     }
 
     @Test
@@ -227,8 +230,6 @@ public class TeeApplicationTest {
         teeApplication.teeFromStdin(false, inputStream, filenames);
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
         assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME2));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME2);
     }
 
     @Test
@@ -239,16 +240,14 @@ public class TeeApplicationTest {
         FileSystemUtils.writeStrToFile(false, SAMPLE_CONTENT + STRING_NEWLINE, TEXT_FILE_NAME1);
         teeApplication.teeFromStdin(true, inputStream, filenames);
         assertEquals(SAMPLE_CONTENT + STRING_NEWLINE + TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(TEXT_FILE_NAME1));
-        FileSystemUtils.deleteFileOrDir(TEXT_FILE_NAME1);
     }
 
     @Test
     void teeFromStdin_NonExistingFile_ThrowsTeeExceptionAndCorrectMessage() throws Exception {
         String[] filenames = {FAKE_FILE};
         inputStream = new ByteArrayInputStream(TEST_INPUT.getBytes());
-        TeeException exception = assertThrows(TeeException.class, () -> teeApplication.teeFromStdin(false, inputStream, filenames));
-        String expectedMessage = ERROR_INITIALS + String.format("File or directory %s does not exist", FAKE_FILE);
-        assertEquals(expectedMessage, exception.getMessage());
+        teeApplication.teeFromStdin(false, inputStream, filenames);
+        assertEquals(TEST_INPUT + STRING_NEWLINE, FileSystemUtils.readFileContent(FAKE_FILE));
     }
 
 }

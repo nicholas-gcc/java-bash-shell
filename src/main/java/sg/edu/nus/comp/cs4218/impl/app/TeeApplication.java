@@ -32,12 +32,28 @@ public class TeeApplication implements TeeInterface {
         String teeContentString = String.join(STRING_NEWLINE ,teeContent) + STRING_NEWLINE;
 
         for (String file : fileName) {
+            // Creates file if file does not exist
+            if (!FileSystemUtils.fileOrDirExist(file)) {
+                try {
+                    FileSystemUtils.createEmptyFile(file);
+                } catch (Exception e) {
+                    throw new TeeException(e.getMessage(), e);
+                }
+            }
+            // Checks if file is a directory
+            try {
+                if (FileSystemUtils.isDir(file)) {
+                    return String.format("tee: %s: Is a directory", file) + STRING_NEWLINE + teeContentString;
+                }
+            } catch (Exception e) {
+                throw new TeeException(e.getMessage(), e);
+            }
+
+
             teeToFile(isAppend, teeContentString, file);
         }
 
         return teeContentString;
-
-
     }
 
     public void run(String[] args, InputStream stdin, OutputStream stdout)
