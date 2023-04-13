@@ -76,7 +76,7 @@ public class CatApplication implements CatInterface {
         }
 
         String output;
-        if (fileNames == null || fileNames.length == 0) {
+        if (fileNames == null || fileNames.length == 0 || (fileNames.length == 1 && fileNames[0].equals(STRING_DASH))) {
             output = catStdin(isLineNo, stdin);
         } else if (Arrays.asList(fileNames).contains("-")) {
             output = catFileAndStdin(isLineNo, stdin, fileNames);

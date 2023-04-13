@@ -69,4 +69,15 @@ public class CatApplicationTest {
         catApplication.run(args, inputStream, outputStream);
         assertEquals("test", outputStream.toString());
     }
+
+    @Test
+    @DisplayName("Rebuttal 4 - Cat stdin with line numbers")
+    // https://github.com/nus-cs4218/cs4218-project-2023-team28/issues/186
+    void run_catStdinWithLineNumbers_ReturnsStdinWithLineNumbers() throws Exception {
+        String[] args = {"-n", "-"};
+        CatApplication catApplication = new CatApplication();
+        InputStream inputStream = new ByteArrayInputStream("hello".getBytes());
+        catApplication.run(args, inputStream, outputStream);
+        assertEquals("1 hello", outputStream.toString());
+    }
 }
