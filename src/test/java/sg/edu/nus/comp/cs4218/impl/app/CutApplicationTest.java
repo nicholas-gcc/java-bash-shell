@@ -220,6 +220,6 @@ public class CutApplicationTest {
     void run_InvalidArgs_ReturnsException() {
         Throwable thrown = assertThrows(CutException.class,
                 () -> cutApp.run(new String[]{"-b", "???"}, System.in, System.out));
-        assertEquals(CUT_EX_PREFIX + "Invalid indexes provided", thrown.getMessage());
+        assertEquals(CUT_EX_PREFIX + "Invalid indexes provided: ???", thrown.getMessage());
     }
 }

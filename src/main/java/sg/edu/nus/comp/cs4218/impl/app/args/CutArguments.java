@@ -67,26 +67,33 @@ public class CutArguments {
         String[] rangeStr = args[1].split(",");
         for (String s : rangeStr) {
             String[] range = s.split("-");
+            try {
              if (range.length == 1) {
                 int[] rangeEntry = new int[2];
-                try {
-                    rangeEntry[0] = Integer.parseInt(range[0]);
-                    rangeEntry[1] = Integer.parseInt(range[0]);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid indexes provided", e);
-                }
+                rangeEntry[0] = Integer.parseInt(range[0]);
+                rangeEntry[1] = Integer.parseInt(range[0]);
+                 if (rangeEntry[0] == 0 || rangeEntry[1] == 0) {
+                     throw new IllegalArgumentException("byte/character positions are numbered from 1");
+                 }
                 this.ranges.add(rangeEntry);
             } else if (range.length == 2) {
-                int[] rangeEntry = new int[2];
+                 int[] rangeEntry = new int[2];
                  rangeEntry[0] = Integer.parseInt(range[0]);
                  rangeEntry[1] = Integer.parseInt(range[1]);
-                if (rangeEntry[0] > rangeEntry[1]) {
+                 if (rangeEntry[0] == 0 || rangeEntry[1] == 0) {
+                    throw new IllegalArgumentException("byte/character positions are numbered from 1");
+                 }
+                 if (rangeEntry[0] > rangeEntry[1]) {
                     throw new IllegalArgumentException(ERR_INVALID_ARG);
-                }
+                 }
                 this.ranges.add(rangeEntry);
             } else {
                 throw new IllegalArgumentException(ERR_INVALID_ARG);
             }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid indexes provided: " + args[1], e);
+            }
+
         }
 
         files.addAll(Arrays.asList(args).subList(2, args.length));
