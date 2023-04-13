@@ -29,12 +29,9 @@ public class CatArguments {
         if (args == null) {
             throw new NullPointerException(ERR_NULL_ARGS);
         }
-        if (args.length < 1) {
-            throw new InvalidArgsException(ERR_NO_ARGS);
-        }
 
-        // check if arg is only -
-        if (args.length == 1 && args[0].equals(STRING_DASH)) {
+        // check if arg is only - or empty (open stdin)
+        if ((args.length == 1 && args[0].equals(STRING_DASH)) || args.length == 0) {
             this.files = new String[]{"-"};
             return;
         }

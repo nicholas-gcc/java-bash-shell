@@ -5,6 +5,7 @@ import sg.edu.nus.comp.cs4218.exception.CatException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -268,10 +269,11 @@ public class CatApplicationTest {
     }
 
     @Test
-    void run_StdinAndFileNamesAreNull_ThrowsException() {
-        Throwable thrown = assertThrows(CatException.class,
-                () -> catApplication.run(new String[]{}, null, System.out));
-        assertEquals(CAT_EX_PREFIX + ERR_NO_ARGS, thrown.getMessage());
+    void run_StdinAndFileNamesAreNull_ThrowsException() throws CatException {
+        InputStream inputStream = new ByteArrayInputStream("HI".getBytes());
+        OutputStream outputStream = new ByteArrayOutputStream();
+        catApplication.run(new String[]{}, inputStream, outputStream);
+        assertEquals("HI" + STRING_NEWLINE, outputStream.toString());
     }
 
     @Test
