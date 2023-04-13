@@ -42,9 +42,10 @@ public class CdApplication implements CdInterface {
             throw new CdException(ERR_NULL_ARGS);
         }
         if (args.length == 0) {
-            throw new CdException(ERR_NO_ARGS);
+            changeToDirectory(System.getProperty("user.home"));
+        } else {
+            changeToDirectory(args[0]);
         }
-        changeToDirectory(args[0]);
     }
 
     private String getNormalizedAbsolutePath(String pathStr) throws CdException {

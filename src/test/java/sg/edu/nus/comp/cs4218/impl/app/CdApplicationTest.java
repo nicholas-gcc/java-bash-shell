@@ -97,9 +97,10 @@ public class CdApplicationTest {
     }
 
     @Test
-    void cd_RunNoArgs_ThrowsException() throws CdException {
+    void cd_RunNoArgs_ShouldCdCorrectly() throws CdException {
         String [] array = {};
-        CdException cdException = assertThrows(CdException.class, () -> cdApplication.run(array, stdin, stdout));
-        assertEquals("cd: " + ERR_NO_ARGS, cdException.getMessage());
+        String expectedDirectory =  System.getProperty("user.home");
+        cdApplication.run(array, stdin, stdout);
+        assertEquals(expectedDirectory, Environment.currentDirectory);
     }
 }
