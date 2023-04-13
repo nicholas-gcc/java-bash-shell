@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.Bugs.tests;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,11 @@ public class CdApplicationTest {
         cdApplication = new CdApplication();
         stdin = System.in;
         stdout = System.out;
+    }
+
+    @AfterEach
+    void resetDir() {
+        Environment.currentDirectory = System.getProperty("user.dir");
     }
 
     @Test
