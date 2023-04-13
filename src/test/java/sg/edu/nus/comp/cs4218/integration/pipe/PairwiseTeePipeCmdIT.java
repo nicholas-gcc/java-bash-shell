@@ -93,7 +93,8 @@ public class PairwiseTeePipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{teeCommand, wcCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING + "2" + WC_SPACING+ "8" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "44" + STRING_NEWLINE;
+        String teeResult = SAMPLE_TEXT + STRING_NEWLINE;
+        String expectedResult = WC_SPACING + "2" + WC_SPACING+ "8" + StringUtils.multiplyChar(CHAR_SPACE, 6) + teeResult.getBytes().length + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -188,7 +189,7 @@ public class PairwiseTeePipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{teeCommand, catCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = NEW_TEXT + STRING_NEWLINE + SAMPLE_TEXT + STRING_NEWLINE;;
+        String expectedResult = NEW_TEXT + STRING_NEWLINE + SAMPLE_TEXT;
         assertEquals(expectedResult, outputStream.toString());
     }
 }

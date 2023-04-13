@@ -78,7 +78,7 @@ public class SequenceCommandIntegrationTest {
         Environment.currentDirectory = CWD;
         String command = "cd " + TESTING_PATH + "; cat " + SAMPLE_FILE;
         shell.parseAndEvaluate(command, outputStream);
-        assertEquals(SAMPLE_CONTENT + STRING_NEWLINE, outputStream.toString());
+        assertEquals(SAMPLE_CONTENT, outputStream.toString());
     }
 
     @Test

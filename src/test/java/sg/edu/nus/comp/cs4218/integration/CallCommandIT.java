@@ -108,7 +108,7 @@ public class CallCommandIT {
         CallCommand callCommand = buildCallCommand(args);
         callCommand.evaluate(inputStream, outputStream);
         String output = outputStream.toString();
-        assertEquals(NEW_CONTENT + STRING_NEWLINE + SAMPLE_CONTENT+ STRING_NEWLINE, output);
+        assertEquals(NEW_CONTENT + SAMPLE_CONTENT, output);
     }
 
     @Test
@@ -125,6 +125,6 @@ public class CallCommandIT {
         CallCommand callCommand = buildCallCommand(args);
         callCommand.evaluate(inputStream, outputStream);
         String output = FileSystemUtils.readFileContent(DIR + CHAR_FILE_SEP + NEW_FILE2);
-        assertEquals(NEW_CONTENT + STRING_NEWLINE + SAMPLE_CONTENT + STRING_NEWLINE, output);
+        assertEquals(NEW_CONTENT + SAMPLE_CONTENT, output);
     }
 }

@@ -1,5 +1,6 @@
 package sg.edu.nus.comp.cs4218.impl.app;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.exception.CatException;
 
@@ -14,12 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_DIR_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_FILE_NOT_FOUND;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
-import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_FILE_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_STREAMS;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
 public class CatApplicationTest {
@@ -44,7 +45,7 @@ public class CatApplicationTest {
     void catFiles_IsDirectory_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
                 () -> catApplication.catFiles(false, TEST_FOLDER));
-        assertEquals(CAT_EX_PREFIX + ERR_IS_DIR + ": " + TEST_FOLDER, thrown.getMessage());
+        assertEquals(CAT_EX_PREFIX + TEST_FOLDER + ": " + ERR_IS_DIR , thrown.getMessage());
     }
 
     @Test
@@ -70,7 +71,7 @@ public class CatApplicationTest {
 
     @Test
     void catFiles_SingleLineFile_ReturnsCorrectOutput() throws CatException {
-        String expected = FILE_A_STR + STRING_NEWLINE;
+        String expected = FILE_A_STR;
         String actual = catApplication.catFiles(false,
                 TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A);
         assertEquals(expected, actual);
@@ -79,7 +80,7 @@ public class CatApplicationTest {
     @Test
     void catFiles_MultiLineFile_ReturnsCorrectOutput() throws CatException {
         String expected = "This is file B." + STRING_NEWLINE +
-                "It has two lines." + STRING_NEWLINE;
+                "It has two lines.";
         String actual = catApplication.catFiles(false,
                 TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_B);
         assertEquals(expected, actual);
@@ -89,12 +90,12 @@ public class CatApplicationTest {
     void catFiles_MultiLineFileWithLineNo_ReturnsCorrectOutput() throws CatException {
         String actual = catApplication.catFiles(true,
                 TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_C);
-        String expected = "1 This is file C." + STRING_NEWLINE +
-                "2 It has many lines." + STRING_NEWLINE +
-                "3 " + STRING_NEWLINE +
-                "4 This is another line." + STRING_NEWLINE +
-                "5 " + STRING_NEWLINE +
-                "6 This is the last line." + STRING_NEWLINE;
+        String expected = CHAR_TAB + "1 This is file C." + STRING_NEWLINE +
+                CHAR_TAB + "2 It has many lines." + STRING_NEWLINE +
+                CHAR_TAB + "3 " + STRING_NEWLINE +
+                CHAR_TAB + "4 This is another line." + STRING_NEWLINE +
+                CHAR_TAB + "5 " + STRING_NEWLINE +
+                CHAR_TAB + "6 This is the last line.";
         assertEquals(expected, actual);
     }
 
@@ -219,17 +220,16 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsOneFile_ReturnsCorrectOutput() throws CatException {
-        String expected = FILE_A_STR + STRING_NEWLINE;
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A},
                 System.in,
                 outputStream);
-        assertEquals(expected, outputStream.toString());
+        assertEquals(FILE_A_STR, outputStream.toString());
     }
 
     @Test
     void run_ValidArgsFileAWithLineNo_ReturnsCorrectOutput() throws CatException {
-        String expected = "1 This is file A." + STRING_NEWLINE;
+        String expected = CHAR_TAB + "1 This is file A.";
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A},
                 System.in,
@@ -239,8 +239,8 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsFileBWithLineNo_ReturnsCorrectOutput() throws CatException {
-        String expected = "1 This is file B." + STRING_NEWLINE +
-                "2 It has two lines." + STRING_NEWLINE;
+        String expected = CHAR_TAB + "1 This is file B." + STRING_NEWLINE +
+                CHAR_TAB + "2 It has two lines.";
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_B},
                 System.in,
@@ -250,9 +250,8 @@ public class CatApplicationTest {
 
     @Test
     void run_ValidArgsFileAWithLineNoAndFileBWithLineNo_ReturnsCorrectOutput() throws CatException {
-        String expected = "1 This is file A." + STRING_NEWLINE +
-                "1 This is file B." + STRING_NEWLINE +
-                "2 It has two lines." + STRING_NEWLINE;
+        String expected = CHAR_TAB + "1 This is file A.This is file B." + STRING_NEWLINE +
+                CHAR_TAB + "2 It has two lines.";
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{"-n", TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A,
                 TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_B},
@@ -273,13 +272,23 @@ public class CatApplicationTest {
         InputStream inputStream = new ByteArrayInputStream("HI".getBytes());
         OutputStream outputStream = new ByteArrayOutputStream();
         catApplication.run(new String[]{}, inputStream, outputStream);
-        assertEquals("HI" + STRING_NEWLINE, outputStream.toString());
+        assertEquals("HI", outputStream.toString());
     }
 
     @Test
     void run_FileIsDirectory_ThrowsException() {
         Throwable thrown = assertThrows(CatException.class,
                 () -> catApplication.run(new String[]{TEST_FOLDER}, System.in, System.out));
-        assertEquals(CAT_EX_PREFIX + ERR_IS_DIR + ": " + TEST_FOLDER, thrown.getMessage());
+        assertEquals(CAT_EX_PREFIX + TEST_FOLDER + ": " + ERR_IS_DIR, thrown.getMessage());
+    }
+
+    @Test
+    @DisplayName("Test cat for 2 files without newlines")
+    void run_TwoFilesWithoutNewLines_ReturnsOneLine() throws CatException {
+        String expected = "This is file A.This is file A.";
+        OutputStream outputStream = new ByteArrayOutputStream();
+        catApplication.run(new String[]{TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A,
+                TEST_FOLDER + CHAR_FILE_SEP + FILE_NAME_A}, System.in, outputStream);
+        assertEquals(expected, outputStream.toString());
     }
 }

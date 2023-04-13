@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,13 +74,16 @@ public class PairwiseWcPipeCmdIT {
     }
 
     @Test
-    void parseAndEvaluate_WcPipeToWc_OutputsCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
+    void parseAndEvaluate_WcPipeToWc_OutputsCorrectly() throws Exception {
         CallCommand wcCommand1 = buildCallCommand(WC_CMD, SAMPLE_FILE);
         CallCommand wcCommand2 = buildCallCommand(WC_CMD);
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{wcCommand1, wcCommand2}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING + "1" + WC_SPACING + "4" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "37" + STRING_NEWLINE;
+        String wcResult = WC_SPACING + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10"
+                + StringUtils.multiplyChar(CHAR_SPACE, 6) + FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length
+                + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE;
+        String expectedResult = WC_SPACING + "1" + WC_SPACING + "4" + StringUtils.multiplyChar(CHAR_SPACE, 6) + wcResult.getBytes().length + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -94,8 +98,10 @@ public class PairwiseWcPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{wcCommand, grepCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
+
+        int totalBytes = FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length + FileSystemUtils.readFileContent(NEW_FILE).getBytes().length;
         String expectedResult = WC_SPACING + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6)
-                + "14" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "64" + CHAR_SPACE + TOTAL_STR + STRING_NEWLINE;
+                + "14" + StringUtils.multiplyChar(CHAR_SPACE, 6) + totalBytes + CHAR_SPACE + TOTAL_STR + STRING_NEWLINE;
 
         assertEquals(expectedResult, outputStream.toString());
     }
@@ -122,22 +128,25 @@ public class PairwiseWcPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{wcCommand, pasteCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
+        int bytesInSample = FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length;
         String expectedResult = NEW_TEXT + CHAR_TAB + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6)
-                + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "48" + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE;
+                + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + bytesInSample + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
     @Test
-    void parseAndEvaluate_WcPipeToUniq_OutputsCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
+    void parseAndEvaluate_WcPipeToUniq_OutputsCorrectly() throws Exception {
         CallCommand wcCommand = buildCallCommand(WC_CMD, SAMPLE_FILE, SAMPLE_FILE);
         CallCommand uniqCommand = buildCallCommand("uniq");
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{wcCommand, uniqCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
+        int bytesInSample = FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length;
+        int totalBytes = bytesInSample * 2;
         String expectedResult = WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6)
-                + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "48" + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE
+                + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + bytesInSample + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE
                 + WC_SPACING + "2" + StringUtils.multiplyChar(CHAR_SPACE, 6)
-                + "20" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "96" + CHAR_SPACE + TOTAL_STR + STRING_NEWLINE;
+                + "20" + StringUtils.multiplyChar(CHAR_SPACE, 6) + totalBytes + CHAR_SPACE + TOTAL_STR + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -151,9 +160,12 @@ public class PairwiseWcPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{wcCommand, sortCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING  + "0" + WC_SPACING + "4" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "16" + CHAR_SPACE + NEW_FILE + STRING_NEWLINE
-                + WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "48" + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE
-                + WC_SPACING + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + 14 + StringUtils.multiplyChar(CHAR_SPACE, 6) + 64 + CHAR_SPACE + TOTAL_STR + STRING_NEWLINE;
+        int bytesInSample = FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length;
+        int bytesInNew = FileSystemUtils.readFileContent(NEW_FILE).getBytes().length;
+        int totalBytes = bytesInSample + bytesInNew;
+        String expectedResult = WC_SPACING  + "0" + WC_SPACING + "4" + StringUtils.multiplyChar(CHAR_SPACE, 6) + bytesInNew + CHAR_SPACE + NEW_FILE + STRING_NEWLINE
+                + WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + bytesInSample + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE
+                + WC_SPACING + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + 14 + StringUtils.multiplyChar(CHAR_SPACE, 6) + totalBytes + CHAR_SPACE + TOTAL_STR + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -168,11 +180,13 @@ public class PairwiseWcPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{echoCommand, teeCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
+        int bytesInSample = FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length;
         String expectedResult = NEW_TEXT
-                + WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "48" + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE;
+                + WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + bytesInSample + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE;
         assertEquals(expectedResult, FileSystemUtils.readFileContent(NEW_FILE));
     }
 
+    // TODO: Fix catAndStdin
     @Test
     void parseAndEvaluate_WcPipeToCat_OutputsCorrectly() throws Exception {
         // Create new file and write 1 line of new text to it
@@ -184,8 +198,9 @@ public class PairwiseWcPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{echoCommand, catCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
+        int bytesInSample = FileSystemUtils.readFileContent(SAMPLE_FILE).getBytes().length;
         String expectedResult = NEW_TEXT + STRING_NEWLINE
-                + WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "48" + CHAR_SPACE + SAMPLE_FILE + STRING_NEWLINE;
+                + WC_SPACING  + "1" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "10" + StringUtils.multiplyChar(CHAR_SPACE, 6) + bytesInSample + CHAR_SPACE + SAMPLE_FILE;
         assertEquals(expectedResult, outputStream.toString());
     }
 }

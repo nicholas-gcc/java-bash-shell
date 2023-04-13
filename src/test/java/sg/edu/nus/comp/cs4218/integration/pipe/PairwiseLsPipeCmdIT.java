@@ -80,7 +80,8 @@ public class PairwiseLsPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{lsCommand, wcCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING + "3" + WC_SPACING+ "3" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "21" + STRING_NEWLINE;
+        String lsResult = A_FILE + STRING_NEWLINE + B_FILE + STRING_NEWLINE + C_FILE + STRING_NEWLINE;
+        String expectedResult = WC_SPACING + "3" + WC_SPACING+ "3" + StringUtils.multiplyChar(CHAR_SPACE, 6) + lsResult.getBytes().length + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -172,7 +173,8 @@ public class PairwiseLsPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{lsCommand, catCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = NEW_TEXT + STRING_NEWLINE + A_FILE + STRING_NEWLINE + B_FILE + STRING_NEWLINE + C_FILE + STRING_NEWLINE + NEW_FILE + STRING_NEWLINE;
+        String expectedResult = NEW_TEXT + STRING_NEWLINE + A_FILE + STRING_NEWLINE + B_FILE
+                + STRING_NEWLINE + C_FILE + STRING_NEWLINE + NEW_FILE;
         assertEquals(expectedResult, outputStream.toString());
     }
 }

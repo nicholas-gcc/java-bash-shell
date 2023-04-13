@@ -85,7 +85,10 @@ public class PairwisePastePipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{pasteCommand, wcCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING + "3" + WC_SPACING+ "6" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "15" + STRING_NEWLINE;
+        String pasteResult = ALP_TEXT1 + CHAR_TAB + NUM_TEXT1 + STRING_NEWLINE
+                + ALP_TEXT2 + CHAR_TAB + NUM_TEXT2 + STRING_NEWLINE
+                + ALP_TEXT3 + CHAR_TAB + NUM_TEXT3 + STRING_NEWLINE;
+        String expectedResult = WC_SPACING + "3" + WC_SPACING+ "6" + StringUtils.multiplyChar(CHAR_SPACE, 6) + pasteResult.getBytes().length + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -190,7 +193,7 @@ public class PairwisePastePipeCmdIT {
         String expectedResult = NEW_TEXT + STRING_NEWLINE
                 + ALP_TEXT1 + CHAR_TAB + NUM_TEXT1 + STRING_NEWLINE
                 + ALP_TEXT2 + CHAR_TAB + NUM_TEXT2 + STRING_NEWLINE
-                + ALP_TEXT3 + CHAR_TAB + NUM_TEXT3 + STRING_NEWLINE;
+                + ALP_TEXT3 + CHAR_TAB + NUM_TEXT3;
         assertEquals(expectedResult, outputStream.toString());
     }
 }

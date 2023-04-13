@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,6 +38,8 @@ public class PairwiseSortPipeCmdIT {
     static final String A2_STR = "a2";
     static final String B_STR = "b";
     static final String C_STR = "c";
+    static final String FILE_CONTENT = A2_STR + STRING_NEWLINE + A1_STR + STRING_NEWLINE
+            + A1_STR + STRING_NEWLINE + B_STR + STRING_NEWLINE + C_STR + STRING_NEWLINE;
     static final String NEW_FILE = "new.txt";
     static final String NEW_TEXT = "this is new text";
     static final String SORT_CMD = "sort";
@@ -83,7 +86,7 @@ public class PairwiseSortPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{sortCommand, wcCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING + "5" + WC_SPACING+ "5" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "18" + STRING_NEWLINE;
+        String expectedResult = WC_SPACING + "5" + WC_SPACING+ "5" + StringUtils.multiplyChar(CHAR_SPACE, 6) + FILE_CONTENT.getBytes().length + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -194,7 +197,7 @@ public class PairwiseSortPipeCmdIT {
                 + A1_STR + STRING_NEWLINE
                 + A2_STR + STRING_NEWLINE
                 + B_STR + STRING_NEWLINE
-                + C_STR + STRING_NEWLINE;
+                + C_STR;
         assertEquals(expectedResult, outputStream.toString());
     }
 }

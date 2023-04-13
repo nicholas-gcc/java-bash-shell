@@ -6,7 +6,7 @@ import sg.edu.nus.comp.cs4218.exception.CpException;
 import java.io.File;
 import java.util.ArrayList;
 
-import static sg.edu.nus.comp.cs4218.impl.app.CatApplication.ERR_IS_DIR;
+import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_INVALID_FLAG;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_IS_NOT_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_MISSING_ARG;

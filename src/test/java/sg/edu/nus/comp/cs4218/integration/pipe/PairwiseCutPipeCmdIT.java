@@ -79,10 +79,11 @@ public class PairwiseCutPipeCmdIT {
     void parseAndEvaluate_CutPipeToWc_OutputsCorrectly() throws FileNotFoundException, AbstractApplicationException, ShellException {
         CallCommand cutCommand = buildCallCommand(CUT_CMD, BYTE_OPTION, "1-8", SAMPLE_FILE);
         CallCommand wcCommand = buildCallCommand("wc");
-
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{cutCommand, wcCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = WC_SPACING + "2" + WC_SPACING+ "4" + StringUtils.multiplyChar(CHAR_SPACE, 6) + "20" + STRING_NEWLINE;
+        String catResult = "This is " + STRING_NEWLINE + "This is " + STRING_NEWLINE;
+        String expectedResult = WC_SPACING + "2" + WC_SPACING+ "4" + StringUtils.multiplyChar(CHAR_SPACE, 6)
+                + catResult.getBytes().length  + STRING_NEWLINE;
         assertEquals(expectedResult, outputStream.toString());
     }
 
@@ -177,7 +178,7 @@ public class PairwiseCutPipeCmdIT {
 
         PipeCommand pipeCommand = buildPipeCommand(List.of(new CallCommand[]{grepCommand, catCommand}));
         pipeCommand.evaluate(inputStream, outputStream);
-        String expectedResult = NEW_TEXT + STRING_NEWLINE + "a" + STRING_NEWLINE + "t" + STRING_NEWLINE;
+        String expectedResult = NEW_TEXT + STRING_NEWLINE + "a" + STRING_NEWLINE + "t";
         assertEquals(expectedResult, outputStream.toString());
     }
 
