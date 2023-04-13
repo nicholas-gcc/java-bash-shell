@@ -1,7 +1,7 @@
 package sg.edu.nus.comp.cs4218.Bugs.tests;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.impl.app.CdApplication;
@@ -24,12 +24,8 @@ public class CdApplicationTest {
         stdout = System.out;
     }
 
-    @AfterEach
-    void resetDir() {
-        Environment.currentDirectory = System.getProperty("user.dir");
-    }
-
     @Test
+    @DisplayName("Rebuttal 5 - Cd with no arguments should cd to home directory")
     void cd_RunNoArgs_ShouldCdCorrectly() throws CdException {
         String [] array = {};
         String expectedDirectory =  System.getProperty("user.home");
