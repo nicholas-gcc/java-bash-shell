@@ -14,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -23,7 +22,8 @@ import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_TAB;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
-public class SequenceCommandIntegrationTest {
+@SuppressWarnings({"PMD.ClassNamingConventions"})
+public class SequenceCommandIT {
     static final String CWD = System.getProperty("user.dir");
     static final String TESTING_PATH = "assets" + CHAR_FILE_SEP + "it" + CHAR_FILE_SEP + "sequence";
     static final String SAMPLE_FILE = "sample.txt";

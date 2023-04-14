@@ -174,4 +174,33 @@ public class StringUtilsTest {
         StringUtils.sortFilenamesByExt(fileNames);
         assertEquals(expectedList, fileNames);
     }
+
+    @Test
+    void containsReservedChars_StringWithOnlyReservedChars_ReturnsTrue() {
+        String str = "*|<>";
+        assertTrue(StringUtils.containsReservedChars(str));
+    }
+
+    @Test
+    void containsReservedChars_StringWithNoReservedChars_ReturnsFalse() {
+        String str = "Valid string.@+-!";
+        assertFalse(StringUtils.containsReservedChars(str));
+    }
+
+    @Test
+    void containsReservedChars_StringWithReservedCharsAndValidChars_ReturnsTrue() {
+        String str = "Valid string.@+-*!";
+        assertTrue(StringUtils.containsReservedChars(str));
+    }
+
+    @Test
+    void containsReservedChars_StringWithReservedCharAtStringEnd_ReturnsTrue() {
+        String str = "Valid string.@+-!\"";
+        assertTrue(StringUtils.containsReservedChars(str));
+    }
+    @Test
+    void containsReservedChars_StringWithReservedCharAtStringStart_ReturnsTrue() {
+        String str = "\\Valid string.@+-!";
+        assertTrue(StringUtils.containsReservedChars(str));
+    }
 }

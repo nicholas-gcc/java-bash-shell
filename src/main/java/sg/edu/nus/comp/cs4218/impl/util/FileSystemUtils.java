@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
@@ -41,6 +42,52 @@ public final class FileSystemUtils {
      */
     public static boolean fileOrDirExist(String name) {
         return new File(getAbsolutePathName(name)).exists();
+    }
+
+    /**
+     * Checks if each file in the path exist.
+     *
+     * @param path  Name of path
+     * @return False if any of the files in the path does not exist, else true.
+     */
+    public static boolean isExistingFilesInPath(String path) {
+        String[] files = path.split(Pattern.quote(File.separator));
+        StringBuilder stringBuilder = new StringBuilder();
+        // Ignore last element since it can be a
+        for (String file : files) {
+            stringBuilder.append(file);
+            // Files with reserved characters should not exist
+            if (StringUtils.containsReservedChars(file)) {
+                return false;
+            }
+
+            if (!fileOrDirExist(stringBuilder.toString())) {
+                return false;
+            }
+            stringBuilder.append(CHAR_FILE_SEP);
+        }
+        return true;
+    }
+
+    /**
+     * Checks if each file in the path are valid directory, except for the file at the end of the path.
+     *
+     * @param path  Name of path
+     * @return False if any of files checked is not a valid directory, else true.
+     */
+    public static boolean isValidDirsInPath(String path) throws FileOrDirDoesNotExistException {
+        String[] dirs = path.split(Pattern.quote(File.separator));
+        StringBuilder stringBuilder = new StringBuilder();
+        // Ignore last element since last file can be either file or dir
+        for (int i = 0; i < dirs.length - 1; i++) {
+            stringBuilder.append(dirs[i]);
+            if (!isDir(stringBuilder.toString())) {
+                return false;
+            }
+            stringBuilder.append(CHAR_FILE_SEP);
+
+        }
+        return true;
     }
 
     /**

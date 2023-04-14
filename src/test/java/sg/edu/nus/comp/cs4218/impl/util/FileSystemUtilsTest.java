@@ -16,17 +16,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_ASTERISK;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.LongVariable"})
 public class FileSystemUtilsTest {
     static final String CWD = System.getProperty("user.dir");
     static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "util" + CHAR_FILE_SEP + "FileSystemUtils";
     static final String SAMPLE_FILE = "sample.txt";
     static final String FAKE_FILE = "fake.txt";
     static final String SAMPLE_DIR = "sample";
+    static final String NESTED_SAMPLE_DIR = "nestedSample";
+    static final String NESTED_NESTED_SAMPLE_DIR = "nestedNestedSample";
     static final String FAKE_DIR = "fake";
     static final String NEW_FILE = "new.txt";
     static final String NEW_DIR = "new";
@@ -67,6 +70,141 @@ public class FileSystemUtilsTest {
     @Test
     void fileOrDirExist_NonExistentDir_ReturnFalse() {
         assertFalse(FileSystemUtils.fileOrDirExist(FAKE_DIR));
+    }
+
+    @Test
+    void fileOrDirExist_NestedNonExistentDir_ReturnFalse() {
+        assertFalse(FileSystemUtils.fileOrDirExist(SAMPLE_DIR + CHAR_FILE_SEP + FAKE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_SimpleExistingDir_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_SimpleExistingFile_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedExistingDir_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedExistingFile_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNestedExistingDir_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNestedExistingFile_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNestedNestedExistingFile_ReturnTrue() {
+        assertTrue(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NonExistingDir_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(FAKE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_NonExistingFile_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(FAKE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNonExistingDir_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + FAKE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNonExistingFile_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + FAKE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNestedNonExistingDir_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + FAKE_DIR));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNestedNonExistingFile_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + FAKE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NestedNestedNestedNonExistingDir_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + FAKE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_NonExistingDirInMiddleOfNestedPath_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + FAKE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isExistingFilesInPath_FileNameWithReservedCharAtTheEnd_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE + CHAR_ASTERISK));
+    }
+
+    @Test
+    void isExistingFilesInPath_FileNameWithReservedCharinTheMiddle_ReturnFalse() {
+        assertFalse(FileSystemUtils.isExistingFilesInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + CHAR_ASTERISK + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE ));
+    }
+
+    @Test
+    void isValidDirsInPath_SimpleExistingDir_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR));
+    }
+
+    @Test
+    void isValidDirsInPath_SimpleExistingFile_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_FILE));
+    }
+
+    @Test
+    void isValidDirsInPath_NestedExistingDir_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR));
+    }
+
+    @Test
+    void isValidDirsInPath_NestedExistingFile_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isValidDirsInPath_NestedNestedExistingDir_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR));
+    }
+
+    @Test
+    void isValidDirsInPath_NestedNestedExistingFile_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isValidDirsInPath_NestedNestedNestedExistingFile_ReturnTrue() throws Exception {
+        assertTrue(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isValidDirsInPath_FileAtStartOfNestedPath_ReturnFalse() throws Exception {
+        assertFalse(FileSystemUtils.isValidDirsInPath(SAMPLE_FILE + CHAR_FILE_SEP + NESTED_SAMPLE_DIR + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
+    }
+
+    @Test
+    void isValidDirsInPath_FileInMiddleOfNestedPath_ReturnFalse() throws Exception {
+        assertFalse(FileSystemUtils.isValidDirsInPath(SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE + CHAR_FILE_SEP + NESTED_NESTED_SAMPLE_DIR + CHAR_FILE_SEP + SAMPLE_FILE));
     }
 
     @Test

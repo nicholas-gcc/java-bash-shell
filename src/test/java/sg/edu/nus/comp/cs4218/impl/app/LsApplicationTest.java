@@ -20,6 +20,7 @@ import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.parser.ArgsParser.ILLEGAL_FLAG_MSG;
 
+@SuppressWarnings("PMD.LongVariable")
 public class LsApplicationTest {
     LsApplication lsApplication;
     static final String CWD = System.getProperty("user.dir");
@@ -129,8 +130,8 @@ public class LsApplicationTest {
     @Test
     void run_OneDirNameOneFileNameArgs_CorrectOutputStream() throws LsException {
         String[] args = {TEST_DIR_3, ALP_TEXTFILE1};
-        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE +
-                TEST_DIR_3 + ":" + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE;
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_3 + ":" + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE;
         lsApplication.run(args, System.in, outputStream);
         assertEquals(expectedResult, outputStream.toString());
     }
@@ -138,8 +139,8 @@ public class LsApplicationTest {
     @Test
     void run_OneDirNameOneFileNameWithRecursiveArgs_CorrectOutputStream() throws LsException {
         String[] args = {TEST_DIR_1, ALP_TEXTFILE1, "-R"};
-        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE +
-                TEST_DIR_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2
                 + STRING_NEWLINE + STRING_NEWLINE
                 + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
                 + STRING_NEWLINE + STRING_NEWLINE
@@ -152,7 +153,7 @@ public class LsApplicationTest {
     void run_OneDirNameOneExistingFileOneNonExistingFileWithRecursiveArgs_CorrectOutputStream() throws LsException {
         String[] args = {TEST_DIR_1, ALP_TEXTFILE1, FAKE_TEXTFILE, "-R"};
         String expectedResult =  "ls: cannot access 'fake.txt': No such file or directory" + STRING_NEWLINE
-                + ALP_TEXTFILE1 + STRING_NEWLINE
+                + ALP_TEXTFILE1 + STRING_NEWLINE + STRING_NEWLINE
                 + TEST_DIR_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2
                 + STRING_NEWLINE + STRING_NEWLINE
                 + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
@@ -167,8 +168,8 @@ public class LsApplicationTest {
     void run_TwoDirNameOneExistingFileOneFakeFileWithRecursiveWithSortedArgs_CorrectOutputStream() throws LsException {
         String[] args = {TEST_DIR_1, ALP_TEXTFILE1, FAKE_TEXTFILE, TEST_DIR_3, "-R" ,"-X"};
         String expectedResult =  "ls: cannot access 'fake.txt': No such file or directory" + STRING_NEWLINE
-                + ALP_TEXTFILE1 + STRING_NEWLINE +
-                TEST_DIR_1 + ":" + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2 + STRING_NEWLINE + ALP_TEXTFILE1
+                + ALP_TEXTFILE1 + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_1 + ":" + STRING_NEWLINE + TEST_DIR_1_1 + STRING_NEWLINE + TEST_DIR_1_2 + STRING_NEWLINE + ALP_TEXTFILE1
                 + STRING_NEWLINE + STRING_NEWLINE
                 + TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1
                 + STRING_NEWLINE + STRING_NEWLINE
@@ -177,17 +178,82 @@ public class LsApplicationTest {
                 + TEST_DIR_3 + ":" + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE;
         lsApplication.run(args, System.in, outputStream);
         assertEquals(expectedResult, outputStream.toString());
-
     }
 
     @Test
     void run_OneDirNameOneFileNameWithSortedArgs_CorrectOutputStream() throws LsException {
         String[] args = {TEST_DIR_3, ALP_TEXTFILE1, "-X"};
-        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE +
-                TEST_DIR_3 + ":" + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE;
+        String expectedResult =  ALP_TEXTFILE1 + STRING_NEWLINE + STRING_NEWLINE
+                + TEST_DIR_3 + ":" + STRING_NEWLINE + ALP_TEXTFILE2 + STRING_NEWLINE + NUM_TEXTFILE + STRING_NEWLINE;
         lsApplication.run(args, System.in, outputStream);
         assertEquals(expectedResult, outputStream.toString());
+    }
 
+    @Test
+    void run_EmptyStringArg_ThrowLsExceptionWithCorrectMessage() throws LsException {
+        String emptyArg = "";
+        String[] args = {emptyArg};
+        lsApplication.run(args, System.in, outputStream);
+
+        String expectedMessage = ERROR_INITIALS + "cannot access '': No such file or directory" + STRING_NEWLINE;
+        assertEquals(expectedMessage, outputStream.toString());
+    }
+
+    @Test
+    void run_StringWithOnlySpacesArgs_ThrowLsExceptionWithCorrectMessage() throws LsException {
+        String oneSpace = " ";
+        String multipleSpaces = "   ";
+        String[] args = {oneSpace, multipleSpaces};
+
+        lsApplication.run(args, System.in, outputStream);
+
+        String expectedMessage = ERROR_INITIALS + "cannot access ' ': No such file or directory" + STRING_NEWLINE +
+                ERROR_INITIALS + "cannot access '   ': No such file or directory" + STRING_NEWLINE;
+        assertEquals(expectedMessage, outputStream.toString());
+    }
+
+    @Test
+    void run_ValidArgAndSpaceOnlyArgsAndEmptyArg_ThrowLsExceptionWithCorrectMessage() throws LsException {
+        String validArg = ALP_TEXTFILE1;
+        String oneSpace = " ";
+        String multipleSpaces = "   ";
+        String emptyArg = "";
+        String[] args = {validArg, oneSpace, multipleSpaces, emptyArg};
+
+        lsApplication.run(args, System.in, outputStream);
+
+        String expectedMessage = ERROR_INITIALS + "cannot access ' ': No such file or directory" + STRING_NEWLINE
+                + ERROR_INITIALS + "cannot access '   ': No such file or directory" + STRING_NEWLINE
+                + ERROR_INITIALS + "cannot access '': No such file or directory" + STRING_NEWLINE
+                + ALP_TEXTFILE1 + STRING_NEWLINE;
+        assertEquals(expectedMessage, outputStream.toString());
+    }
+
+    @Test
+    void run_NonExistingFileWithPwd_ThrowLsExceptionWithCorrectMessage() throws LsException {
+        String nonExistingFileWithPwd = "non-exist" + CHAR_FILE_SEP + ".." + CHAR_FILE_SEP;
+        String[] args = {nonExistingFileWithPwd};
+        lsApplication.run(args, System.in, outputStream);
+        String expectedOutput = String.format(ERROR_INITIALS + String.format("cannot access '%s': No such file or directory", nonExistingFileWithPwd)) + STRING_NEWLINE;
+        assertEquals(expectedOutput, outputStream.toString());
+    }
+
+    @Test
+    void run_NonDirectoryFileWithPwd_ThrowLsExceptionWithCorrectMessage() throws LsException {
+        String nonDirectoryFileWithPwd = ALP_TEXTFILE1 + CHAR_FILE_SEP + ".." + CHAR_FILE_SEP;
+        String[] args = {nonDirectoryFileWithPwd};
+        lsApplication.run(args, System.in, outputStream);
+        String expectedOutput = String.format(ERROR_INITIALS + String.format("cannot access '%s': Not a directory", nonDirectoryFileWithPwd)) + STRING_NEWLINE;
+        assertEquals(expectedOutput, outputStream.toString());
+    }
+
+    @Test
+    void run_NestedDirectory_CorrectOutputStream() throws LsException {
+        String nestedDirectory = TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1;
+        String[] args = {nestedDirectory};
+        lsApplication.run(args, System.in, outputStream);
+        String expectedOutput = TEST_DIR_1 + CHAR_FILE_SEP + TEST_DIR_1_1 + ":" + STRING_NEWLINE + ALP_TEXTFILE1 + STRING_NEWLINE;
+        assertEquals(expectedOutput, outputStream.toString());
     }
 
     @Test

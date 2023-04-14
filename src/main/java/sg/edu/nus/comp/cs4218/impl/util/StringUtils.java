@@ -123,4 +123,18 @@ public final class StringUtils {
             }
         });
     }
+
+    /**
+     * Checks if string contains any reserved characters
+     *
+     * @param str String
+     * @return true if string contains any reserved characters, else false
+     */
+    public static boolean containsReservedChars(String str) {
+        // Define the regular expression pattern for reserved characters
+        String pattern = "[<>\"/\\\\|?*]";
+
+        // Use String.matches() to check if the string matches the pattern
+        return str.matches(".*" + pattern + ".*");
+    }
 }

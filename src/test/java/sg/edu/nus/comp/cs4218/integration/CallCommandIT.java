@@ -65,8 +65,6 @@ public class CallCommandIT {
         }
     }
 
-
-
     private CallCommand buildCallCommand(String... args) {
         ApplicationRunner applicationRunner = new ApplicationRunner();
         ArgumentResolver argumentResolver = new ArgumentResolver();
@@ -127,4 +125,5 @@ public class CallCommandIT {
         String output = FileSystemUtils.readFileContent(DIR + CHAR_FILE_SEP + NEW_FILE2);
         assertEquals(NEW_CONTENT + SAMPLE_CONTENT, output);
     }
+
 }

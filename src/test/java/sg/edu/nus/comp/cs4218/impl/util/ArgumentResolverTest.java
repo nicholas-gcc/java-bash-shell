@@ -1,13 +1,16 @@
 package sg.edu.nus.comp.cs4218.impl.util;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sg.edu.nus.comp.cs4218.Environment;
 import sg.edu.nus.comp.cs4218.exception.AbstractApplicationException;
 import sg.edu.nus.comp.cs4218.exception.ShellException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -17,14 +20,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
 
 
 public class ArgumentResolverTest {
-    private static final String BASE_DIR = Environment.currentDirectory;
+    static final String CWD = System.getProperty("user.dir");
+    static final String TESTING_PATH = CHAR_FILE_SEP + "assets" + CHAR_FILE_SEP + "app" + CHAR_FILE_SEP + "ls";
 
-    private static final Path CWD = Paths.get(BASE_DIR);
-    private static final Path PATH_FILES = CWD.resolve("assets" + File.separator + "app"
-            + File.separator + "ls");
     private static final String ECHO_CMD = "echo";
     private static final String HELLO_STR = "hello";
 
@@ -37,13 +39,23 @@ public class ArgumentResolverTest {
         this.argumentResolver = new ArgumentResolver();
     }
 
+    @BeforeEach
+    void setCurrentDirectory() {
+        Environment.currentDirectory += TESTING_PATH;
+    }
+
+    @AfterEach
+    void resetCurrentDirectory()  {
+        Environment.currentDirectory = this.CWD;
+    }
+
     @Test
     void parseArgument_GlobSingleAsteriskInCurrDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "abc.txt",
-                PATH_FILES + File.separator + "testDir1",
-                PATH_FILES + File.separator + "testDir2",
-                PATH_FILES + File.separator + "testDir3");
+        List<String> args = Arrays.asList("ls", "*");
+        List<String> expectedTokens = Arrays.asList("ls", Environment.currentDirectory + CHAR_FILE_SEP + "abc.txt",
+                Environment.currentDirectory + CHAR_FILE_SEP + "testDir1" + CHAR_FILE_SEP,
+                Environment.currentDirectory + CHAR_FILE_SEP + "testDir2" + CHAR_FILE_SEP,
+                Environment.currentDirectory + CHAR_FILE_SEP + "testDir3" + CHAR_FILE_SEP);
 
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
@@ -51,8 +63,8 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_GlobMatchSpecificDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1");
+        List<String> args = Arrays.asList("ls", "testDir1*");
+        List<String> expectedTokens = Arrays.asList("ls",  Environment.currentDirectory + CHAR_FILE_SEP + "testDir1" + CHAR_FILE_SEP);
 
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
@@ -61,10 +73,10 @@ public class ArgumentResolverTest {
 
     @Test
     void parseArgument_GlobMatchMultipleDirectory_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
-        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "testD*");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "testDir1",
-                PATH_FILES + File.separator + "testDir2",
-                PATH_FILES + File.separator + "testDir3");
+        List<String> args = Arrays.asList("ls", "testD*");
+        List<String> expectedTokens = Arrays.asList("ls", Environment.currentDirectory + CHAR_FILE_SEP + "testDir1" + CHAR_FILE_SEP,
+                Environment.currentDirectory + CHAR_FILE_SEP + "testDir2" + CHAR_FILE_SEP,
+                Environment.currentDirectory + CHAR_FILE_SEP + "testDir3" + CHAR_FILE_SEP);
 
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
@@ -73,8 +85,8 @@ public class ArgumentResolverTest {
     @Test
     void parseArgument_GlobMatchRegularFile_CorrectArgTokens() throws FileNotFoundException, AbstractApplicationException, ShellException {
         // In this unit test, * is a prefix to the pattern instead of postfix
-        List<String> args = Arrays.asList("ls", PATH_FILES + File.separator + "*.txt");
-        List<String> expectedTokens = Arrays.asList("ls", PATH_FILES + File.separator + "abc.txt");
+        List<String> args = Arrays.asList("ls", "*.txt");
+        List<String> expectedTokens = Arrays.asList("ls", Environment.currentDirectory + CHAR_FILE_SEP + "abc.txt");
         List<String> actualTokens = argumentResolver.parseArguments(args);
         assertEquals(expectedTokens, actualTokens);
     }

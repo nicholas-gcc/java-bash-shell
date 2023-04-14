@@ -3,9 +3,7 @@ package sg.edu.nus.comp.cs4218.impl.util;
 import sg.edu.nus.comp.cs4218.Environment;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +40,9 @@ public final class RegexArgument {
         for (char c : str.toCharArray()) {
             if (c == CHAR_ASTERISK) {
                 this.regex.append("[^" + StringUtils.fileSeparator() + "]*");
+            } else if (c == '/') {
+                // Handles inconsistency in Windows
+                regex.append(Pattern.quote(StringUtils.fileSeparator()));
             } else {
                 this.regex.append(Pattern.quote(String.valueOf(c)));
             }
@@ -50,7 +51,12 @@ public final class RegexArgument {
 
     public void append(char chr) {
         plaintext.append(chr);
-        regex.append(Pattern.quote(String.valueOf(chr)));
+        if (chr == '/') {
+            // Handles inconsistency in Windows
+            regex.append(Pattern.quote(String.valueOf('\\')));
+        } else {
+            regex.append(Pattern.quote(String.valueOf(chr)));
+        }
     }
 
     public void appendAsterisk() {
@@ -79,35 +85,9 @@ public final class RegexArgument {
 
         String modifiedPlaintext = plaintext.toString().replaceAll(Pattern.quote(File.separator), "/");
         String[] tokens = modifiedPlaintext.split("/");
-        String dir = "";
-        for (int i = 0; i < tokens.length - 1; i++) {
-            dir += tokens[i] + File.separator;
-        }
 
-        boolean isOnlyDirectories = modifiedPlaintext.charAt(modifiedPlaintext.length() - 1) == CHAR_FILE_SEP;
-
-        File currentDir = Path.of(dir).isAbsolute()
-                ? Path.of(dir).toFile()
-                : Path.of(Environment.currentDirectory, dir).normalize().toFile();
-
-        Pattern regexPattern = Pattern.compile(regex.toString());
         List<String> globbedFiles = new ArrayList<>();
-
-        if (currentDir.exists()) {
-            for (File file : currentDir.listFiles()) {
-                String filePathName = dir + file.getName();
-
-                if (isOnlyDirectories && file.isDirectory()) {
-                    filePathName += File.separator;
-                }
-
-                if (!regexPattern.matcher(filePathName).matches()) {
-                    continue;
-                }
-
-                globbedFiles.add(filePathName);
-            }
-        }
+        globFilesRecursive(tokens, 0, Environment.currentDirectory, globbedFiles);
 
         Collections.sort(globbedFiles);
 
@@ -116,6 +96,39 @@ public final class RegexArgument {
         }
 
         return globbedFiles;
+    }
+
+    private void globFilesRecursive(String[] tokens, int tokenIndex, String currentPath, List<String> globbedFiles) {
+        if (tokenIndex == tokens.length) {
+            return;
+        }
+
+        String token = tokens[tokenIndex];
+        Pattern regexPattern = Pattern.compile(token.replaceAll("\\*", ".*"));
+        File currentDir = new File(currentPath);
+
+        if (currentDir.exists()) {
+            for (File file : currentDir.listFiles()) {
+                String filePathName = file.getName();
+
+                if (!regexPattern.matcher(filePathName).matches()) {
+                    continue;
+                }
+
+                String fullPath = currentPath + File.separator + filePathName;
+
+                if (file.isDirectory()) {
+                    fullPath += File.separator;
+                    if (tokenIndex < tokens.length - 1) {
+                        globFilesRecursive(tokens, tokenIndex + 1, fullPath, globbedFiles);
+                    }
+                }
+
+                if (tokenIndex == tokens.length - 1) {
+                    globbedFiles.add(fullPath);
+                }
+            }
+        }
     }
 
 

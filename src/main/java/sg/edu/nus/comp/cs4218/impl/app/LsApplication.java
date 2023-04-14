@@ -5,6 +5,7 @@ import sg.edu.nus.comp.cs4218.app.LsInterface;
 import sg.edu.nus.comp.cs4218.exception.InvalidArgsException;
 import sg.edu.nus.comp.cs4218.exception.LsException;
 import sg.edu.nus.comp.cs4218.impl.parser.LsArgsParser;
+import sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils;
 import sg.edu.nus.comp.cs4218.impl.util.StringUtils;
 
 import java.io.File;
@@ -13,47 +14,26 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NO_OSTREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_NULL_ARGS;
 import static sg.edu.nus.comp.cs4218.impl.util.ErrorConstants.ERR_WRITE_STREAM;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_FILE_SEP;
-import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.CHAR_SPACE;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_CURR_DIR;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.STRING_NEWLINE;
 import static sg.edu.nus.comp.cs4218.impl.util.StringUtils.sortFilenamesByExt;
 import static sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils.resolvePath;
 import static sg.edu.nus.comp.cs4218.impl.util.FileSystemUtils.getRelativeToCwd;
 
+@SuppressWarnings({"PMD.GodClass", "PMD.LongVariable"})
 public class LsApplication implements LsInterface {
 
     private final static String PATH_CURR_DIR = STRING_CURR_DIR + CHAR_FILE_SEP;
     private final static String EMPTY_FILE_STRING = "";
-    @Override
-    public String listFolderContent(Boolean isRecursive, Boolean isSortByExt,
-                                    String... filesAndDirsNames) throws LsException {
-        if (filesAndDirsNames.length == 0 && !isRecursive) {
-            return listCwdContent(isSortByExt);
-        }
-        List<Path> paths;
-        if (filesAndDirsNames.length == 0 && isRecursive) {
-            String[] directories = new String[1];
-            directories[0] = Environment.currentDirectory;
-            paths = resolvePaths(directories);
-            return buildResultBasedOnDirPaths(paths, isRecursive, isSortByExt).trim();
-        } else {
-            // there are files/dir names in args
-            paths = resolvePaths(filesAndDirsNames);
-
-            List<Path> filePaths = paths.stream().filter(path -> !Files.isDirectory(path)).collect(Collectors.toList());
-            List<Path> dirPaths = paths.stream().filter(Files::isDirectory).collect(Collectors.toList());
-            String result = buildResultBasedOnFilePaths(filePaths, isSortByExt) + buildResultBasedOnDirPaths(dirPaths, isRecursive, isSortByExt);
-            return result.trim();
-        }
-
-    }
 
     @Override
     public void run(String[] args, InputStream stdin, OutputStream stdout)
@@ -87,6 +67,73 @@ public class LsApplication implements LsInterface {
         }
     }
 
+    @Override
+    public String listFolderContent(Boolean isRecursive, Boolean isSortByExt,
+                                    String... filesAndDirsNames) throws LsException {
+        if (filesAndDirsNames.length == 0 && !isRecursive) {
+            return listCwdContent(isSortByExt);
+        }
+
+
+        List<Path> paths;
+        if (filesAndDirsNames.length == 0) {
+            String[] directories = new String[1];
+            directories[0] = Environment.currentDirectory;
+            paths = resolvePaths(directories);
+            return buildResultBasedOnDirPaths(paths, true, isSortByExt).trim();
+        } else {
+            // Extracts invalid files
+            List<String> invalidFileMessages = extractInvalidFiles(filesAndDirsNames);
+
+            // there are files/dir names in args
+            paths = resolvePaths(filesAndDirsNames);
+
+            // List empty string path as a file
+            List<Path> filePaths = paths.stream().filter(path -> isEmptyPath(path) || !Files.isDirectory(path)).collect(Collectors.toList());
+            // Does not add empty path as a directory as empty path is recognized as CWD
+            List<Path> dirPaths = paths.stream().filter(path -> !isEmptyPath(path) && Files.isDirectory(path)).collect(Collectors.toList());
+            String result = String.join(STRING_NEWLINE, invalidFileMessages) + STRING_NEWLINE
+                    + buildResultBasedOnFilePaths(filePaths, isSortByExt) + buildResultBasedOnDirPaths(dirPaths, isRecursive, isSortByExt);
+            return result.trim();
+        }
+
+    }
+
+    /**
+     * Checks each file for its validity as a file and extract the invalid files into error messages.
+     *
+     * @param filesAndDirsNames The names for file and directories
+     * @return List of error messages for invalid files or directories.
+     */
+    private List<String> extractInvalidFiles(String... filesAndDirsNames) throws LsException {
+        List<String> invalidFilesMessages = new ArrayList<>();
+        for (int i = 0; i < filesAndDirsNames.length; i++) {
+            // Standardizes file separators for Windows
+            String file = filesAndDirsNames[i];
+            String modifiedFilename = file.replaceAll("/", "\\" + File.separator);
+            if (isEmptyFilename(modifiedFilename) || !FileSystemUtils.isExistingFilesInPath(modifiedFilename)) {
+                invalidFilesMessages.add(String.format("ls: cannot access '%s': No such file or directory", file));
+                // Replace invalid file in array with null
+                filesAndDirsNames[i] = null;
+                continue;
+            }
+            try {
+                if (!FileSystemUtils.isValidDirsInPath(modifiedFilename)) {
+                    invalidFilesMessages.add(String.format("ls: cannot access '%s': Not a directory", file));
+                    filesAndDirsNames[i] = null;
+                }
+            } catch (Exception e) {
+                throw new LsException(e.getMessage(), e);
+            }
+
+        }
+        return invalidFilesMessages;
+    }
+
+    private boolean isEmptyFilename(String filename) {
+        return filename.isBlank();
+    }
+
     /**
      * Lists only the current directory's content and RETURNS. This does not account for recursive
      * mode in cwd.
@@ -116,38 +163,24 @@ public class LsApplication implements LsInterface {
         if (paths.isEmpty()) {
             return EMPTY_FILE_STRING;
         }
-        StringBuilder invalidResult = new StringBuilder();
         StringBuilder validResult = new StringBuilder();
         List<String> fileNames = new ArrayList<>();
-        List<String> nonExistentFiles = new ArrayList<>();
 
         for (Path path : paths) {
-            if (Files.exists(path)) {
-                fileNames.add(path.getFileName().toString());
-            } else {
-                nonExistentFiles.add(path.getFileName().toString());
-            }
+            String relativeFilename = getRelativeToCwd(path).toString();
+            // Standardizes file separators for Windows
+            fileNames.add(relativeFilename);
         }
         if (isSortByExt) {
             sortFilenamesByExt(fileNames);
         }
 
-        for (String nonexistentFile: nonExistentFiles) {
-            invalidResult.append(new InvalidFileOrDirectoryException(nonexistentFile).getMessage());
-            invalidResult.append(STRING_NEWLINE);
-        }
-
-        // To prevent extra new line when there is no valid file names
-        if (fileNames.isEmpty()) {
-            return invalidResult.toString();
-        }
-
         for (String fileName: fileNames) {
             validResult.append(fileName);
-            validResult.append(CHAR_SPACE);
+            validResult.append(STRING_NEWLINE);
         }
-
-        return invalidResult + validResult.toString().trim() + STRING_NEWLINE;
+        // To prevent extra new line when there is no valid file names
+        return fileNames.isEmpty() ? EMPTY_FILE_STRING : validResult + STRING_NEWLINE;
     }
 
         /**
@@ -234,6 +267,10 @@ public class LsApplication implements LsInterface {
      */
     private List<Path> getContents(Path directory)
             throws InvalidFileOrDirectoryException {
+        if (directory.toString().equals("")) {
+            throw new InvalidFileOrDirectoryException(directory.toString());
+        }
+
         if (!Files.exists(directory)) {
             throw new InvalidFileOrDirectoryException(getRelativeToCwd(directory).toString());
         }
@@ -255,16 +292,24 @@ public class LsApplication implements LsInterface {
         return result;
     }
 
+    private boolean isEmptyPath(Path path) {
+        return path.toString().strip().equals("");
+    }
+
     /**
      * Resolve all paths given as arguments into a list of Path objects for easy path management.
+     * This method assumes that all the fileOrDirPaths provided are valid.
      *
      * @param fileOrDirPaths
      * @return List of java.nio.Path objects
      */
     private List<Path> resolvePaths(String... fileOrDirPaths) {
         List<Path> paths = new ArrayList<>();
-        for (int i = 0; i < fileOrDirPaths.length; i++) {
-            paths.add(resolvePath(fileOrDirPaths[i]));
+        for (String fileOrDirPath : fileOrDirPaths) {
+            if (fileOrDirPath == null) {
+                continue;
+            }
+            paths.add(resolvePath(fileOrDirPath));
         }
 
         return paths;
