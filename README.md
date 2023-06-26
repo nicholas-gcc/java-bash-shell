@@ -34,4 +34,50 @@ _Below is an example of how you can instruct your audience on installing and set
 
 ## Usage
 
+### Supported Features
+
+1. Piping
+   ```sh
+   echo "Hello, world!" | tee output.txt
+   ```
+2. I/O Redirection
+   ```sh
+   cat file.txt | wc -l > line_count.txt
+   ```
+3. Sequence Commands
+   ```sh
+   cp sample.txt new.txt; cut -c 6-7 new.txt
+   ```
+4. Command Substitution (With single quotation marks)
+   ```sh
+   echo "'cat file.txt'"
+   ```
+
+5. Globbing
+   ```sh
+   ls somePattern*
+   ```
+
+### Commands
+
+| Command      | Flags Supported |
+| ----------- | ----------- |
+| `cat`      | `-n`       |
+| `cd`   | N/A        |
+| `cp`   | `-r, -R`        |
+| `cut`   | `-b, -c`        |
+| `echo`   | N/A        |
+| `exit`   | N/A        |
+| `grep`   | `-v,-i, -c, -H`        |
+| `ls`   | `-R, -X`        |
+| `mv`   | `-n`        |
+| `paste`   | `-s`        |
+| `rm`   | `-r, -d`        |
+| `sort`   | `-n, -r, -f`        |
+| `tee`   | `a`        |
+| `uniq`   | `-c, -d, -D`        |
+| `wc`   | `-c, -l, -w`        |
+
+
+
 
