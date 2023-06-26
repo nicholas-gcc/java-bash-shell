@@ -74,7 +74,7 @@ _Below is an example of how you can instruct your audience on installing and set
 | `paste`   | `-s`        |
 | `rm`   | `-r, -d`        |
 | `sort`   | `-n, -r, -f`        |
-| `tee`   | `a`        |
+| `tee`   | `-a`        |
 | `uniq`   | `-c, -d, -D`        |
 | `wc`   | `-c, -l, -w`        |
 
